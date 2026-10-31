@@ -1,0 +1,158 @@
+/* Unified Career Hub: additions on top of career.css. */
+
+/* Sidebar: "New" indicator for a freshly unlocked section */
+.hub-app :is(.career-sidebar, .career-mobile-menu) nav button { position: relative; }
+.hub-new-badge {
+  margin-left: auto; padding: 2px 8px; border-radius: 999px; background: var(--c-pink); color: #fff;
+  font-size: 10px; font-weight: 750; letter-spacing: .04em; line-height: 1.6;
+  box-shadow: 0 0 0 0 rgb(212 20 110 / 45%); animation: hub-pulse 2s ease-out infinite;
+}
+.hub-app :is(.career-sidebar, .career-mobile-menu) nav button.hub-nav-new:not(.active) { background: #fdf2f7; color: var(--c-ink); font-weight: 600; }
+.hub-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-pink); animation: hub-pulse 2s ease-out infinite; }
+.hub-menu-new { position: relative; }
+@keyframes hub-pulse { 0% { box-shadow: 0 0 0 0 rgb(212 20 110 / 45%); } 70%, 100% { box-shadow: 0 0 0 7px rgb(212 20 110 / 0%); } }
+@media (prefers-reduced-motion: reduce) { .hub-new-badge, .hub-dot { animation: none; } }
+
+/* Questionnaire */
+.hub-onboarding aside p { font-size: 15px; }
+.hub-onboarding .career-question-panel > h2 { margin-top: 0; margin-bottom: 26px; }
+.hub-questions { display: grid; gap: 30px; }
+.hub-questions fieldset { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: 12px; }
+.hub-questions legend { display: flex; align-items: center; gap: 12px; padding: 0; margin-bottom: 12px; font-size: 16px; font-weight: 650; color: var(--c-ink); }
+.hub-questions legend > span {
+  display: grid; place-items: center; flex: none; width: 26px; height: 26px; border-radius: 50%;
+  background: #f1e8f6; color: var(--c-purple); font-size: 12px; font-weight: 750;
+}
+.hub-questions fieldset > :is(input, select) { max-width: 460px; }
+.hub-questions fieldset > small { color: var(--c-muted); font-size: 13px; }
+.hub-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 620px; }
+.career-app .hub-choices label {
+  position: relative; flex-direction: row; align-items: center; gap: 10px; padding: 13px 14px;
+  border: 1px solid var(--c-line); border-radius: 8px; background: #fff; font-weight: 500; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.hub-choices label::before {
+  content: ""; flex: none; width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid #c9bdd2; background: #fff;
+}
+.hub-choices label:hover { border-color: #c9add6; }
+.hub-choices label.selected { border-color: var(--c-purple); background: #f8f2fb; color: var(--c-purple); font-weight: 650; }
+.hub-choices label.selected::before { border: 5px solid var(--c-purple); }
+.hub-choices input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.hub-choices label:has(input:focus-visible) { outline: 3px solid #b871b5; outline-offset: 2px; }
+.hub-profile-form > section + section { margin-top: 34px; }
+.hub-profile-form h2 { margin-bottom: 18px; }
+
+/* Overview: booking call to action (takes the space of the old readiness report) */
+.hub-cta {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr); min-height: 380px;
+  border: 1px solid var(--c-line); border-radius: 12px; overflow: hidden; background: #fbf3f4; isolation: isolate;
+}
+.hub-cta-media { position: absolute; inset: 0; z-index: -1; }
+.hub-cta-media img { object-fit: cover; object-position: 72% 30%; }
+.hub-cta-media::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, #fcf6f3 0%, #fcf6f3e6 34%, #fcf6f300 62%);
+}
+.hub-cta-panel { display: flex; align-items: center; padding: 36px 40px; max-width: 560px; }
+.hub-cta-copy h2 { font-size: 27px; line-height: 1.25; letter-spacing: -.025em; }
+.hub-cta-copy p { margin-top: 12px !important; font-size: 15px; color: #5f5568; max-width: 440px; }
+.hub-cta-facts { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; padding: 0; margin-top: 18px !important; }
+.hub-cta-facts li { padding: 4px 11px; border-radius: 999px; background: #ffffffcc; border: 1px solid #ecdde6; font-size: 13px; font-weight: 600; color: var(--c-purple); }
+.hub-cta-actions { display: flex; gap: 12px; margin-top: 24px; }
+.hub-cta-confirmed { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 4px 11px 4px 9px; border-radius: 999px; background: #e7f5ee; color: #157859; font-size: 13px; font-weight: 700; }
+
+/* In-place booking card */
+.hub-cta-form {
+  width: 100%; background: #fff; border: 1px solid #ecdde6; border-radius: 12px; padding: 20px 22px 22px;
+  box-shadow: 0 16px 40px rgb(61 22 83 / 10%); animation: hub-rise .22s ease-out;
+}
+@keyframes hub-rise { from { opacity: 0; transform: translateY(6px); } }
+.hub-cta-form > header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.hub-cta-form h2 { font-size: 19px; }
+.hub-cta-close { width: 32px; height: 32px; border: 0; border-radius: 50%; background: #f4eff6; color: var(--c-muted); font-size: 20px; line-height: 1; cursor: pointer; }
+.hub-cta-close:hover { background: #ece2f1; color: var(--c-ink); }
+.hub-cta-form fieldset { border: 0; padding: 0; margin: 14px 0 0; min-width: 0; }
+.hub-cta-form legend { padding: 0; margin-bottom: 8px; font-size: 13px; font-weight: 650; color: var(--c-ink); }
+.hub-cta-form legend small { margin-left: 6px; font-weight: 400; color: var(--c-muted); }
+.hub-chip-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px; margin: -2px; }
+.hub-chip-row::-webkit-scrollbar { display: none; }
+.career-app .hub-chip {
+  position: relative; flex: none; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  min-width: 76px; min-height: 40px; padding: 7px 10px; border: 1px solid var(--c-line); border-radius: 8px;
+  background: #fff; font-weight: 400; cursor: pointer; transition: border-color .15s, background .15s;
+}
+.hub-chip-day { min-width: 62px !important; }
+.hub-chip small { font-size: 11px; color: var(--c-muted); line-height: 1.3; }
+.hub-chip strong { font-size: 13px; font-weight: 650; line-height: 1.3; white-space: nowrap; }
+.hub-chip:hover { border-color: #c9add6; }
+.hub-chip.selected { border-color: var(--c-purple); background: #f6effa; color: var(--c-purple); }
+.hub-chip.selected small { color: var(--c-purple); }
+.hub-chip.unavailable { background: #f6f4f7; color: #aca4b0; cursor: not-allowed; text-decoration: line-through; }
+.hub-chip input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: inherit; }
+.hub-chip:has(input:focus-visible) { outline: 3px solid #b871b5; outline-offset: 2px; }
+.hub-cta-hint { font-size: 13px; margin: 0; }
+.hub-cta-submit { display: flex; align-items: end; gap: 12px; margin-top: 16px; }
+.career-app .hub-cta-topic { flex: 1; gap: 5px; font-size: 13px; }
+.hub-cta-topic select { padding: 9px 10px; font-size: 14px; }
+.hub-cta-submit .career-button { flex: none; }
+
+/* Action plan */
+.career-plan-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+.hub-jump { display: flex; gap: 18px; flex: none; }
+.hub-jump a { color: var(--c-purple); font-size: 14px; font-weight: 650; text-decoration: none; }
+.hub-jump a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.hub-unlock {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 26px; padding: 16px 18px;
+  border: 1px solid #f1c3d9; border-radius: 10px; background: linear-gradient(90deg, #fff4f9, #fff);
+}
+.hub-unlock-icon { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--c-pink); color: #fff; }
+.hub-unlock > div { flex: 1; min-width: 0; }
+.hub-unlock strong { font-size: 15px; }
+.hub-unlock p { font-size: 14px; margin-top: 2px !important; }
+.hub-unlock .career-button { flex: none; }
+#hub-courses, #hub-seminars { scroll-margin-top: 24px; }
+.hub-seminar-meta { display: flex !important; flex-wrap: wrap; align-items: center; gap: 4px 10px; color: var(--c-muted); font-size: 13px; }
+.hub-format { padding: 1px 8px; border-radius: 5px; background: #f4eef8; color: var(--c-purple); font-size: 11px; font-weight: 700; }
+.hub-format.is-online { background: #e8f3f6; color: #1d6a7c; }
+.hub-date-tile {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; width: 144px; height: 108px;
+  border-radius: 8px; background: linear-gradient(150deg, #f8eef7, #fbe7ef); color: var(--c-purple);
+}
+.hub-date-tile small { font-size: 12px; font-weight: 650; text-transform: uppercase; letter-spacing: .08em; color: var(--c-pink); }
+.hub-date-tile strong { font-size: 34px; line-height: 1.1; font-weight: 750; letter-spacing: -.03em; }
+.hub-date-tile small:last-child { color: var(--c-muted); letter-spacing: .04em; }
+.hub-registered { color: #157859; font-size: 14px; font-weight: 700; }
+.hub-seats { color: var(--c-muted); font-size: 12px; }
+.career-recommendation-actions .career-link { font-size: 13px; }
+.hub-elsewhere { margin-top: 18px; }
+.hub-elsewhere > summary { cursor: pointer; color: var(--c-purple); font-size: 14px; font-weight: 650; padding: 6px 0; width: fit-content; }
+.hub-elsewhere[open] > summary { margin-bottom: 4px; }
+
+@media (max-width: 1000px) {
+  .hub-cta-panel { max-width: 520px; padding: 30px; }
+  .hub-cta-media::after { background: linear-gradient(90deg, #fcf6f3 0%, #fcf6f3ee 45%, #fcf6f300 80%); }
+}
+@media (max-width: 800px) {
+  .hub-cta { min-height: 0; }
+  .hub-cta-media { position: relative; inset: auto; height: 170px; z-index: 0; }
+  .hub-cta-media img { object-position: 78% 22%; }
+  .hub-cta-media::after { background: linear-gradient(180deg, #fcf6f300 55%, #fcf6f3 100%); }
+  .hub-cta-panel { max-width: none; padding: 4px 22px 24px; background: #fcf6f3; }
+  .hub-cta.is-booking .hub-cta-media { height: 90px; }
+  .career-plan-heading { flex-direction: column; align-items: start; gap: 12px; }
+}
+@media (max-width: 600px) {
+  .hub-choices { grid-template-columns: minmax(0, 1fr); }
+  .hub-questions { gap: 26px; }
+  .hub-questions legend { font-size: 15px; align-items: start; }
+  .hub-cta-panel { padding: 2px 16px 20px; }
+  .hub-cta-copy h2 { font-size: 22px; }
+  .hub-cta-copy p { font-size: 14px; }
+  .hub-cta-actions .career-button { width: 100%; }
+  .hub-cta-form { padding: 16px; }
+  .hub-cta-submit { flex-direction: column; align-items: stretch; }
+  .hub-unlock { flex-wrap: wrap; }
+  .hub-unlock .career-button { width: 100%; }
+  .hub-date-tile { width: 96px; height: 88px; }
+  .hub-date-tile strong { font-size: 28px; }
+}

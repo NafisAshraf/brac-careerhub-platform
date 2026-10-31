@@ -8,9 +8,10 @@ function fromProfile(profile:Profile,language:Language):Inputs {
   const role=fieldValue(groups[2].fields[0],profile,language);
   const qualification=fieldValue(groups[0].fields[1],profile,language);
   return {
-    education:profile.institution+" — "+qualification+"\n"+profile.subject+" · "+profile.graduation+(profile.scale!=="pending"?"\n"+t(["Grade","ফলাফল"])+": "+profile.grade+"/"+profile.scale:""),
+    // Parts can be missing after the short questionnaire, so empty ones are skipped.
+    education:[[profile.institution,qualification].filter(Boolean).join(" — "),[profile.subject,profile.graduation].filter(Boolean).join(" · "),profile.scale&&profile.scale!=="pending"?t(["Grade","ফলাফল"])+": "+profile.grade+"/"+profile.scale:""].filter(Boolean).join("\n"),
     experience:[profile.experience!=="none"?profile.experienceDetail:"",profile.projects].filter(Boolean).join("\n\n"),
-    skills:profile.skills+(profile.certifications?"\n"+profile.certifications:""),
+    skills:[profile.skills,profile.certifications].filter(Boolean).join("\n"),
     direction:t(["Interested in ","আগ্রহের ক্ষেত্র: "])+role,
   };
 }

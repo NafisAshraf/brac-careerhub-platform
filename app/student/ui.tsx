@@ -13,6 +13,8 @@ export function Icon({ name }: { name: string }) {
     filter: "M3 6h18 M6 12h12 M9 18h6 M7 3v6 M16 9v6 M11 15v6",
     menu: "M4 6h16 M4 12h16 M4 18h16",
     arrow: "M4 12h16 M14 6l6 6-6 6",
+    globe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M3 12h18 M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9 M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9",
+    steps: "M4 19h5v-5h5V9h5V4 M4 19v-3",
   };
   return (
     <svg

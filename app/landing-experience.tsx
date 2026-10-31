@@ -2,6 +2,7 @@
 import { useState } from "react";
 import StudyAbroad from "./study-abroad";
 import CareerWorkspace from "./career/workspace";
+import UnifiedHub from "./hub/hub";
 import { HeroVariation, type HeroVariant } from "./hero-variations";
 
 const steps = [
@@ -1543,9 +1544,23 @@ function Portal({ initial, exit }: { initial: number; exit: () => void }) {
   );
 }
 
-export default function LandingExperience({ heroVariant }: { heroVariant?: HeroVariant }) {
+export default function LandingExperience({ heroVariant, unified }: { heroVariant?: HeroVariant; unified?: boolean }) {
   const [portal, setPortal] = useState<number | null>(null);
   const [studyAbroad, setStudyAbroad] = useState(false);
+  const [hubOpened, setHubOpened] = useState(false);
+  // One platform: both pathways open the same Career Hub, where Study Abroad is a section.
+  // The hub stays mounted after the first visit so going home doesn't reset it.
+  if (unified) {
+    const openHub = () => { setHubOpened(true); setPortal(0); };
+    return <>
+      <div hidden={portal !== null}>
+        <Home heroVariant={heroVariant} start={openHub} startStudy={openHub} />
+      </div>
+      <div hidden={portal === null}>
+        {hubOpened && <UnifiedHub active={portal !== null} exit={() => setPortal(null)} />}
+      </div>
+    </>;
+  }
   return <>
     <div hidden={!studyAbroad}>
       {studyAbroad && (
