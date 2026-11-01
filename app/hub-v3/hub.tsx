@@ -14,6 +14,7 @@ import { HubProfile, Questionnaire } from "../hub/questionnaire";
 import { Overview } from "../hub/overview";
 import { ActionPlan } from "../hub/plan";
 import { StudyAbroadSection, abroadNav, initialSelection, type AbroadPage } from "./abroad";
+import { defaultSubject, roleForSubject } from "./subjects";
 import "../career/career.css";
 import "../hub/hub.css";
 import "./hub.css";
@@ -90,8 +91,13 @@ export default function HubV3({ active, exit }: { active: boolean; exit: () => v
   const nudge = (id: string, status: Status) => updateStatuses((s) => (s[id] === "done" ? s : { ...s, [id]: status }));
   const onBook = (b: Booking | null) => { setBooking(b); if (b) nudge("session", "done"); };
 
+  // Field of study starts as CSE; it also sets the interest area used for suggestions.
+  const withSubject = (p: Profile): Profile => {
+    const subject = p.subject || defaultSubject;
+    return { ...p, subject, roles: roleForSubject(subject) };
+  };
   function returningAccount() {
-    setProfile(sampleHubProfile());
+    setProfile(withSubject(sampleHubProfile()));
     setStatuses({ ...initialTodoStatuses(), linkedin: "done", interview: "done", cv: "doing" });
     setAbroadUnlocked(true);
     setHasCV(true);
@@ -143,7 +149,7 @@ export default function HubV3({ active, exit }: { active: boolean; exit: () => v
     {phase === "welcome" && <main className="career-welcome"><section><span className="career-kicker">{t(["BRAC CAREER HUB", "ব্র্যাক ক্যারিয়ার হাব"])}</span><h1>{t(["Your potential.\nA clearer direction.", "আপনার সম্ভাবনা।\nআরও স্পষ্ট দিকনির্দেশনা।"])}</h1><p>{t(["A practical plan, jobs, courses, seminars and counselling, all in one place.", "বাস্তব পরিকল্পনা, চাকরি, কোর্স, সেমিনার ও কাউন্সেলিং, সব এক জায়গায়।"])}</p>
       <ol><li><span>01</span><div><strong>{t(["Create your account", "অ্যাকাউন্ট তৈরি করুন"])}</strong><p>{t(["Just your name and email.", "শুধু নাম ও ইমেইল।"])}</p></div></li><li><span>02</span><div><strong>{t(["Answer four quick questions", "চারটি ছোট প্রশ্নের উত্তর দিন"])}</strong><p>{t(["So we can show seminars and courses near you.", "যাতে কাছাকাছি সেমিনার ও কোর্স দেখাতে পারি।"])}</p></div></li><li><span>03</span><div><strong>{t(["Take the next step", "পরবর্তী পদক্ষেপ নিন"])}</strong><p>{t(["Your plan, opportunities and support in one place.", "পরিকল্পনা, সুযোগ ও সহায়তা এক জায়গায়।"])}</p></div></li></ol>
     </section><section className="career-signup"><h2>{t(["Create your Career Hub account", "ক্যারিয়ার হাব অ্যাকাউন্ট তৈরি করুন"])}</h2><p>{t(["It takes about a minute.", "এক মিনিটের মতো সময় লাগবে।"])}</p>
-      <form onSubmit={(e) => { e.preventDefault(); if (profile.name?.trim() && profile.email?.trim()) setPhase("questions"); }}>
+      <form onSubmit={(e) => { e.preventDefault(); if (profile.name?.trim() && profile.email?.trim()) { setProfile(withSubject); setPhase("questions"); } }}>
         <label><span>{t(["Full name", "পুরো নাম"])}</span><input name="name" autoComplete="name" required value={profile.name || ""} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))} /></label>
         <label><span>{t(["Email address", "ইমেইল ঠিকানা"])}</span><input type="email" name="email" autoComplete="email" required value={profile.email || ""} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))} /></label>
         <button className="career-button primary" type="submit">{t(["Continue", "এগিয়ে যান"])} →</button>
@@ -151,7 +157,7 @@ export default function HubV3({ active, exit }: { active: boolean; exit: () => v
       </form><div className="career-returning"><span>{t(["Already have an account?", "আগে থেকেই অ্যাকাউন্ট আছে?"])}</span><button className="career-button" onClick={returningAccount}>{t(["Log in as returning demo user", "ফিরতি ডেমো ব্যবহারকারী হিসেবে লগইন"])}</button></div>
       <small>{t(["No password or verification is needed for this demonstration.", "এই ডেমোতে পাসওয়ার্ড বা যাচাই প্রয়োজন নেই।"])}</small>
     </section></main>}
-    {phase === "questions" && <Questionnaire language={language} profile={profile} onChange={setProfile} onBack={() => setPhase("welcome")} onComplete={() => { setPage("overview"); setPhase("ready"); }} />}
+    {phase === "questions" && <Questionnaire study language={language} profile={profile} onChange={setProfile} onBack={() => setPhase("welcome")} onComplete={() => { setPage("overview"); setPhase("ready"); }} />}
   </div>;
 
   // The sidebar and career pages use career.css (scoped to .career-app); the Study Abroad
@@ -173,7 +179,7 @@ export default function HubV3({ active, exit }: { active: boolean; exit: () => v
           <div hidden={page !== "jobs"}><RecommendedJobs language={language} profile={profile} /></div>
           <div hidden={page !== "cv"}><CVStudio language={language} profile={profile} seeded={false} onDraft={() => { setHasCV(true); nudge("cv", "doing"); }} /></div>
           <div hidden={page !== "counselling"}><Counselling language={language} booking={booking} onBook={onBook} /></div>
-          <div hidden={page !== "profile"}><HubProfile language={language} profile={profile} onSave={setProfile} /></div>
+          <div hidden={page !== "profile"}><HubProfile study language={language} profile={profile} onSave={setProfile} /></div>
         </div>
       </div>
       {abroadUnlocked && <div className="v3-pane" hidden={area !== "abroad"} lang="en">

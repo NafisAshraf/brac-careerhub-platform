@@ -2,8 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { text, type Copy, type Language, type Profile } from "../career/data";
 import { cities, interestOptions, statusOptions, universities } from "./data";
+import { SubjectField } from "../hub-v3/subject-field";
 
-type Props = { language: Language; profile: Profile; onChange: (update: (p: Profile) => Profile) => void };
+// `study`: ask for field of study (v3) instead of an area of interest (v2).
+type Props = { language: Language; profile: Profile; onChange: (update: (p: Profile) => Profile) => void; study?: boolean };
 
 function Choices({ name, options, value, onPick, language }: {
   name: string; options: { value: string; label: Copy }[]; value?: string; onPick: (value: string) => void; language: Language;
@@ -15,7 +17,7 @@ function Choices({ name, options, value, onPick, language }: {
 }
 
 // The four onboarding questions, shared by the questionnaire and the profile page.
-export function QuestionFields({ language, profile, onChange, prefix = "q" }: Props & { prefix?: string }) {
+export function QuestionFields({ language, profile, onChange, study, prefix = "q" }: Props & { prefix?: string }) {
   const t = (copy: Copy) => text(language, copy);
   const set = (key: string) => (value: string) => onChange((p) => ({ ...p, [key]: value }));
   return <div className="hub-questions">
@@ -36,14 +38,18 @@ export function QuestionFields({ language, profile, onChange, prefix = "q" }: Pr
       </select>
       <small>{t(["Used to suggest in-person seminars and courses near you.", "কাছাকাছি সেমিনার ও কোর্সের পরামর্শ দিতে ব্যবহার হবে।"])}</small>
     </fieldset>
-    <fieldset>
+    {study ? <fieldset>
+      <legend><span>4</span><label htmlFor={prefix + "-subject"}>{t(["What is your field of study?", "আপনার পড়াশোনার বিষয় কী?"])}</label></legend>
+      <SubjectField id={prefix + "-subject"} value={profile.subject || ""} language={language} onChange={(s) => onChange((p) => ({ ...p, subject: s.name, roles: s.role }))} />
+      <small>{t(["Type to search, then press Enter to pick the closest match.", "লিখে খুঁজুন, তারপর Enter চাপলে সবচেয়ে কাছের বিষয় বেছে নেবে।"])}</small>
+    </fieldset> : <fieldset>
       <legend><span>4</span>{t(["Which area interests you most?", "কোন ক্ষেত্রে আপনার আগ্রহ বেশি?"])}</legend>
       <Choices name={prefix + "-roles"} options={interestOptions} value={profile.roles} onPick={set("roles")} language={language} />
-    </fieldset>
+    </fieldset>}
   </div>;
 }
 
-export function Questionnaire({ language, profile, onChange, onBack, onComplete }: Props & { onBack: () => void; onComplete: () => void }) {
+export function Questionnaire({ language, profile, onChange, study, onBack, onComplete }: Props & { onBack: () => void; onComplete: () => void }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const t = (copy: Copy) => text(language, copy);
   useEffect(() => { heading.current?.focus(); }, []);
@@ -55,7 +61,7 @@ export function Questionnaire({ language, profile, onChange, onBack, onComplete 
     <section className="career-question-panel">
       <h2 ref={heading} tabIndex={-1}>{t(["Hi", "হ্যালো"])} {profile.name?.split(" ")[0]}, {t(["tell us a little about you", "নিজের সম্পর্কে একটু জানান"])}</h2>
       <form onSubmit={(e) => { e.preventDefault(); onComplete(); }}>
-        <QuestionFields language={language} profile={profile} onChange={onChange} />
+        <QuestionFields language={language} profile={profile} onChange={onChange} study={study} />
         <footer className="career-form-footer"><button className="career-button" type="button" onClick={onBack}>{t(["Back", "পেছনে"])}</button>
           <button className="career-button primary" type="submit">{t(["Go to my Career Hub", "আমার ক্যারিয়ার হাবে যান"])} <span aria-hidden="true">→</span></button></footer>
       </form>
@@ -63,7 +69,7 @@ export function Questionnaire({ language, profile, onChange, onBack, onComplete 
   </div>;
 }
 
-export function HubProfile({ language, profile, onSave }: { language: Language; profile: Profile; onSave: (profile: Profile) => void }) {
+export function HubProfile({ language, profile, onSave, study }: { language: Language; profile: Profile; onSave: (profile: Profile) => void; study?: boolean }) {
   const [draft, setDraft] = useState(profile);
   const [saved, setSaved] = useState(false);
   const [last, setLast] = useState(profile);
@@ -78,7 +84,7 @@ export function HubProfile({ language, profile, onSave }: { language: Language; 
         <label><span>{t(["Full name", "পুরো নাম"])}</span><input required value={draft.name || ""} onChange={(e) => change((p) => ({ ...p, name: e.target.value }))} /></label>
         <label><span>{t(["Email", "ইমেইল"])}</span><input type="email" required value={draft.email || ""} onChange={(e) => change((p) => ({ ...p, email: e.target.value }))} /></label>
       </div></section>
-      <section><h2>{t(["About you", "আপনার সম্পর্কে"])}</h2><QuestionFields language={language} profile={draft} onChange={change} prefix="profile" /></section>
+      <section><h2>{t(["About you", "আপনার সম্পর্কে"])}</h2><QuestionFields language={language} profile={draft} onChange={change} study={study} prefix="profile" /></section>
       <footer className="career-form-footer"><span role="status">{saved ? t(["Profile saved. Suggestions are updated.", "প্রোফাইল সংরক্ষিত। পরামর্শ হালনাগাদ হয়েছে।"]) : ""}</span><button className="career-button primary" type="submit">{t(["Save profile", "প্রোফাইল সংরক্ষণ"])}</button></footer>
     </form>
   </>;
