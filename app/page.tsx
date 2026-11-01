@@ -1,5 +1,5 @@
 import LandingExperience from "./landing-experience";
 
 export default function Page() {
-  return <LandingExperience heroVariant="split" unified />;
+  return <LandingExperience heroVariant="career" hub="v3" />;
 }

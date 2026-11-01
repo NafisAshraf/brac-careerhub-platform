@@ -1,0 +1,49 @@
+/* v3 shell: career.css styles the chrome and career pages through .career-app
+   wrappers; the embedded Study Abroad pages keep their original styles. */
+.v3-shell { min-height: 100dvh; background: #fff; }
+.v3-shell .career-app.v3-chrome, .v3-shell .career-app.v3-pane { min-height: 0; background: transparent; }
+
+/* Sidebar groups */
+.v3-sidebar nav { gap: 0 !important; }
+.v3-nav-group { display: grid; gap: 4px; }
+.v3-nav-group + .v3-nav-group { margin-top: 6px; }
+.v3-nav-group:first-child .career-nav-label { padding-top: 4px; }
+.v3-sidebar .career-nav-label { display: flex; align-items: center; gap: 8px; }
+.v3-sidebar .career-brand { padding-bottom: 18px; }
+.v3-count {
+  margin-left: auto; min-width: 22px; padding: 1px 7px; border-radius: 999px; background: #f1e8f6;
+  color: var(--c-purple); font-size: 11px; font-weight: 700; text-align: center;
+}
+
+/* Locked: visible but greyed out until enough Action Plan steps are done */
+.v3-lock { display: inline-flex; color: #a49aa9; }
+.v3-lock svg { width: 13px; height: 13px; }
+.v3-abroad-nav.is-locked .career-nav-label { color: #b3aab6; }
+.career-app .v3-abroad-nav.is-locked > button:disabled { opacity: 1; color: #bdb5c1; cursor: not-allowed; background: transparent; }
+.career-app .v3-abroad-nav.is-locked > button:disabled svg { opacity: .7; }
+.career-app .v3-sidebar .v3-lock-hint {
+  display: grid; gap: 6px; min-height: 0; margin: 0 0 6px; padding: 10px 12px; border: 1px dashed #ddd2e3; border-radius: 8px;
+  background: #fbf9fc; color: var(--c-muted); font-size: 12px; font-weight: 500; line-height: 1.45; text-align: left; cursor: pointer;
+}
+.career-app .v3-sidebar .v3-lock-hint:hover { border-color: #c9add6; background: #f8f2fb; color: var(--c-purple); }
+.v3-lock-hint small { font-size: 11px; font-weight: 650; color: var(--c-purple); }
+.v3-lock-progress { display: block; height: 4px; border-radius: 4px; background: #ece4f0; overflow: hidden; }
+.v3-lock-progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--c-purple), var(--c-pink)); transition: width .3s ease; }
+
+/* Newly unlocked: highlight the whole group until it's visited */
+.v3-abroad-nav.is-new { position: relative; }
+.v3-abroad-nav.is-new::before {
+  content: ""; position: absolute; inset: 14px -6px -4px; border-radius: 10px; background: #fdf2f7; z-index: -1;
+}
+.v3-abroad-nav.is-new .career-nav-label { color: var(--c-pink); }
+.v3-sidebar { isolation: isolate; }
+.hub-menu-new-wrap { position: relative; }
+
+/* Embedded Study Abroad: drop the standalone page layout, keep everything else */
+.v3-abroad.sa-portal.hub { display: block; min-height: 0; background: transparent; }
+.v3-abroad.hub .hub-main { margin: 0 auto; width: auto; max-width: 1240px; padding: 0; }
+.v3-abroad.hub .hub-main-catalog { padding-top: 0; }
+
+@media (max-width: 800px) {
+  .v3-shell .career-mobile-bar { margin-bottom: 22px; }
+}

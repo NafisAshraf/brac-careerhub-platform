@@ -2,7 +2,8 @@
 import { useEffect, useRef, type PointerEvent } from "react";
 import "./hero-variations.css";
 
-export type HeroVariant = "split" | "rows";
+// "career" is a single full-width Career Hub scene (v3, where Study Abroad lives inside the hub).
+export type HeroVariant = "split" | "rows" | "career";
 
 const destinations = [
   {
@@ -81,8 +82,8 @@ function DestinationScene({ destination, variant, index, onStart }: {
       className={`hero-destination hero-destination--${destination.id}`} aria-labelledby={`hero-${destination.id}-title`}>
       <div className="hero-destination-visual">
         <picture>
-          {variant === "rows" && <source media="(max-width: 700px)" srcSet={destination.image} />}
-          <img src={variant === "rows" ? destination.panorama : destination.image} alt={destination.alt} fetchPriority={index === 0 ? "high" : "auto"} decoding="async" />
+          {variant !== "split" && <source media="(max-width: 700px)" srcSet={destination.image} />}
+          <img src={variant !== "split" ? destination.panorama : destination.image} alt={destination.alt} fetchPriority={index === 0 ? "high" : "auto"} decoding="async" />
         </picture>
       </div>
       <div className="hero-destination-copy">
@@ -112,7 +113,7 @@ export function HeroVariation({ variant, startCareer, startStudy }: {
   return (
     <section className={`hero-variation hero-variation--${variant}`} id="pathways" aria-labelledby="hero-variation-title">
       <h1 id="hero-variation-title" className="hero-variation-sr">আপনার লক্ষ্য বেছে নিন</h1>
-      {destinations.map((destination, index) => (
+      {(variant === "career" ? destinations.slice(0, 1) : destinations).map((destination, index) => (
         <DestinationScene key={destination.id} destination={destination} variant={variant} index={index} onStart={index === 0 ? startCareer : startStudy} />
       ))}
     </section>

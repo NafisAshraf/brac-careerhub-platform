@@ -15,6 +15,11 @@ export function Icon({ name }: { name: string }) {
     arrow: "M4 12h16 M14 6l6 6-6 6",
     globe: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M3 12h18 M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9 M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9",
     steps: "M4 19h5v-5h5V9h5V4 M4 19v-3",
+    bookmark: "M6 3h12v18l-6-4-6 4Z",
+    pen: "M4 20h4L19 9l-4-4L4 16v4Z M13 7l4 4",
+    flag: "M5 21V4 M5 4h11l-2 4 2 4H5",
+    cap: "M2 9l10-5 10 5-10 5Z M6 11v5c3 2 9 2 12 0v-5",
+    lock: "M6 11h12v10H6Z M8.5 11V8a3.5 3.5 0 0 1 7 0v3",
   };
   return (
     <svg
