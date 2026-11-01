@@ -122,18 +122,20 @@
 /* Career only: one panorama across the full hero, copy over its quiet left side. */
 .hero-variation--career { display: grid; min-height: max(560px, calc(100svh - var(--hero-nav-height))); }
 .hero-variation--career .hero-destination { display: flex; align-items: center; background: #fbf1ea; }
-.hero-variation--career .hero-destination-copy { width: min(46%, 640px); padding: 40px var(--hero-inset); }
+.hero-variation--career .hero-destination-copy { width: min(56%, 900px); padding: 40px var(--hero-inset); }
 .hero-variation--career .hero-destination-visual img { object-position: 70% top; }
 .hero-variation--career .hero-destination::after { background: linear-gradient(90deg, #fff8f0b0, #fff8f040 38%, transparent 58%); }
 .hero-variation--career .hero-destination-label { color: #8b245a; }
-.hero-variation--career .hero-destination h2 { font-size: clamp(38px, 3.6vw, 68px); }
+/* Each half of the title stays on one line on wider screens. */
+.hero-variation--career .hero-destination h2 { font-size: clamp(38px, 3.6vw, 64px); white-space: nowrap; }
+.hero-variation--career .hero-destination p { max-width: 44ch; }
 .hero-variation--career .hero-destination h2 span { color: #8d235f; }
 .hero-variation--career .hero-destination p { color: #4d3b50; }
 @media (hover: hover) and (pointer: fine) {
   .hero-variation--career .hero-destination:hover h2 span { color: #ba0f63; }
 }
 @media (max-width: 1000px) {
-  .hero-variation--career .hero-destination-copy { width: 52%; }
+  .hero-variation--career .hero-destination-copy { width: 60%; }
   .hero-variation--career .hero-destination h2 { font-size: 38px; }
 }
 @media (max-width: 700px) {
@@ -142,7 +144,7 @@
   .hero-variation--career .hero-destination-copy { width: 100%; padding: 300px 24px 36px; }
   .hero-variation--career .hero-destination::after { background: linear-gradient(180deg, transparent 24%, #28162a20 40%, #28162ae6 72%, #28162af2); }
   .hero-variation--career .hero-destination-visual img { object-position: 76% top; }
-  .hero-variation--career .hero-destination h2 { font-size: clamp(34px, 8.5vw, 46px); }
+  .hero-variation--career .hero-destination h2 { font-size: clamp(34px, 8.5vw, 46px); white-space: normal; }
   .hero-variation--career .hero-destination h2 span { color: #ffcfdf; }
   .hero-variation--career .hero-destination-label, .hero-variation--career .hero-destination p { color: #f6e9f0; }
   .hero-variation--career .hero-destination-action:focus-visible { outline-color: #fff; }
