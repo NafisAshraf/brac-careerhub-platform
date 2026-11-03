@@ -174,7 +174,7 @@ export default function HubV3({ active, exit }: { active: boolean; exit: () => v
       </div>
       <div className="career-app v3-pane" lang={language} hidden={area !== "career"}>
         <div className="career-main-inner">
-          <div hidden={page !== "overview"}><Overview language={language} profile={profile} statuses={statuses} booking={booking} hasCV={hasCV} go={go} onBook={onBook} /></div>
+          <div hidden={page !== "overview"}><Overview language={language} profile={profile} statuses={statuses} booking={booking} hasCV={hasCV} go={go} onBook={onBook} bold /></div>
           <div hidden={page !== "plan"}><ActionPlan language={language} profile={profile} statuses={statuses} onStatus={setStatus} go={go} registered={registered} onRegister={(id) => { setRegistered((r) => (r.includes(id) ? r.filter((x) => x !== id) : [...r, id])); nudge("seminar", "doing"); }} abroadIsNew={abroadIsNew} /></div>
           <div hidden={page !== "jobs"}><RecommendedJobs language={language} profile={profile} /></div>
           <div hidden={page !== "cv"}><CVStudio language={language} profile={profile} seeded={false} onDraft={() => { setHasCV(true); nudge("cv", "doing"); }} /></div>
