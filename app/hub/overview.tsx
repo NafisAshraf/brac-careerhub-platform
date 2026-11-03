@@ -61,11 +61,11 @@ function BookingCallout({ language, booking, onBook, go, bold }: { language: Lan
   } else if (bold) {
     body = <div className="hub-cta-copy">
       <span className="hub-cta-pill">{t(["Free · 30 minutes · Online", "ফ্রি · ৩০ মিনিট · অনলাইন"])}</span>
-      <h2>{t(["Talk to a career counsellor before you decide your next step.", "পরবর্তী পদক্ষেপ ঠিক করার আগে একজন ক্যারিয়ার কাউন্সেলরের সঙ্গে কথা বলুন।"])}</h2>
-      <p>{t(["Bring your questions about jobs, courses or studying abroad.", "চাকরি, কোর্স বা বিদেশে পড়াশোনা নিয়ে আপনার প্রশ্ন নিয়ে আসুন।"])}</p>
+      <h2>{t(["Talk to a career counsellor before you decide your next step.", "পরবর্তী পদক্ষেপের আগে কাউন্সেলরের সঙ্গে কথা বলুন"])}</h2>
+      <p>{t(["Bring your questions about jobs, courses or studying abroad.", "চাকরি, কোর্স বা বিদেশে পড়াশোনা—যেকোনো প্রশ্ন নিয়ে আসুন।"])}</p>
       <button className="hub-cta-book" onClick={() => setOpen(true)}>{t(["Book my free session", "ফ্রি সেশন বুক করুন"])} <span aria-hidden="true">→</span></button>
       {firstOpen && <small className="hub-cta-next"><span className="hub-cta-live" aria-hidden="true" />
-        {t(["Next open:", "পরবর্তী খালি সময়:"])} {firstOpen.d === 0 ? t(["Tomorrow", "আগামীকাল"]) : `${weekday(days[firstOpen.d])}, ${dayMonth(days[firstOpen.d])}`}, {displayTime(slots[firstOpen.i])}</small>}
+        {t(["Next open:", "পরের খালি সময়:"])} {firstOpen.d === 0 ? t(["Tomorrow", "আগামীকাল"]) : `${weekday(days[firstOpen.d])}, ${dayMonth(days[firstOpen.d])}`}, {displayTime(slots[firstOpen.i])}</small>}
     </div>;
   } else {
     body = <div className="hub-cta-copy">

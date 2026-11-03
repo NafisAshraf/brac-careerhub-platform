@@ -205,3 +205,13 @@
   .career-app .hub-cta-book { width: 100%; justify-content: center; }
   .career-destination-grid.hub-three { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Bangla script is taller and denser: smaller, lighter type with more line spacing and no tight tracking */
+.career-app:lang(bn) .hub-cta-bold .hub-cta-copy h2 { font-size: 25px; font-weight: 700; line-height: 1.45; letter-spacing: 0; max-width: 430px; }
+.career-app:lang(bn) .hub-cta-bold .hub-cta-copy p { margin-top: 14px !important; font-size: 14.5px; line-height: 1.7; }
+.career-app:lang(bn) .hub-cta-pill { letter-spacing: 0; font-weight: 600; padding: 3px 12px; }
+.career-app:lang(bn) .hub-cta-book { font-size: 15px; font-weight: 700; padding: 14px 26px; }
+.career-app:lang(bn) .hub-cta-next { font-weight: 500; }
+@media (max-width: 600px) {
+  .career-app:lang(bn) .hub-cta-bold .hub-cta-copy h2 { font-size: 21px; }
+}
