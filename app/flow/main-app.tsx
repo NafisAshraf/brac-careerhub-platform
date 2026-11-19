@@ -11,11 +11,13 @@ import {
 } from "./data";
 import { useFlow, type Account, type Session } from "./store";
 import { PlaneGuide } from "./guide";
+import { BackBar, BentoHome } from "./bento";
 import { Answer, Avatar, Bell, ChangeSession, CounsellorCard, DemoPanel, Dialog, I, JoinSteps, SlotPicker, sessionLine } from "./parts";
 
 export type AppPage = "home" | "tasks" | "courses" | "jobs" | "cv" | "abroad" | "sessions" | "profile";
 
-// layout "side": menu in a left sidebar (v4–v6). layout "top": no sidebar, the menu runs across the top (v7).
+// layout "side": menu in a left sidebar (v4–v6). layout "top": no menu at all; home is a set of tiles and each
+// section has a way back to them (v7).
 export function MainApp({ exit, accent, layout = "side", guide }: { exit: () => void; accent?: ReactNode; layout?: "side" | "top"; guide?: boolean }) {
   const flow = useFlow();
   const { unlocked = [], tasks, upcoming, account } = flow;
@@ -65,12 +67,14 @@ export function MainApp({ exit, accent, layout = "side", guide }: { exit: () => 
     </div>
   </>;
 
-  const short: Partial<Record<AppPage, string>> = { tasks: "Tasks", jobs: "Jobs", sessions: "Sessions" };
-  const topItems = nav.filter((n) => n.show && n.id !== "profile");
-  const content = <main ref={main} tabIndex={-1} className="fl-page">{pages()}</main>;
+  const tiles = layout === "top";
+  const content = <main ref={main} tabIndex={-1} className={"fl-page" + (tiles && page === "home" ? " is-tiles" : "")}>
+    {tiles && page !== "home" && <BackBar title={nav.find((n) => n.id === page)?.label ?? ""} go={go} />}
+    {pages()}
+  </main>;
   function pages() {
     return <>
-        {page === "home" && <Home go={go} accent={accent} />}
+        {page === "home" && (tiles ? <BentoHome go={go} /> : <Home go={go} accent={accent} />)}
         {page === "tasks" && <Tasks go={go} has={has} />}
         {page === "courses" && <Courses />}
         {page === "jobs" && <Jobs />}
@@ -92,8 +96,6 @@ export function MainApp({ exit, accent, layout = "side", guide }: { exit: () => 
   if (layout === "top") return <div className="fl fl-app-top">
     <header className="ft-head">
       <button className="ft-logo" onClick={() => go("home")} aria-label="Home"><Image src="/careerhub-logo.png" width={70} height={48} alt="BRAC Career Hub" /></button>
-      <nav className="ft-nav" aria-label="Career Hub">{topItems.map((n, k) => <button key={n.id} style={{ ["--d" as string]: `${k * 0.08}s` }} className={page === n.id ? "is-on" : ""} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
-        <I n={n.icon} s={18} /><span>{short[n.id] ?? n.label}</span>{!!n.count && <em>{n.count}</em>}</button>)}</nav>
       <div className="ft-end">
         {upcoming ? <button className="fl-chip ft-session" onClick={() => go("sessions")}><I n="calendar" s={16} /><span>{dayLabel(upcoming.slot.date)}, {time12(upcoming.slot.time)}</span></button>
           : <button className="fl-chip is-cta ft-session" onClick={() => go("sessions")}><I n="calendar" s={16} /><span>Book follow-up</span></button>}
