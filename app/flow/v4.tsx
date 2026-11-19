@@ -52,11 +52,13 @@ export function V4({ exit, layout = "side", guide, ask = "form" }: { exit: () =>
 
 function Stepper({ step }: { step: number }) {
   const steps = ["Book a session", "About you", "Meet your counsellor"];
-  return <ol className="v4-steps" aria-label="Your progress">
+  return <div className="v4-progress">
+    <p className="v4-steps-m" aria-hidden="true"><b>Step {step} of 3</b> · {steps[step - 1]}</p>
+    <ol className="v4-steps" aria-label="Your progress">
     {steps.map((s, k) => <li key={s} className={k + 1 < step ? "is-done" : k + 1 === step ? "is-now" : ""} aria-current={k + 1 === step ? "step" : undefined}>
       <b>{k + 1 < step && <I n="check" s={16} />}{s}</b></li>)}
     <li className="is-lock"><b><I n="lock" s={15} />Your Career Hub</b></li>
-  </ol>;
+  </ol></div>;
 }
 
 /* Step 1: the video first, then two focused choices (who, then when). */

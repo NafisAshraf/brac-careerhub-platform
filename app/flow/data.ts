@@ -14,7 +14,7 @@ export const counsellors: Counsellor[] = [
   { id: "tanvir", photo: "/counsellors/tanvir.jpg", name: "Tanvir Ahmed", initials: "TA", title: "Career Counsellor · Tech", tone: "#2f6f9f",
     focus: ["Software & data", "Engineering careers"], languages: "Bangla, English", sessions: 268, days: [0, 2, 4, 6],
     about: "Former software engineer. Good at mapping CSE and EEE students to real roles." },
-  { id: "farhana", photo: "/counsellors/farhana.jpg", name: "Farhana Kabir", initials: "FK", title: "Higher Study Advisor", tone: "#b5475f",
+  { id: "farhana", photo: "/counsellors/farhan.jpg", name: "Farhan Kabir", initials: "FK", title: "Higher Study Advisor", tone: "#b5475f",
     focus: ["Study abroad", "Scholarships & research"], languages: "Bangla, English", sessions: 339, days: [1, 3, 6],
     about: "Guides students thinking about a master’s abroad, from choosing a country to funding." },
   { id: "rafiq", photo: "/counsellors/rafiq.jpg", name: "Rafiq Hasan", initials: "RH", title: "Career Counsellor", tone: "#3f7d5c",
