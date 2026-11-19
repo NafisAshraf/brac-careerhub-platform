@@ -9,6 +9,8 @@ import HubV5 from "./flow/v5";
 import HubV6 from "./flow/v6";
 import HubV7 from "./flow/v7";
 import HubV8 from "./flow/v8";
+import HubV9 from "./flow/v9";
+import HubV10 from "./flow/v10";
 import { HeroVariation, type HeroVariant } from "./hero-variations";
 
 const steps = [
@@ -1550,7 +1552,7 @@ function Portal({ initial, exit }: { initial: number; exit: () => void }) {
   );
 }
 
-export default function LandingExperience({ heroVariant, hub }: { heroVariant?: HeroVariant; hub?: "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8" }) {
+export default function LandingExperience({ heroVariant, hub }: { heroVariant?: HeroVariant; hub?: "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8" | "v9" | "v10" }) {
   const [portal, setPortal] = useState<number | null>(null);
   const [studyAbroad, setStudyAbroad] = useState(false);
   const [hubOpened, setHubOpened] = useState(false);
@@ -1565,7 +1567,7 @@ export default function LandingExperience({ heroVariant, hub }: { heroVariant?: 
       <div hidden={portal === null}>
         {hubOpened && (() => {
           const props = { active: portal !== null, exit: () => setPortal(null) };
-          const Hub = { v2: UnifiedHub, v3: HubV3, v4: HubV4, v5: HubV5, v6: HubV6, v7: HubV7, v8: HubV8 }[hub];
+          const Hub = { v2: UnifiedHub, v3: HubV3, v4: HubV4, v5: HubV5, v6: HubV6, v7: HubV7, v8: HubV8, v9: HubV9, v10: HubV10 }[hub];
           return <Hub {...props} />;
         })()}
       </div>

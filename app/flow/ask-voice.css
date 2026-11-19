@@ -1,0 +1,97 @@
+/* v10 · the questionnaire as a voice call */
+.av-intro { justify-items: center; text-align: center; }
+.av-hero { display: grid; justify-items: center; gap: 6px; }
+.av-hero h1 { font-size: clamp(28px, 3.4vw, 38px); }
+.fl .av-hero p { max-width: 540px; margin-top: 6px; font-size: 17px; }
+.av-intro .av-orb { margin-bottom: 18px; }
+.fl .av-tips { list-style: none; padding: 0; display: grid; gap: 10px; width: min(560px, 100%); text-align: left; }
+.av-tips li { display: flex; gap: 14px; align-items: flex-start; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.av-tips li > span { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; background: #fbeef5; color: var(--pink); }
+.av-tips div { display: grid; }
+.av-tips small { color: var(--muted); font-size: 13.5px; }
+.av-intro-actions { display: grid; justify-items: center; gap: 12px; }
+.fl .av-call-btn { min-width: 260px; background: linear-gradient(120deg, #1a9a6c, #17845f); border-color: #17845f; box-shadow: 0 10px 26px #17845f40; }
+.fl .av-call-btn:hover:not(:disabled) { background: linear-gradient(120deg, #17845f, #106c4d); border-color: #106c4d; }
+
+.av-wrap { padding-top: 20px; }
+.av-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+.av-call { position: relative; display: flex; flex-direction: column; min-height: calc(100dvh - 150px); border-radius: 28px; overflow: hidden; color: #fff;
+  background: radial-gradient(circle at 50% 32%, #6d2a8f 0, #3b1450 45%, #1d0a2a 100%); box-shadow: 0 30px 70px #2a0f3d40; }
+.av-call::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 34%, #d4146e40, transparent 42%); opacity: .5; transition: opacity .6s; pointer-events: none; }
+.av-call.is-speaking::before { opacity: 1; }
+.av-call-head { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 18px 22px; }
+.av-call-head strong { font-size: 15px; letter-spacing: .01em; opacity: .9; }
+.av-live { display: inline-flex; align-items: center; gap: 8px; min-width: 110px; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 650; color: #f5d9ea; }
+.av-live i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d8d; animation: ak-dot 1.4s infinite; }
+.av-panel-btn { min-width: 110px; padding: 6px 12px; border: 1px solid #ffffff30; border-radius: 99px; background: #ffffff14; color: #fff; font-size: 13px; font-weight: 650; }
+.av-stage { position: relative; flex: 1; display: grid; align-content: center; justify-items: center; gap: 14px; padding: 10px 24px 20px; text-align: center; }
+.fl .av-status { color: #e9c6dd; font-size: 13px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.fl .av-caption { max-width: 640px; min-height: 3.2em; color: #fff; font-size: clamp(19px, 2.2vw, 25px); line-height: 1.45; font-weight: 600; letter-spacing: -.01em; }
+.av-caption span { opacity: .28; transition: opacity .25s; }
+.av-caption span.is-on { opacity: 1; }
+.fl .av-heard { min-height: 1.6em; max-width: 560px; color: #ffffff70; font-size: 17px; font-style: italic; }
+.fl .av-heard.is-on { color: #ffc2dc; }
+.av-options { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 640px; animation: ak-in .3s ease both; }
+.av-options small { width: 100%; color: #e9c6dd; font-size: 13px; }
+.av-options button { padding: 9px 14px; border: 1px solid #ffffff40; border-radius: 99px; background: #ffffff14; color: #fff; font-weight: 600; font-size: 14px; }
+.av-options button:hover { background: #ffffff2a; }
+.fl .av-note { position: relative; display: flex; gap: 8px; align-items: center; justify-content: center; margin: 0 22px 8px; padding: 8px 12px; border-radius: 10px; background: #ffffff12; color: #f1d7e8; font-size: 13px; }
+.av-type { position: relative; display: flex; gap: 8px; margin: 0 22px 10px; }
+.av-type input { flex: 1; min-height: 46px; padding: 10px 14px; border: 1px solid #ffffff40; border-radius: 12px; background: #ffffff16; color: #fff; font-size: 15px; }
+.av-type input::placeholder { color: #ffffff80; }
+.av-controls { position: relative; display: flex; align-items: flex-start; justify-content: center; gap: clamp(8px, 2vw, 18px); padding: 16px 16px 22px; }
+.av-ctl { display: grid; justify-items: center; gap: 5px; padding: 0; border: 0; background: none; color: #fff; }
+.av-ctl span { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: #ffffff1c; transition: background .15s; }
+.av-ctl:hover span { background: #ffffff30; }
+.av-ctl.is-on span { background: #fff; color: #3b1450; }
+.av-ctl small { font-size: 12px; color: #e7cfe0; }
+.av-talk { display: inline-flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 22px; border: 0; border-radius: 99px; background: #fff; color: #59217a; font-weight: 750; font-size: 15px; box-shadow: 0 8px 24px #0004; }
+.av-talk.is-demo { background: linear-gradient(120deg, #ff5ea0, #d4146e); color: #fff; }
+.av-talk:disabled { opacity: .45; }
+.av-end { display: grid; place-items: center; width: 56px; height: 52px; border: 0; border-radius: 99px; background: #e5304f; color: #fff; box-shadow: 0 8px 22px #e5304f55; }
+.av-end:hover { background: #c81f3d; }
+
+/* The orb: the Career Hub plane in a glowing circle that reacts to who is talking */
+.av-orb { position: relative; display: grid; place-items: center; width: 200px; height: 200px; }
+.av-core { position: relative; z-index: 2; display: grid; place-items: center; width: 132px; height: 132px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fff 0, #fde8f2 55%, #f4c9df 100%); box-shadow: 0 0 0 6px #ffffff14, 0 18px 50px #d4146e55; transition: transform .4s; }
+.av-plane { display: block; width: 64px; transform: translate(-4px, 4px); }
+.av-ring { position: absolute; inset: 34px; border-radius: 50%; border: 2px solid #ff8dc0; opacity: 0; }
+.av-orb.is-speaking .av-ring { animation: av-ring 2.1s ease-out infinite; }
+.av-orb.is-speaking .av-ring:nth-child(2) { animation-delay: .7s; }
+.av-orb.is-speaking .av-ring:nth-child(3) { animation-delay: 1.4s; }
+@keyframes av-ring { from { transform: scale(1); opacity: .8; } to { transform: scale(1.55); opacity: 0; } }
+.av-orb.is-speaking .av-plane { animation: av-bob 1.6s ease-in-out infinite; }
+@keyframes av-bob { 0%, 100% { transform: translate(-4px, 4px) rotate(0); } 50% { transform: translate(0, -2px) rotate(-6deg); } }
+.av-orb.is-thinking .av-core, .av-orb.is-ringing .av-core { animation: av-think 1.1s ease-in-out infinite; }
+@keyframes av-think { 50% { transform: scale(.94); } }
+.av-orb.is-ringing .av-ring { animation: av-ring 1.4s ease-out infinite; }
+.av-orb.is-ringing .av-ring:nth-child(2) { animation-delay: .45s; }
+.av-bars { position: absolute; z-index: 3; bottom: -8px; display: flex; gap: 4px; align-items: center; height: 34px; opacity: 0; transition: opacity .25s; }
+.av-bars i { width: 5px; height: 8px; border-radius: 4px; background: #ff8dc0; }
+.av-orb.is-listening .av-bars { opacity: 1; }
+.av-orb.is-listening .av-bars i { animation: av-bar .8s ease-in-out infinite; }
+@keyframes av-bar { 0%, 100% { height: 8px; } 50% { height: 30px; } }
+.av-orb.is-listening .av-core { transform: scale(.92); }
+.av-intro .av-core { box-shadow: 0 18px 50px #d4146e33; }
+.av-intro .av-orb .av-ring { animation: av-ring 2.6s ease-out infinite; border-color: #e7a8c8; }
+.av-intro .av-orb .av-ring:nth-child(2) { animation-delay: 1.3s; }
+
+.av-review-head { display: grid; gap: 6px; }
+.av-ended { display: inline-flex; align-items: center; gap: 6px; justify-self: start; padding: 5px 12px; border-radius: 99px; background: var(--green-s); color: var(--green); font-weight: 700; font-size: 13.5px; }
+.av-review-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+@media (prefers-reduced-motion: reduce) { .av-orb *, .ak-mark::after { animation: none !important; } }
+@media (max-width: 900px) {
+  .av-grid { grid-template-columns: 1fr; }
+  .av-grid .ak-side.is-open { order: 0; }
+  .av-call { min-height: calc(100dvh - 120px); border-radius: 22px; }
+  .av-orb { width: 170px; height: 170px; }
+  .av-core { width: 112px; height: 112px; }
+}
+@media (max-width: 480px) {
+  .av-call-head strong { display: none; }
+  .av-ctl span { width: 46px; height: 46px; }
+  .av-talk { padding: 0 16px; font-size: 14px; min-height: 46px; }
+  .av-end { width: 48px; height: 46px; }
+}

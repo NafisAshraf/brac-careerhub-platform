@@ -1,0 +1,77 @@
+/* v9 / v10 · conversational questionnaire (shared bits + chat) */
+.ak-mark { position: relative; display: grid; place-items: center; flex: none; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff, #fbeef6 70%); box-shadow: inset 0 0 0 1px #f1d5e5; }
+.ak-mark > span { display: block; transform: translate(-4%, 4%); }
+.ak-mark.is-live::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 2px solid #d4146e55; animation: ak-pulse 1.2s ease-out infinite; }
+@keyframes ak-pulse { from { transform: scale(.9); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
+
+.ak-wrap { padding-top: 18px; }
+.ak-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.ak-top-progress { flex: 1; display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13.5px; font-weight: 650; white-space: nowrap; }
+.ak-top-progress .fl-progress { flex: 1; margin: 0; }
+.ak-panel-btn { display: none; }
+.ak-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+
+.ak-chat { display: flex; flex-direction: column; height: calc(100dvh - 190px); min-height: 520px; border: 1px solid var(--line); border-radius: 20px; background: #fff; overflow: hidden; box-shadow: 0 20px 50px #3a14500d; }
+.ak-chat-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #fff, #fdf9fd); }
+.ak-chat-head div { flex: 1; display: grid; line-height: 1.3; }
+.ak-chat-head small { color: var(--muted); font-size: 13px; }
+.ak-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 99px; background: linear-gradient(120deg, #59217a, #d4146e); color: #fff; font-size: 12px; font-weight: 750; }
+.ak-log { flex: 1; overflow-y: auto; padding: 22px 18px 10px; display: grid; align-content: start; gap: 14px; background: radial-gradient(circle at 100% 0, #fbf1f7 0, transparent 40%), #fff; }
+.ak-row { display: flex; gap: 10px; align-items: flex-end; max-width: 86%; }
+.ak-row.is-me { justify-self: end; }
+.ak-stack { display: grid; gap: 6px; }
+.fl .ak-bubble { margin: 0; padding: 11px 15px; border-radius: 18px 18px 18px 6px; background: #f4eef7; color: var(--ink); font-size: 15.5px; line-height: 1.5; animation: ak-in .35s ease both; }
+.fl .ak-bubble.is-me { border-radius: 18px 18px 6px 18px; background: linear-gradient(135deg, #d4146e, #a8146f); color: #fff; }
+@keyframes ak-in { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.ak-typing { display: inline-flex; gap: 5px; padding: 14px 16px; border-radius: 18px 18px 18px 6px; background: #f4eef7; }
+.ak-typing i { width: 7px; height: 7px; border-radius: 50%; background: #a593b0; animation: ak-dot 1s infinite; }
+.ak-typing i:nth-child(2) { animation-delay: .15s; } .ak-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes ak-dot { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+
+.ak-summary { margin: 4px 0 6px 40px; padding: 18px; border: 1px solid #efd3e2; border-radius: 16px; background: #fffafc; animation: ak-in .4s ease both; }
+.ak-summary h3 { margin-bottom: 8px; }
+.ak-summary-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 14px; }
+.ak-summary-actions small { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; }
+
+.ak-compose { padding: 10px 14px 12px; border-top: 1px solid var(--line); background: #fff; }
+.ak-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; }
+.ak-chips small { width: 100%; color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.ak-chips button { padding: 7px 12px; border: 1px solid #ead7e4; border-radius: 99px; background: #fff8fb; color: #7a1d55; font-size: 13.5px; font-weight: 600; text-align: left; animation: ak-in .3s ease both; }
+.ak-chips button:hover { border-color: var(--pink); background: #fff0f6; }
+.ak-input { display: flex; gap: 8px; align-items: flex-end; }
+.ak-input textarea { flex: 1; resize: none; min-height: 48px; max-height: 140px; padding: 12px 14px; border: 1.5px solid #ddd2e3; border-radius: 14px; font-size: 15.5px; line-height: 1.4; field-sizing: content; }
+.ak-input textarea:focus { outline: none; border-color: #b77fcf; box-shadow: 0 0 0 3px #b77fcf26; }
+.ak-input .fl-btn { width: 48px; height: 48px; min-height: 48px; padding: 0; border-radius: 14px; }
+.ak-fine { display: block; margin-top: 6px; color: #9a90a1; font-size: 12px; }
+
+.ak-side { position: sticky; top: 92px; display: grid; gap: 10px; }
+.ak-side h2 { font-size: 17px; }
+.fl .ak-side-lead { margin: 4px 0 12px; font-size: 13.5px; }
+.ak-known { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; }
+.ak-known li { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px; transition: background .3s; }
+.ak-known li.is-has { animation: ak-got .7s ease; }
+@keyframes ak-got { 0% { background: #e7f5ee; } 100% { background: transparent; } }
+.ak-known li.is-asking { background: #fff2f8; }
+.ak-known li > div { flex: 1; display: grid; min-width: 0; line-height: 1.3; }
+.ak-known small { color: var(--muted); font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.ak-known b { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
+.ak-known li:not(.is-has) b { color: #a99eb0; font-weight: 500; }
+.ak-known li.is-asking b { color: var(--pink); }
+.ak-known .fl-link { font-size: 13px; }
+.ak-dot { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 50%; border: 1.5px dashed #cfc2d7; color: #fff; }
+.ak-known li.is-has .ak-dot { border: 0; background: var(--green); }
+.ak-known li.is-asking .ak-dot { border: 2px solid var(--pink); }
+
+@media (max-width: 900px) {
+  .ak-grid { grid-template-columns: 1fr; }
+  .ak-panel-btn { display: inline-flex; }
+  .ak-side { display: none; position: static; }
+  .ak-side.is-open { display: grid; order: -1; }
+  .ak-chat { height: calc(100dvh - 160px); min-height: 440px; border-radius: 16px; }
+  .ak-row { max-width: 94%; }
+  .ak-summary { margin-left: 0; }
+}
+@media (max-width: 560px) {
+  .ak-top .fl-btn { padding-inline: 8px; }
+  .ak-top-progress .fl-progress { display: none; }
+}

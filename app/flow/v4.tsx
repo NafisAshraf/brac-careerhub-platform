@@ -7,6 +7,8 @@ import { FlowProvider, useFlow } from "./store";
 import { Answer, Bell, CounsellorCard, DemoPanel, Dialog, Explainer, I, SlotPicker } from "./parts";
 import { SignupForm } from "./signup";
 import { MainApp, UpcomingCard } from "./main-app";
+import { AskChat } from "./ask-chat";
+import { AskVoice } from "./ask-voice";
 import "./flow.css";
 import "./v4.css";
 
@@ -15,7 +17,9 @@ export default function HubV4({ exit }: { active: boolean; exit: () => void }) {
 }
 
 // v7 reuses this flow with the top-menu layout once the hub opens.
-export function V4({ exit, layout = "side", guide }: { exit: () => void; layout?: "side" | "top"; guide?: boolean }) {
+// v9 and v10 swap the question form for a chat or a voice call (`ask`).
+export type AskMode = "form" | "chat" | "voice";
+export function V4({ exit, layout = "side", guide, ask = "form" }: { exit: () => void; layout?: "side" | "top"; guide?: boolean; ask?: AskMode }) {
   const flow = useFlow();
   const [view, setView] = useState<"auto" | "confirmed" | "questions">("auto");
   const booked = !!flow.upcoming;
@@ -32,13 +36,15 @@ export function V4({ exit, layout = "side", guide }: { exit: () => void; layout?
     {screen === "signup" && <div className="fl-signup">
       <div className="fl-signup-intro"><span className="fl-kicker">BRAC CAREER HUB</span><h1>Get help choosing your career, from a real person.</h1>
         <p>Start with a free 30-minute chat with a career counsellor. They’ll set up a plan that fits you.</p>
-        <ol className="fl-signup-steps">{["Create your account", "Book a free session", "Answer 11 quick questions", "Meet your counsellor online"].map((x, k) => <li key={x}><span>{k + 1}</span>{x}</li>)}</ol></div>
+        <ol className="fl-signup-steps">{["Create your account", "Book a free session", { form: "Answer 11 quick questions", chat: "Have a short chat with our assistant", voice: "Have a 3-minute call with our assistant" }[ask], "Meet your counsellor online"].map((x, k) => <li key={x}><span>{k + 1}</span>{x}</li>)}</ol></div>
       <SignupForm />
     </div>}
     {screen === "book" && <Book onBooked={() => setView("confirmed")} />}
-    {screen === "confirmed" && <Confirmed fresh={view === "confirmed"} onNext={() => setView("questions")} onLater={() => setView("auto")} later={!flow.testDone} />}
-    {screen === "questions" && <Questions onDone={() => setView("auto")} />}
-    {screen === "ready" && <Ready onEdit={() => setView("questions")} />}
+    {screen === "confirmed" && <Confirmed fresh={view === "confirmed"} onNext={() => setView("questions")} onLater={() => setView("auto")} later={!flow.testDone} ask={ask} />}
+    {screen === "questions" && (ask === "chat" ? <AskChat onDone={() => setView("auto")} onLater={() => setView("auto")} />
+      : ask === "voice" ? <AskVoice onDone={() => setView("auto")} onLater={() => setView("auto")} />
+      : <Questions onDone={() => setView("auto")} />)}
+    {screen === "ready" && <Ready onEdit={() => setView("questions")} ask={ask} />}
     <DemoPanel />
   </div>;
 }
@@ -99,7 +105,12 @@ function Book({ onBooked }: { onBooked: () => void }) {
   </main>;
 }
 
-function Confirmed({ onNext, onLater, later, fresh }: { onNext: () => void; onLater: () => void; later: boolean; fresh: boolean }) {
+const nextCopy = {
+  form: { kicker: "STEP 2 OF 3 · ABOUT 3 MINUTES", body: "Answer 11 short questions about where you are now and what you want next. Your counsellor reads them before you meet, so you can skip the basics.", cta: "Start the questions" },
+  chat: { kicker: "STEP 2 OF 3 · A SHORT CHAT", body: "No form to fill. Our assistant asks a few questions in a chat and you answer in your own words. It sends the answers to your counsellor before you meet.", cta: "Start the chat" },
+  voice: { kicker: "STEP 2 OF 3 · A 3-MINUTE CALL", body: "No form to fill. Our assistant calls you right here in the browser, asks a few questions out loud, and you just talk. Your answers go to your counsellor before you meet.", cta: "Start the call" },
+};
+function Confirmed({ onNext, onLater, later, fresh, ask }: { onNext: () => void; onLater: () => void; later: boolean; fresh: boolean; ask: AskMode }) {
   const { upcoming, account } = useFlow();
   if (!upcoming) return null;
   return <main className="v4-main v4-narrow">
@@ -107,9 +118,9 @@ function Confirmed({ onNext, onLater, later, fresh }: { onNext: () => void; onLa
       : <div className="v4-ready-head"><span className="fl-kicker">ONE THING LEFT</span><h1>Answer the questions before your session</h1></div>}
     <UpcomingCard s={upcoming} email={account!.email} phone={account!.phone} />
     {later && <section className="v4-next-up">
-      <div><span className="fl-kicker">STEP 2 OF 3 · ABOUT 3 MINUTES</span><h2>Help {counsellorById(upcoming.slot.counsellor).name.split(" ")[0]} get to know you</h2>
-        <p>Answer 11 short questions about where you are now and what you want next. Your counsellor reads them before you meet, so you can skip the basics.</p></div>
-      <div className="v4-next-actions"><button className="fl-btn fl-primary big" onClick={onNext}>Start the questions <I n="arrow" s={18} /></button>{fresh && <button className="fl-link" onClick={onLater}>I’ll do it later</button>}</div>
+      <div><span className="fl-kicker">{nextCopy[ask].kicker}</span><h2>Help {counsellorById(upcoming.slot.counsellor).name.split(" ")[0]} get to know you</h2>
+        <p>{nextCopy[ask].body}</p></div>
+      <div className="v4-next-actions"><button className="fl-btn fl-primary big" onClick={onNext}>{nextCopy[ask].cta} <I n={ask === "voice" ? "phone" : ask === "chat" ? "chat" : "arrow"} s={18} /></button>{fresh && <button className="fl-link" onClick={onLater}>I’ll do it later</button>}</div>
     </section>}
   </main>;
 }
@@ -148,7 +159,7 @@ function Questions({ onDone }: { onDone: () => void }) {
 }
 
 /* Step 3: waiting for the session */
-function Ready({ onEdit }: { onEdit: () => void }) {
+function Ready({ onEdit, ask }: { onEdit: () => void; ask: AskMode }) {
   const { upcoming, account } = useFlow();
   const [video, setVideo] = useState(false);
   if (!upcoming) return null;
@@ -162,7 +173,7 @@ function Ready({ onEdit }: { onEdit: () => void }) {
           <h2>Your checklist</h2>
           <ul className="v4-check">
             <li className="is-done"><span><I n="check" s={14} /></span>Session booked</li>
-            <li className="is-done"><span><I n="check" s={14} /></span>Answers sent to {c.name.split(" ")[0]} <button className="fl-link" onClick={onEdit}>Edit</button></li>
+            <li className="is-done"><span><I n="check" s={14} /></span>Answers sent to {c.name.split(" ")[0]} <button className="fl-link" onClick={onEdit}>{ask === "form" ? "Edit" : "Review"}</button></li>
             <li><span /> Join on time and talk for 30 minutes</li>
           </ul>
         </section>
