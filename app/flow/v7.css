@@ -1,0 +1,41 @@
+/* v7 · Career Hub without a sidebar */
+.fl-app-top { min-height: 100dvh; }
+.ft-head { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 18px; height: 70px; padding: 0 clamp(14px, 3vw, 32px); background: #ffffffeb; backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.ft-logo { display: flex; flex: none; padding: 0; border: 0; background: none; }
+.ft-logo img { width: 66px; height: auto; }
+.ft-nav { flex: 1; display: flex; justify-content: center; gap: 2px; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.ft-nav::-webkit-scrollbar { display: none; }
+.ft-nav button { position: relative; flex: none; display: inline-flex; align-items: center; gap: 7px; height: 70px; padding: 0 12px; border: 0; background: none; color: #5e5468; font-weight: 600; font-size: 14.5px; animation: fl-up .4s var(--d, 0s) both; }
+.ft-nav button::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: transparent; }
+.ft-nav button:hover { color: var(--ink); }
+.ft-nav button.is-on { color: var(--pink); font-weight: 720; }
+.ft-nav button.is-on::after { background: var(--pink); }
+.ft-nav em { min-width: 20px; padding: 0 6px; border-radius: 99px; background: var(--pink); color: #fff; font-size: 11px; font-style: normal; font-weight: 800; line-height: 18px; text-align: center; }
+.ft-end { display: flex; align-items: center; gap: 10px; flex: none; }
+.ft-session { font-size: 13px; padding: 7px 12px; }
+.ft-me { position: relative; }
+.ft-me-btn { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #f1e6f6; color: var(--purple); font-weight: 800; font-size: 14px; }
+.ft-me-btn:hover { background: #e8d8f0; }
+.ft-me-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: 250px; display: grid; gap: 2px; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: #fff; box-shadow: 0 24px 60px #2a0f3d2e; animation: fl-pop .16s ease; }
+.ft-me-who { display: grid; padding: 8px 10px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--line); }
+.ft-me-who small { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+.ft-me-menu button { display: flex; align-items: center; gap: 10px; padding: 10px; border: 0; border-radius: 9px; background: none; text-align: left; font-weight: 600; font-size: 14px; }
+.ft-me-menu button:hover { background: #f8f3fa; }
+.fl-app-top .fl-page { padding-top: 34px; }
+
+@media (max-width: 1100px) {
+  .ft-session span { display: none; }
+  .ft-nav { justify-content: flex-start; }
+}
+/* Phones: the menu becomes a tab bar along the bottom */
+@media (max-width: 760px) {
+  .ft-head { height: 60px; backdrop-filter: none; background: #fff; }
+  .ft-logo img { width: 56px; }
+  .ft-head { justify-content: space-between; }
+  .ft-nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; justify-content: space-around; gap: 0; padding: 4px 4px calc(4px + env(safe-area-inset-bottom)); background: #fff; border-top: 1px solid var(--line); box-shadow: 0 -8px 24px #2a0f3d14; }
+  .ft-nav button { flex: 1 0 64px; flex-direction: column; gap: 2px; height: 56px; padding: 0 4px; font-size: 11px; }
+  .ft-nav button::after { top: 0; bottom: auto; border-radius: 0 0 3px 3px; }
+  .ft-nav em { position: absolute; top: 4px; left: calc(50% + 6px); line-height: 16px; min-width: 16px; padding: 0 4px; font-size: 10px; }
+  .fl-app-top .fl-page { padding-bottom: 150px; }
+  .fl-app-top .fl-demo { bottom: 78px; }
+}
