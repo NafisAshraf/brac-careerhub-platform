@@ -15,12 +15,12 @@ export default function HubV4({ exit }: { active: boolean; exit: () => void }) {
 }
 
 // v7 reuses this flow with the top-menu layout once the hub opens.
-export function V4({ exit, layout = "side" }: { exit: () => void; layout?: "side" | "top" }) {
+export function V4({ exit, layout = "side", guide }: { exit: () => void; layout?: "side" | "top"; guide?: boolean }) {
   const flow = useFlow();
   const [view, setView] = useState<"auto" | "confirmed" | "questions">("auto");
   const booked = !!flow.upcoming;
   useEffect(() => { window.scrollTo({ top: 0 }); }, [view, flow.phase, booked]);
-  if (flow.phase === "app") return <MainApp exit={exit} layout={layout} />;
+  if (flow.phase === "app") return <MainApp exit={exit} layout={layout} guide={guide} />;
   const step = !flow.upcoming ? 1 : !flow.testDone || view === "questions" ? 2 : 3;
   const screen = flow.phase === "signup" ? "signup" : !flow.upcoming ? "book" : view === "questions" ? "questions" : view === "confirmed" || !flow.testDone ? "confirmed" : "ready";
   return <div className="fl v4">

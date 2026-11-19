@@ -10,12 +10,13 @@ import {
   type Answers, type Slot,
 } from "./data";
 import { useFlow, type Account, type Session } from "./store";
+import { PlaneGuide } from "./guide";
 import { Answer, Avatar, Bell, ChangeSession, CounsellorCard, DemoPanel, Dialog, I, JoinSteps, SlotPicker, sessionLine } from "./parts";
 
 export type AppPage = "home" | "tasks" | "courses" | "jobs" | "cv" | "abroad" | "sessions" | "profile";
 
 // layout "side": menu in a left sidebar (v4–v6). layout "top": no sidebar, the menu runs across the top (v7).
-export function MainApp({ exit, accent, layout = "side" }: { exit: () => void; accent?: ReactNode; layout?: "side" | "top" }) {
+export function MainApp({ exit, accent, layout = "side", guide }: { exit: () => void; accent?: ReactNode; layout?: "side" | "top"; guide?: boolean }) {
   const flow = useFlow();
   const { unlocked = [], tasks, upcoming, account } = flow;
   const [page, setPage] = useState<AppPage>("home");
@@ -23,7 +24,7 @@ export function MainApp({ exit, accent, layout = "side" }: { exit: () => void; a
   const [abroadKey, setAbroadKey] = useState(0);
   const [selected, setSelected] = useState(initialSelection);
   const [menu, setMenu] = useState(false);
-  const [welcome, setWelcome] = useState(true);
+  const [welcome, setWelcome] = useState(!guide);
   const [me, setMe] = useState(false);
   const main = useRef<HTMLElement>(null);
   const has = (id: "courses" | "jobs" | "cv" | "abroad") => (unlocked ?? []).includes(id);
@@ -49,13 +50,13 @@ export function MainApp({ exit, accent, layout = "side" }: { exit: () => void; a
     { id: "profile", label: "My profile & answers", icon: "user", show: true, group: "help" },
   ];
   const side = <>
-    <div className="fl-brand"><Image src="/careerhub-logo.png" width={96} height={66} alt="BRAC Career Hub" /></div>
+    <div className={"fl-brand" + (guide ? " is-guided" : "")}><Image data-guide={guide ? "plane-dock" : undefined} src="/careerhub-logo.png" width={96} height={86} alt="BRAC Career Hub" /></div>
     <nav aria-label="Career Hub">
       <span className="fl-nav-label">Your plan</span>
-      {nav.filter((n) => n.show && n.group === "main").map((n, k) => <button key={n.id} style={{ ["--d" as string]: `${k * 0.09}s` }} className={"fl-nav" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
-        <I n={n.icon} /><span>{n.label}</span>{!!n.count && <em>{n.count}</em>}</button>)}
+      <div className="fl-nav-group" data-guide="nav-main">{nav.filter((n) => n.show && n.group === "main").map((n, k) => <button key={n.id} data-guide={"nav-" + n.id} style={{ ["--d" as string]: `${k * 0.09}s` }} className={"fl-nav" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
+        <I n={n.icon} /><span>{n.label}</span>{!!n.count && <em>{n.count}</em>}</button>)}</div>
       <span className="fl-nav-label">Support</span>
-      {nav.filter((n) => n.group === "help").map((n) => <button key={n.id} className={"fl-nav" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}><I n={n.icon} /><span>{n.label}</span></button>)}
+      {nav.filter((n) => n.group === "help").map((n) => <button key={n.id} data-guide={"nav-" + n.id} className={"fl-nav" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}><I n={n.icon} /><span>{n.label}</span></button>)}
     </nav>
     <div className="fl-side-foot">
       <p className="fl-side-hint"><I n="lock" s={14} /> More sections appear when your counsellor adds them.</p>
@@ -73,11 +74,11 @@ export function MainApp({ exit, accent, layout = "side" }: { exit: () => void; a
         {page === "tasks" && <Tasks go={go} has={has} />}
         {page === "courses" && <Courses />}
         {page === "jobs" && <Jobs />}
-        {page === "cv" && <div className="career-app fl-embed" lang="en"><Head kicker="CV STUDIO" title="Build your CV" body="Your details are filled in. Edit anything, then generate a one-page draft." />
+        {page === "cv" && <div className="career-app fl-embed" lang="en"><div data-guide="cv-head"><Head kicker="CV STUDIO" title="Build your CV" body="Your details are filled in. Edit anything, then generate a one-page draft." /></div>
           <CVStudio language="en" profile={{ name: account!.name, email: account!.email, institution: account!.university, subject: account!.subject, qualification: "bachelor", situation: "student" }} seeded={false} onDraft={() => {}} /></div>}
         {page === "abroad" && <div className="fl-abroad">
           <Head kicker="STUDY ABROAD" title="Plan your study abroad" body={`${counsellorById(flow.sessions[0].slot.counsellor).name} opened this for you. Start with All Programs or the AI match.`} />
-          <div className="fl-tabs" role="tablist">{abroadNav.map((n) => <button key={n.id} role="tab" aria-selected={abroadPage === n.id} onClick={() => { setAbroadPage(n.id); setAbroadKey((k) => k + 1); }}>{n.label}</button>)}</div>
+          <div className="fl-tabs" role="tablist" data-guide="abroad-tabs">{abroadNav.map((n) => <button key={n.id} role="tab" aria-selected={abroadPage === n.id} onClick={() => { setAbroadPage(n.id); setAbroadKey((k) => k + 1); }}>{n.label}</button>)}</div>
           <StudyAbroadSection active page={abroadPage} setPage={setAbroadPage} navKey={abroadKey} selected={selected} setSelected={setSelected} account={{ name: account!.name, email: account!.email }} onConsult={() => go("sessions")} />
         </div>}
         {page === "sessions" && <Sessions />}
@@ -118,13 +119,14 @@ export function MainApp({ exit, accent, layout = "side" }: { exit: () => void; a
     <div className="fl-app-main">
       <header className="fl-top">
         <button className="fl-btn ghost fl-menu-btn" onClick={() => setMenu(true)}><I n="menu" /> Menu</button>
-        <div className="fl-top-session">{upcoming ? <button className="fl-chip" onClick={() => go("sessions")}><I n="calendar" s={16} /> Next session: {dayLabel(upcoming.slot.date)}, {time12(upcoming.slot.time)}</button>
-          : <button className="fl-chip is-cta" onClick={() => go("sessions")}><I n="calendar" s={16} /> Book a follow-up session</button>}</div>
-        <Bell onGo={go} />
+        <div className="fl-top-session">{upcoming ? <button data-guide="session-chip" className="fl-chip" onClick={() => go("sessions")}><I n="calendar" s={16} /> Next session: {dayLabel(upcoming.slot.date)}, {time12(upcoming.slot.time)}</button>
+          : <button data-guide="session-chip" className="fl-chip is-cta" onClick={() => go("sessions")}><I n="calendar" s={16} /> Book a follow-up session</button>}</div>
+        <div data-guide="bell"><Bell onGo={go} /></div>
       </header>
       {content}
     </div>
     {extras}
+    {guide && <PlaneGuide page={page} go={go} />}
   </div>;
 }
 
@@ -162,7 +164,7 @@ function Home({ go, accent }: { go: (p: string) => void; accent?: ReactNode }) {
     <Head kicker="HOME" title={`Hi ${account?.name.split(" ")[0]}, here’s what to do next`} body="Your counsellor chose these steps for you. Do them in order, at your own pace." />
     {accent}
     <div className="fl-home">
-      <section className="fl-card fl-next">
+      <section className="fl-card fl-next" data-guide="next-card">
         <span className="fl-kicker">START HERE</span>
         {next ? <><h2>{next.title}</h2><p>{next.detail}</p>
           <div className="fl-row"><button className="fl-btn fl-primary" onClick={() => go(next.link ?? "tasks")}>{next.link ? "Open it" : "See the task"} <I n="arrow" s={17} /></button><span className="fl-muted">About {next.effort} · due in {next.due} days</span></div></>
@@ -197,11 +199,11 @@ function Tasks({ go, has }: { go: (p: string) => void; has: (id: "courses" | "jo
   const linkLabel = { courses: "Open courses", jobs: "Open jobs", cv: "Open CV Studio", abroad: "Open Study Abroad", profile: "Open profile" };
   return <>
     <Head kicker="MY TASKS" title="Tasks from your counsellor" body={`${c.name} set these after your session. Tick each one when it’s done, they’ll see your progress.`} />
-    <ol className="fl-tasks">{tasks.map((t, k) => <li key={t.id} className={t.done ? "is-done" : ""}>
+    <ol className="fl-tasks">{tasks.map((t, k) => <li key={t.id} data-guide={"task-" + t.id} className={t.done ? "is-done" : ""}>
       <button className="fl-check" role="checkbox" aria-checked={!!t.done} aria-label={`Mark “${t.title}” as ${t.done ? "not done" : "done"}`} onClick={() => dispatch({ type: "task", id: t.id })}>{t.done ? <I n="check" s={16} /> : k + 1}</button>
       <div><h3>{t.title}</h3><p>{t.detail}</p>
         <div className="fl-task-meta"><span><I n="clock" s={14} /> {t.effort}</span><span>Due in {t.due} days</span><span className="fl-from"><Avatar c={c} size={20} /> From {c.name.split(" ")[0]}</span></div></div>
-      {t.link && t.link !== "profile" && has(t.link) && <button className="fl-btn" onClick={() => go(t.link!)}>{linkLabel[t.link]}</button>}
+      {t.link && t.link !== "profile" && has(t.link) && <button data-guide={"task-go-" + t.id} className="fl-btn" onClick={() => go(t.link!)}>{linkLabel[t.link]}</button>}
     </li>)}</ol>
   </>;
 }
@@ -215,7 +217,7 @@ function Courses() {
     <div className="fl-grid">{assignedCourses.map((x, k) => <article key={x.id} className="fl-item">
       <div className="fl-item-img"><img src={x.image} alt="" />{k === 0 && <span className="fl-badge">Start here</span>}</div>
       <div className="fl-item-body"><small>{x.provider}</small><h3>{x.title}</h3><p className="fl-quote">“{x.note}”</p><small>{x.mode}</small>
-        <label className="fl-field inline"><span>Status</span><select value={courses[x.id] ?? "new"} onChange={(e) => dispatch({ type: "course", id: x.id, status: e.target.value as "new" })}>{Object.entries(label).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
+        <label className="fl-field inline" data-guide={k === 0 ? "course-status" : undefined}><span>Status</span><select value={courses[x.id] ?? "new"} onChange={(e) => dispatch({ type: "course", id: x.id, status: e.target.value as "new" })}>{Object.entries(label).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
       </div></article>)}</div>
   </>;
 }
@@ -223,10 +225,10 @@ function Jobs() {
   const { savedJobs, dispatch } = useFlow();
   return <>
     <Head kicker="JOBS & INTERNSHIPS" title="Openings your counsellor recommends" body="Save the ones you like. Applying happens on the employer’s website." />
-    <div className="fl-grid">{assignedJobs.map((x) => { const saved = savedJobs.includes(x.id); return <article key={x.id} className="fl-item">
+    <div className="fl-grid">{assignedJobs.map((x, k) => { const saved = savedJobs.includes(x.id); return <article key={x.id} className="fl-item">
       <div className="fl-item-img"><img src={x.image} alt="" /></div>
       <div className="fl-item-body"><small>{x.org}</small><h3>{x.title}</h3><small>{x.meta}</small><p className="fl-quote">“{x.note}”</p>
-        <div className="fl-row"><button className={"fl-btn" + (saved ? " is-saved" : "")} aria-pressed={saved} onClick={() => dispatch({ type: "job", id: x.id })}>{saved ? <><I n="check" s={16} /> Saved</> : "Save"}</button>
+        <div className="fl-row"><button data-guide={k === 0 ? "job-save" : undefined} className={"fl-btn" + (saved ? " is-saved" : "")} aria-pressed={saved} onClick={() => dispatch({ type: "job", id: x.id })}>{saved ? <><I n="check" s={16} /> Saved</> : "Save"}</button>
           <a className="fl-btn ghost" href="https://www.bdjobs.com" target="_blank" rel="noreferrer">How to apply <I n="external" s={15} /></a></div>
       </div></article>; })}</div>
   </>;
@@ -266,7 +268,7 @@ export function Sessions() {
           <Avatar c={c} size={40} />
           <div><strong>{s.status === "completed" ? `Session ${s.number} with ${c.name}` : `Cancelled session with ${c.name}`}</strong><small>{slotLabel(s.slot)}{s.reason ? ` · ${s.reason}` : ""}</small></div>
           <span className={"fl-status s-" + s.status}>{s.status === "completed" ? "Completed" : "Cancelled"}</span>
-          {s.minutes && <button className="fl-btn ghost" aria-expanded={openId === s.id} onClick={() => setOpenId(openId === s.id ? null : s.id)}><I n="notes" s={16} /> {openId === s.id ? "Hide notes" : "Session notes"}</button>}
+          {s.minutes && <button data-guide="notes" className="fl-btn ghost" aria-expanded={openId === s.id} onClick={() => setOpenId(openId === s.id ? null : s.id)}><I n="notes" s={16} /> {openId === s.id ? "Hide notes" : "Session notes"}</button>}
           <button className="fl-btn ghost" disabled={!!upcoming} title={upcoming ? "You already have a session booked" : undefined} onClick={() => setBooking({ preset: c.id })}>Book again</button>
         </div>
         {s.minutes && openId === s.id && <div className="fl-minutes">
@@ -307,7 +309,7 @@ export function ProfilePage() {
       <div className="fl-form-grid">{field("name", "Full name")}{field("email", "Email (for meeting links)", "email")}{field("phone", "Mobile number (for SMS)", "tel")}{field("university", "University")}{field("subject", "Subject")}</div>
       <div className="fl-row"><button className="fl-btn fl-primary" onClick={() => { dispatch({ type: "account", account: form }); setSaved("profile"); }}>Save details</button>{saved === "profile" && <span className="fl-saved" role="status"><I n="check" s={16} /> Saved</span>}</div>
     </section>
-    <section className="fl-card fl-form-card">
+    <section className="fl-card fl-form-card" data-guide="answers">
       <h2>Your answers</h2><p className="fl-muted">Things change. Update any answer and your counsellor will be told.</p>
       {(["now", "next"] as const).map((part) => <div key={part} className="fl-q-part"><h3>{part === "now" ? "About you right now" : "Looking ahead"}</h3>
         {questions.filter((q) => q.part === part).map((q) => <div key={q.id} className="fl-q"><strong>{q.prompt}</strong>{q.help && <small>{q.help}</small>}<Answer q={q} answers={a} onChange={setA} /></div>)}</div>)}

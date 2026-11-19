@@ -1,0 +1,49 @@
+/* v8 · The plane guide. Lives in a portal on <body>, above the app. */
+.pg { position: fixed; inset: 0; z-index: 90; pointer-events: none; font-family: Inter, "Segoe UI", system-ui, sans-serif; }
+.pg > * { pointer-events: none; }
+.pg-plane { position: fixed; left: 0; top: 0; z-index: 7; will-change: transform; filter: drop-shadow(0 4px 6px #59217a33); }
+.pg-plane.is-fly, .pg-plane.is-home { filter: drop-shadow(0 10px 14px #d4146e4d); }
+.pg-plane.is-point { animation: pg-nudge 1.6s ease-in-out infinite; }
+.pg-plane.is-point svg { animation: pg-tap 1.6s ease-in-out infinite; transform-origin: 96% 8%; }
+@keyframes pg-tap { 0%, 60%, 100% { transform: none; } 70% { transform: scale(.88); } 80% { transform: none; } }
+@keyframes pg-nudge { 0%, 100% { translate: 0 0; } 50% { translate: -3px 3px; } }
+.pg-ring { position: absolute; right: -9px; top: -9px; width: 18px; height: 18px; border-radius: 50%; border: 2px solid #d4146e; opacity: 0; animation: pg-ring 1.6s ease-out infinite; }
+@keyframes pg-ring { 0%, 62% { opacity: 0; transform: scale(.3); } 70% { opacity: .9; } 100% { opacity: 0; transform: scale(2.4); } }
+.pg-trail { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 2; overflow: visible; }
+
+.pg-spot { position: fixed; z-index: 1; border-radius: 14px; box-shadow: 0 0 0 9999px #1d0a2a52, 0 0 0 3px #ff4f9a, 0 0 24px 4px #ff4f9a66; transition: left .25s, top .25s, width .25s, height .25s; animation: pg-spot-in .35s ease both; }
+@keyframes pg-spot-in { from { box-shadow: 0 0 0 9999px #1d0a2a00, 0 0 0 3px #ff4f9a00; } }
+
+.pg-bubble { position: fixed; z-index: 4; pointer-events: auto; padding: 16px 18px 14px; border-radius: 16px; background: #fff; color: #211b28; box-shadow: 0 24px 60px #2a0f3d40, 0 0 0 1px #f1d3e3; animation: pg-bubble .32s cubic-bezier(.2, .9, .3, 1.2) both; }
+@keyframes pg-bubble { from { opacity: 0; transform: translateY(-8px) scale(.94); } }
+.pg-bubble h3 { margin: 0 0 4px; font-size: 16px; line-height: 1.3; font-weight: 750; }
+.pg-bubble p { margin: 0; color: #5f5668; font-size: 14px; line-height: 1.5; }
+.pg-bubble-foot { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+.pg-dots { display: flex; gap: 4px; margin-right: auto; }
+.pg-dots i { width: 6px; height: 6px; border-radius: 6px; background: #e8dcee; transition: width .2s; }
+.pg-dots i.is-done { background: #c9a6d9; }
+.pg-dots i.is-on { width: 16px; background: #d4146e; }
+.pg-skip { margin-left: auto; padding: 8px 10px; border: 0; border-radius: 9px; background: none; color: #6d6476; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+.pg-dots + .pg-skip { margin-left: 0; }
+.pg-skip:hover { background: #f5eff8; }
+.pg-next { padding: 9px 16px; border: 0; border-radius: 10px; background: #d4146e; color: #fff; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 16px #d4146e40; }
+.pg-next:hover { background: #b10f5c; }
+.pg button:focus-visible { outline: 3px solid #c28ad6; outline-offset: 2px; }
+
+.pg-dock-btn { position: fixed; z-index: 5; pointer-events: auto; border: 0; border-radius: 10px; background: transparent; cursor: pointer; }
+.pg-dock-btn:hover { background: #d4146e14; }
+.pg-menu { position: fixed; z-index: 6; pointer-events: auto; width: 260px; display: grid; gap: 4px; padding: 12px; border-radius: 16px; background: #fff; box-shadow: 0 24px 60px #2a0f3d40, 0 0 0 1px #eadff0; animation: pg-bubble .25s ease both; }
+.pg-menu strong { padding: 2px 6px 6px; font-size: 14.5px; }
+.pg-menu button { padding: 10px; border: 0; border-radius: 10px; background: #faf6fc; color: #3b2a48; font: inherit; font-size: 14px; font-weight: 600; text-align: left; cursor: pointer; }
+.pg-menu button:first-of-type { background: #d4146e; color: #fff; }
+.pg-menu button:hover { filter: brightness(.96); }
+
+/* Floating dock for screens without the sidebar */
+.pg-pill { position: fixed; left: 14px; bottom: 14px; z-index: 5; display: none; pointer-events: auto; align-items: center; gap: 8px; height: 46px; padding: 0 16px 0 10px; border: 1px solid #f0cfe0; border-radius: 99px; background: #fff; color: #59217a; font: inherit; font-size: 14px; font-weight: 700; box-shadow: 0 10px 26px #2a0f3d26; cursor: pointer; }
+.pg-pill-space { width: 30px; }
+@media (max-width: 900px) { .pg-pill { display: inline-flex; } }
+
+/* The logo loses its own plane: the guide plane sits in its place. */
+.fl-brand.is-guided img { height: auto; clip-path: inset(30% 0 0 0); }
+.fl-nav-group { display: grid; gap: 3px; }
+@media (prefers-reduced-motion: reduce) { .pg-plane, .pg-plane svg, .pg-ring { animation: none !important; } }
