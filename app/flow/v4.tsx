@@ -1,12 +1,13 @@
 "use client";
 // v4 · “One step at a time”: a numbered path with one clear job per screen.
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { counsellorById, counsellors, dayLabel, nextOpen, questions, shortDate, time12, answered, type Slot } from "./data";
 import { FlowProvider, useFlow } from "./store";
-import { Answer, Bell, CounsellorCard, DemoPanel, Dialog, Explainer, I, SlotPicker } from "./parts";
+import { Answer, Avatar, Bell, CounsellorCard, DemoPanel, Dialog, Explainer, I, SlotPicker } from "./parts";
+import { LangToggle, SessionCard } from "./v4-parts";
 import { SignupForm } from "./signup";
-import { MainApp, UpcomingCard } from "./main-app";
+import { MainApp } from "./main-app";
 import { AskChat } from "./ask-chat";
 import { AskVoice } from "./ask-voice";
 import "./flow.css";
@@ -31,7 +32,7 @@ export function V4({ exit, layout = "side", guide, ask = "form" }: { exit: () =>
     <header className="fl-bar">
       <button className="fl-logo" onClick={exit} aria-label="Back to home page"><Image src="/careerhub-logo.png" width={74} height={51} alt="BRAC Career Hub" /></button>
       <div className="fl-bar-mid">{flow.phase !== "signup" && <Stepper step={step} />}</div>
-      <div className="fl-bar-end"><Bell onGo={(g) => { if (g === "session") setView("auto"); }} /></div>
+      <div className="fl-bar-end"><LangToggle /><Bell onGo={(g) => { if (g === "session") setView("auto"); }} /></div>
     </header>
     {screen === "signup" && <div className="fl-signup">
       <div className="fl-signup-intro"><span className="fl-kicker">BRAC CAREER HUB</span><h1>Get help choosing your career, from a real person.</h1>
@@ -58,50 +59,72 @@ function Stepper({ step }: { step: number }) {
   </ol>;
 }
 
-/* Step 1 */
+/* Step 1: the video first, then two focused choices (who, then when). */
+type Stage = "intro" | "who" | "when";
 function Book({ onBooked }: { onBooked: () => void }) {
   const { dispatch, sessions } = useFlow();
+  const [stage, setStage] = useState<Stage>("intro");
+  const [dir, setDir] = useState<"fwd" | "back">("fwd");
   const [who, setWho] = useState("");
   const [slot, setSlot] = useState<Slot | null>(null);
-  const [video, setVideo] = useState(false);
-  const timeRef = useRef<HTMLElement>(null);
   const cancelled = sessions.at(-1)?.status === "cancelled";
   const soonest = counsellors.map((c) => nextOpen(c.id)!).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0];
-  const choose = (id: string) => { setWho(id); setSlot(null); requestAnimationFrame(() => timeRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })); };
-  return <main className="v4-main">
-    {cancelled && <p className="v4-notice" role="status"><I n="info" s={18} /> Your session was cancelled. Pick a new time below. You’ll need one session before your Career Hub opens.</p>}
-    <section className="v4-intro">
-      <div>
-        <span className="fl-kicker">STEP 1 OF 3</span>
-        <h1>Book a free chat with a career counsellor</h1>
-        <p className="v4-lead">Everyone starts here. In 30 minutes, a counsellor gets to know you and then opens the parts of Career Hub that will help you most.</p>
-        <ul className="v4-facts">
-          <li><I n="clock" s={18} /><span><b>30 minutes</b> online, on Google Meet</span></li>
-          <li><I n="mail" s={18} /><span>Link sent by <b>email and SMS</b></span></li>
-          <li><I n="check" s={18} /><span><b>Free</b> for students</span></li>
-        </ul>
-        <button className="v4-watch" onClick={() => setVideo(true)}><span><I n="play" s={18} /></span><b>Watch how it works</b><small>25 seconds</small></button>
+  const order: Stage[] = ["intro", "who", "when"];
+  const go = (next: Stage) => { setDir(order.indexOf(next) < order.indexOf(stage) ? "back" : "fwd"); setStage(next); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const choose = (id: string) => { if (id !== who) setSlot(null); setWho(id); setTimeout(() => go("when"), 260); };
+  const c = who ? counsellorById(who) : null;
+
+  if (stage === "intro") return <main className="v4-main v4-hero" key="intro">
+    {cancelled && <p className="v4-notice" role="status"><I n="info" s={20} /> Your session was cancelled. Book a new one below. You need one session before your Career Hub opens.</p>}
+    <span className="fl-kicker">STEP 1 OF 3</span>
+    <h1>Book a free chat with a career counsellor</h1>
+    <p className="v4-lead">Watch this short video first. It shows you everything that happens next.</p>
+    <div className="v4-hero-video"><Explainer autoPlay={false} /></div>
+    <button className="fl-btn fl-primary v4-cta" onClick={() => go("who")}>Book my free session <I n="arrow" s={22} /></button>
+    <ul className="v4-facts">
+      <li><I n="clock" s={20} /><span><b>30 minutes</b> on Google Meet</span></li>
+      <li><I n="mail" s={20} /><span>Link by <b>SMS and email</b></span></li>
+      <li><I n="check" s={20} /><span><b>Free</b> for students</span></li>
+    </ul>
+  </main>;
+
+  return <main className="v4-main v4-booking">
+    <div className="v4-book-top">
+      <button className="fl-btn ghost v4-back" onClick={() => go(stage === "when" ? "who" : "intro")}><I n="back" s={20} /> {stage === "when" ? "Back to counsellors" : "Back to the video"}</button>
+    </div>
+    <div className="v4-ticket" aria-label="Your booking so far">
+      <button className={"v4-ticket-part" + (stage === "who" ? " is-now" : " is-set")} onClick={() => go("who")} disabled={stage === "who"}>
+        <small>1 · Counsellor</small>
+        {c ? <span className="v4-ticket-val"><Avatar c={c} size={40} /><b>{c.name}</b></span> : <span className="v4-ticket-val is-empty">Choosing now</span>}
+        {stage !== "who" && <em>Change</em>}
+      </button>
+      <span className="v4-ticket-cut" aria-hidden="true" />
+      <div className={"v4-ticket-part" + (stage === "when" ? (slot ? " is-set is-now" : " is-now") : "")}>
+        <small>2 · Day and time</small>
+        {slot ? <span className="v4-ticket-val"><I n="calendar" s={22} /><b>{dayLabel(slot.date)}, {shortDate(slot.date)} · {time12(slot.time)}</b></span>
+          : <span className="v4-ticket-val is-empty">{stage === "when" ? "Choosing now" : "Next"}</span>}
       </div>
-      <div className="v4-video-desktop"><Explainer autoPlay={false} /></div>
+    </div>
+
+    <section className={"v4-stage is-" + dir} key={stage}>
+      {stage === "who" ? <>
+        <h1>Who would you like to talk to?</h1>
+        <p className="v4-stage-lead">Every counsellor can help with any question. Pick whoever feels right to you.</p>
+        <button className="v4-quick" onClick={() => { setWho(soonest.counsellor); setSlot(soonest); go("when"); }}>
+          <I n="spark" s={22} /><span><b>Not sure? Take the earliest time.</b><small>{counsellorById(soonest.counsellor).name}, {dayLabel(soonest.date)} {shortDate(soonest.date)} at {time12(soonest.time)}</small></span><I n="arrow" s={22} /></button>
+        <div className="fl-counsellors">{counsellors.map((x) => <CounsellorCard key={x.id} c={x} selected={who === x.id} onSelect={() => choose(x.id)} />)}</div>
+      </> : c && <>
+        <div className="v4-when-head"><Avatar c={c} size={72} /><div><h1>When can you talk to {c.name.split(" ")[0]}?</h1>
+          <p className="v4-stage-lead">First pick a day, then a time when you’re free from classes.</p></div></div>
+        <SlotPicker counsellor={c.id} value={slot} onChange={setSlot} />
+      </>}
     </section>
 
-    <section className="v4-block">
-      <div className="v4-block-head"><span className="v4-num">A</span><div><h2>Who would you like to talk to?</h2><p>All counsellors can help with any question. Pick whoever feels right.</p></div></div>
-      <button className="v4-quick" onClick={() => choose(soonest.counsellor)}><I n="spark" s={18} /><span><b>Not sure? Take the earliest time.</b> {counsellorById(soonest.counsellor).name}, {dayLabel(soonest.date)} {shortDate(soonest.date)} at {time12(soonest.time)}</span><I n="arrow" s={18} /></button>
-      <div className="fl-counsellors">{counsellors.map((c) => <CounsellorCard key={c.id} c={c} selected={who === c.id} onSelect={() => choose(c.id)} />)}</div>
-    </section>
-
-    <section className={"v4-block" + (who ? "" : " is-waiting")} ref={timeRef}>
-      <div className="v4-block-head"><span className="v4-num">B</span><div><h2>When suits you?</h2><p>{who ? `Open times with ${counsellorById(who).name}. Pick a time when you’re free from classes.` : "Choose a counsellor first."}</p></div></div>
-      {who && <SlotPicker counsellor={who} value={slot} onChange={setSlot} />}
-    </section>
-
-    {who && <div className={"v4-confirm" + (slot ? " is-ready" : "")}>
-      <div>{slot ? <><strong>{counsellorById(slot.counsellor).name}</strong><span>{dayLabel(slot.date)}, {shortDate(slot.date)} at {time12(slot.time)} · 30 min</span></>
-        : <span>{who ? "Now pick a time" : "Pick a counsellor, then a time"}</span>}</div>
-      <button className="fl-btn fl-primary big" disabled={!slot} onClick={() => { dispatch({ type: "book", slot: slot! }); onBooked(); }}>Book this session</button>
+    {stage === "when" && <div className={"v4-confirm" + (slot ? " is-ready" : "")}>
+      <div>{slot ? <><strong>{dayLabel(slot.date)}, {shortDate(slot.date)} at {time12(slot.time)}</strong><span>30 minutes with {c?.name}</span></>
+        : <span>Pick a time above</span>}</div>
+      <button className="fl-btn fl-primary big" disabled={!slot} onClick={() => { dispatch({ type: "book", slot: slot! }); onBooked(); }}>Book this session <I n="arrow" s={20} /></button>
     </div>}
-    {video && <Dialog title="How Career Hub works" wide onClose={() => setVideo(false)}><Explainer /></Dialog>}
   </main>;
 }
 
@@ -116,12 +139,12 @@ function Confirmed({ onNext, onLater, later, fresh, ask }: { onNext: () => void;
   return <main className="v4-main v4-narrow">
     {fresh ? <div className="v4-success"><span><I n="check" s={30} /></span><h1>You’re booked!</h1><p>We’ve sent a confirmation to {account!.email}.</p></div>
       : <div className="v4-ready-head"><span className="fl-kicker">ONE THING LEFT</span><h1>Answer the questions before your session</h1></div>}
-    <UpcomingCard s={upcoming} email={account!.email} phone={account!.phone} />
     {later && <section className="v4-next-up">
       <div><span className="fl-kicker">{nextCopy[ask].kicker}</span><h2>Help {counsellorById(upcoming.slot.counsellor).name.split(" ")[0]} get to know you</h2>
         <p>{nextCopy[ask].body}</p></div>
       <div className="v4-next-actions"><button className="fl-btn fl-primary big" onClick={onNext}>{nextCopy[ask].cta} <I n={ask === "voice" ? "phone" : ask === "chat" ? "chat" : "arrow"} s={18} /></button>{fresh && <button className="fl-link" onClick={onLater}>I’ll do it later</button>}</div>
     </section>}
+    <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />
   </main>;
 }
 
@@ -166,24 +189,22 @@ function Ready({ onEdit, ask }: { onEdit: () => void; ask: AskMode }) {
   const c = counsellorById(upcoming.slot.counsellor);
   return <main className="v4-main">
     <div className="v4-ready-head"><span className="fl-kicker">STEP 3 OF 3</span><h1>You’re all set, {account!.name.split(" ")[0]}</h1><p>Now just join your session. Your Career Hub opens after {c.name.split(" ")[0]} marks it complete.</p></div>
+    <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />
     <div className="v4-ready">
-      <UpcomingCard s={upcoming} email={account!.email} phone={account!.phone} />
-      <div className="v4-ready-side">
         <section className="fl-card">
           <h2>Your checklist</h2>
           <ul className="v4-check">
-            <li className="is-done"><span><I n="check" s={14} /></span>Session booked</li>
-            <li className="is-done"><span><I n="check" s={14} /></span>Answers sent to {c.name.split(" ")[0]} <button className="fl-link" onClick={onEdit}>{ask === "form" ? "Edit" : "Review"}</button></li>
+            <li className="is-done"><span><I n="check" s={16} /></span>Session booked</li>
+            <li className="is-done"><span><I n="check" s={16} /></span>Answers sent to {c.name.split(" ")[0]} <button className="fl-link" onClick={onEdit}>{ask === "form" ? "Edit" : "Review"}</button></li>
             <li><span /> Join on time and talk for 30 minutes</li>
           </ul>
         </section>
         <section className="fl-card v4-after">
           <h2>After your session</h2>
           <p>{c.name.split(" ")[0]} will open the parts of Career Hub that suit you, such as:</p>
-          <ul>{[["tasks", "A short task list"], ["book", "Courses"], ["briefcase", "Jobs & internships"], ["doc", "CV Studio"], ["globe", "Study Abroad"]].map(([i, l]) => <li key={l}><I n={i} s={16} />{l}<I n="lock" s={13} /></li>)}</ul>
+          <ul className="v4-after-list">{[["tasks", "A short task list"], ["book", "Courses"], ["briefcase", "Jobs & internships"], ["doc", "CV Studio"], ["globe", "Study Abroad"]].map(([i, l]) => <li key={l}><I n={i} s={20} />{l}<I n="lock" s={16} /></li>)}</ul>
           <button className="fl-link" onClick={() => setVideo(true)}>Watch how it works again</button>
         </section>
-      </div>
     </div>
     {video && <Dialog title="How Career Hub works" wide onClose={() => setVideo(false)}><Explainer /></Dialog>}
   </main>;

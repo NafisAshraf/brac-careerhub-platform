@@ -44,7 +44,8 @@ export function I({ n, s = 20 }: { n: string; s?: number }) {
 }
 
 export function Avatar({ c, size = 48 }: { c: Counsellor; size?: number }) {
-  return <span className="fl-avatar" style={{ width: size, height: size, fontSize: size * 0.36, background: `linear-gradient(140deg, ${c.tone}, ${c.tone}cc)` }} aria-hidden="true">{c.initials}</span>;
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className="fl-avatar is-photo" src={c.photo} width={size} height={size} alt="" style={{ width: size, height: size, background: c.tone }} />;
 }
 
 /* ---------- Dialog ---------- */
@@ -254,7 +255,7 @@ function Scene({ n }: { n: number }) {
   if (n === 1) return <div className="sc sc-time"><div className="sc-days">{["Sun", "Mon", "Tue", "Wed", "Thu"].map((d, k) => <span key={d} className={k === 2 ? "is-pick" : ""} style={{ ["--d" as string]: `${k * 0.1}s` }}>{d}<b>{12 + k}</b></span>)}</div>
     <div className="sc-hours">{["10:00 AM", "10:45 AM", "11:30 AM", "2:30 PM", "3:15 PM", "4:00 PM"].map((t, k) => <span key={t} className={k === 4 ? "is-pick" : ""} style={{ ["--d" as string]: `${0.5 + k * 0.08}s` }}>{t}</span>)}</div></div>;
   if (n === 2) return <div className="sc sc-quiz"><div className="sc-sheet">{["Which year are you in?", "What do you enjoy doing?", "What worries you most?", "What do you want after graduation?"].map((q, k) => <div key={q} style={{ ["--d" as string]: `${0.2 + k * 0.6}s` }}><span className="sc-check" />{q}</div>)}</div></div>;
-  if (n === 3) return <div className="sc sc-msg"><div className="sc-phone"><span className="sc-notch" /><div className="sc-sms"><b>BRAC Career Hub</b>Your session with Nusrat starts in 15 min. Join: meet.google.com/abc-defg-hij</div></div>
+  if (n === 3) return <div className="sc sc-msg"><div className="sc-phone"><span className="sc-notch" /><div className="sc-sms"><b>BRAC Career Hub</b>Your session with Nusrat starts in 15 min.<u>Tap to join</u></div></div>
     <div className="sc-mail"><I n="mail" s={26} /><span><b>Your session is tomorrow</b><small>Join link inside</small></span></div></div>;
   if (n === 4) return <div className="sc sc-call"><div className="sc-tile"><Avatar c={c[0]} size={84} /><small>Nusrat</small></div><div className="sc-tile is-you"><span className="sc-you">You</span><small>Ayesha</small></div><div className="sc-callbar"><span /><span /><span className="end" /></div><span className="sc-timer">29:41</span></div>;
   return <div className="sc sc-open"><div className="sc-side">{["Home", "My tasks", "Courses", "Jobs", "CV Studio"].map((x, k) => <span key={x} style={{ ["--d" as string]: `${0.2 + k * 0.25}s` }}>{x}</span>)}</div>

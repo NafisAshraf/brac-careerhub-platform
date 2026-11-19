@@ -49,6 +49,7 @@
 .fl-field.inline { flex-direction: row; align-items: center; gap: 10px; margin-top: 12px; }
 .fl-field.inline select { width: auto; min-height: 40px; padding: 6px 10px; font-size: 14px; }
 
+.fl-avatar.is-photo { object-fit: cover; box-shadow: 0 0 0 2px #fff, 0 2px 8px #2a0f3d26; }
 .fl-avatar { display: inline-grid; place-items: center; flex: none; border-radius: 50%; color: #fff; font-weight: 750; letter-spacing: .02em; box-shadow: inset 0 0 0 2px #ffffff40; }
 
 /* Cards */
@@ -170,7 +171,7 @@
 @keyframes fl-up { from { opacity: 0; transform: translateY(12px); } }
 @keyframes fl-in { from { opacity: 0; transform: translateY(16px) scale(.96); } }
 @keyframes fl-pick { 0%, 55% { box-shadow: 0 0 0 0 transparent; transform: none; } 70%, 100% { box-shadow: 0 0 0 4px #ff4f9a; transform: translateY(-6px) scale(1.04); } }
-.sc { position: absolute; inset: 0 0 54px; display: flex; align-items: center; justify-content: center; gap: 4%; padding: 6% 8% 0; }
+.sc { position: absolute; inset: 0 0 25%; display: flex; align-items: center; justify-content: center; gap: 4%; padding: 6% 8% 0; }
 .sc-pick .sc-card { display: grid; justify-items: center; gap: 4px; width: 26%; padding: 4% 2%; border-radius: 14px; background: #fff; color: var(--ink); text-align: center; animation: fl-in .5s var(--d) both; }
 .sc-pick .sc-card b { font-size: clamp(11px, 1.3vw, 15px); }
 .sc-pick .sc-card small { font-size: clamp(9px, 1vw, 12px); color: var(--muted); }
@@ -188,21 +189,22 @@
 .sc-sheet div { display: flex; align-items: center; gap: 10px; }
 .sc-check { flex: none; width: 1.3em; height: 1.3em; border-radius: 50%; border: 2px solid #d6cbdd; animation: sc-tick .3s var(--d) both; }
 @keyframes sc-tick { to { background: #17845f; border-color: #17845f; box-shadow: inset 0 0 0 3px #fff; } }
-.sc-phone { position: relative; width: 26%; aspect-ratio: 9 / 17; padding: 18% 5% 0; border-radius: 22px; background: #fff; box-shadow: 0 0 0 5px #3b2348; animation: fl-in .5s both; }
+.sc-phone { position: relative; flex: none; height: 90%; aspect-ratio: 9 / 16; margin-top: 4%; padding: clamp(20px, 3.4vw, 32px) clamp(5px, .8vw, 8px) 0; border-radius: 18px; background: #fff; box-shadow: 0 0 0 5px #3b2348; animation: fl-in .5s both; }
 .sc-notch { position: absolute; top: 4%; left: 35%; width: 30%; height: 4%; border-radius: 9px; background: #3b2348; }
-.sc-sms { display: grid; gap: 3px; padding: 8%; border-radius: 12px; background: #f1ecf4; color: var(--ink); font-size: clamp(8px, 1vw, 12px); line-height: 1.35; animation: fl-in .5s .6s both; }
+.sc-sms { display: grid; gap: 3px; padding: 9%; border-radius: 10px; background: #f1ecf4; color: var(--ink); font-size: clamp(7px, .9vw, 11px); line-height: 1.3; overflow-wrap: anywhere; animation: fl-in .5s .6s both; }
 .sc-sms b { color: var(--pink); }
-.sc-mail { display: flex; align-items: center; gap: 12px; padding: 3% 4%; border-radius: 14px; background: #fff; color: var(--purple); animation: fl-in .5s 1.3s both; }
+.sc-sms u { color: var(--purple); font-weight: 700; }
+.sc-mail { flex: none; max-width: 52%; display: flex; align-items: center; gap: 12px; padding: 3% 4%; border-radius: 14px; background: #fff; color: var(--purple); animation: fl-in .5s 1.3s both; }
 .sc-mail span { display: grid; color: var(--ink); font-size: clamp(11px, 1.3vw, 15px); }
 .sc-mail small { color: var(--muted); font-size: .85em; }
-.sc-call { gap: 3%; }
+.sc-call { gap: 3%; align-items: flex-start; padding-top: 3%; }
 .sc-tile { position: relative; display: grid; place-items: center; width: 38%; aspect-ratio: 4 / 3; border-radius: 14px; background: #ffffff18; animation: fl-in .5s both; }
 .sc-tile.is-you { animation-delay: .3s; background: #ffffff10; }
 .sc-tile small { position: absolute; left: 10px; bottom: 8px; font-size: clamp(9px, 1vw, 12px); color: #f3e3f7; }
 .sc-you { display: grid; place-items: center; width: 84px; height: 84px; max-width: 40%; aspect-ratio: 1; border-radius: 50%; background: #ffb3d2; color: #59217a; font-weight: 800; }
 .sc-tile:first-child { animation: fl-in .5s both, sc-talk 1.2s 1s infinite; }
 @keyframes sc-talk { 50% { box-shadow: 0 0 0 3px #45d39a; } }
-.sc-callbar { position: absolute; bottom: 64px; display: flex; gap: 10px; }
+.sc-callbar { position: absolute; bottom: 4%; display: flex; gap: 10px; }
 .sc-callbar span { width: 30px; height: 30px; border-radius: 50%; background: #ffffff2e; }
 .sc-callbar .end { background: #e5484d; }
 .sc-timer { position: absolute; top: 14px; right: 16px; padding: 3px 10px; border-radius: 99px; background: #ffffff1f; font-size: 12px; }
