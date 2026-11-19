@@ -54,8 +54,8 @@ function Stepper({ step }: { step: number }) {
   const steps = ["Book a session", "About you", "Meet your counsellor"];
   return <ol className="v4-steps" aria-label="Your progress">
     {steps.map((s, k) => <li key={s} className={k + 1 < step ? "is-done" : k + 1 === step ? "is-now" : ""} aria-current={k + 1 === step ? "step" : undefined}>
-      <span>{k + 1 < step ? <I n="check" s={14} /> : k + 1}</span><b>{s}</b></li>)}
-    <li className="is-lock"><span><I n="lock" s={13} /></span><b>Your Career Hub</b></li>
+      <b>{k + 1 < step && <I n="check" s={16} />}{s}</b></li>)}
+    <li className="is-lock"><b><I n="lock" s={15} />Your Career Hub</b></li>
   </ol>;
 }
 
@@ -78,14 +78,10 @@ function Book({ onBooked }: { onBooked: () => void }) {
     {cancelled && <p className="v4-notice" role="status"><I n="info" s={20} /> Your session was cancelled. Book a new one below. You need one session before your Career Hub opens.</p>}
     <span className="fl-kicker">STEP 1 OF 3</span>
     <h1>Book a free chat with a career counsellor</h1>
-    <p className="v4-lead">Watch this short video first. It shows you everything that happens next.</p>
+    <p className="v4-lead">Watch the 25-second video, then book your session.</p>
     <div className="v4-hero-video"><Explainer autoPlay={false} /></div>
     <button className="fl-btn fl-primary v4-cta" onClick={() => go("who")}>Book my free session <I n="arrow" s={22} /></button>
-    <ul className="v4-facts">
-      <li><I n="clock" s={20} /><span><b>30 minutes</b> on Google Meet</span></li>
-      <li><I n="mail" s={20} /><span>Link by <b>SMS and email</b></span></li>
-      <li><I n="check" s={20} /><span><b>Free</b> for students</span></li>
-    </ul>
+    <p className="v4-facts"><b>Free</b> for students<i>·</i><b>30 minutes</b> on Google Meet<i>·</i>Meeting link by <b>SMS and email</b></p>
   </main>;
 
   return <main className="v4-main v4-booking">
@@ -95,7 +91,7 @@ function Book({ onBooked }: { onBooked: () => void }) {
     <div className="v4-ticket" aria-label="Your booking so far">
       <button className={"v4-ticket-part" + (stage === "who" ? " is-now" : " is-set")} onClick={() => go("who")} disabled={stage === "who"}>
         <small>1 · Counsellor</small>
-        {c ? <span className="v4-ticket-val"><Avatar c={c} size={40} /><b>{c.name}</b></span> : <span className="v4-ticket-val is-empty">Choosing now</span>}
+        {c ? <span className="v4-ticket-val"><Avatar c={c} size={36} /><b>{c.name}</b></span> : <span className="v4-ticket-val is-empty">Choosing now</span>}
         {stage !== "who" && <em>Change</em>}
       </button>
       <span className="v4-ticket-cut" aria-hidden="true" />
@@ -110,13 +106,12 @@ function Book({ onBooked }: { onBooked: () => void }) {
       {stage === "who" ? <>
         <h1>Who would you like to talk to?</h1>
         <p className="v4-stage-lead">Every counsellor can help with any question. Pick whoever feels right to you.</p>
-        <button className="v4-quick" onClick={() => { setWho(soonest.counsellor); setSlot(soonest); go("when"); }}>
-          <I n="spark" s={22} /><span><b>Not sure? Take the earliest time.</b><small>{counsellorById(soonest.counsellor).name}, {dayLabel(soonest.date)} {shortDate(soonest.date)} at {time12(soonest.time)}</small></span><I n="arrow" s={22} /></button>
+        <p className="v4-earliest">Not sure who to pick? <button className="fl-link" onClick={() => { setWho(soonest.counsellor); setSlot(soonest); go("when"); }}>Take the earliest open time</button>: {counsellorById(soonest.counsellor).name}, {dayLabel(soonest.date)} {shortDate(soonest.date)} at {time12(soonest.time)}.</p>
         <div className="fl-counsellors">{counsellors.map((x) => <CounsellorCard key={x.id} c={x} selected={who === x.id} onSelect={() => choose(x.id)} />)}</div>
       </> : c && <>
-        <div className="v4-when-head"><Avatar c={c} size={72} /><div><h1>When can you talk to {c.name.split(" ")[0]}?</h1>
-          <p className="v4-stage-lead">First pick a day, then a time when you’re free from classes.</p></div></div>
-        <SlotPicker counsellor={c.id} value={slot} onChange={setSlot} />
+        <h1>When can you talk to {c.name.split(" ")[0]}?</h1>
+        <p className="v4-stage-lead">First pick a day, then a time when you’re free from classes.</p>
+        <SlotPicker counsellor={c.id} value={slot} onChange={setSlot} look="calendar" />
       </>}
     </section>
 
@@ -136,15 +131,28 @@ const nextCopy = {
 function Confirmed({ onNext, onLater, later, fresh, ask }: { onNext: () => void; onLater: () => void; later: boolean; fresh: boolean; ask: AskMode }) {
   const { upcoming, account } = useFlow();
   if (!upcoming) return null;
-  return <main className="v4-main v4-narrow">
-    {fresh ? <div className="v4-success"><span><I n="check" s={30} /></span><h1>You’re booked!</h1><p>We’ve sent a confirmation to {account!.email}.</p></div>
-      : <div className="v4-ready-head"><span className="fl-kicker">ONE THING LEFT</span><h1>Answer the questions before your session</h1></div>}
-    {later && <section className="v4-next-up">
-      <div><span className="fl-kicker">{nextCopy[ask].kicker}</span><h2>Help {counsellorById(upcoming.slot.counsellor).name.split(" ")[0]} get to know you</h2>
-        <p>{nextCopy[ask].body}</p></div>
-      <div className="v4-next-actions"><button className="fl-btn fl-primary big" onClick={onNext}>{nextCopy[ask].cta} <I n={ask === "voice" ? "phone" : ask === "chat" ? "chat" : "arrow"} s={18} /></button>{fresh && <button className="fl-link" onClick={onLater}>I’ll do it later</button>}</div>
-    </section>}
-    <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />
+  const c = counsellorById(upcoming.slot.counsellor);
+  const first = c.name.split(" ")[0];
+  const sl = upcoming.slot;
+  return <main className="v4-main v4-step2">
+    <div className={"v4-booked" + (fresh ? " is-fresh" : "")} role="status">
+      <span className="v4-booked-tick"><I n="check" s={22} /></span>
+      <p><b>{fresh ? "You’re booked." : "Your session is booked."}</b> {dayLabel(sl.date)}, {shortDate(sl.date)} at {time12(sl.time)} with {c.name}. The meeting link is in your SMS and email.</p>
+    </div>
+    {later ? <section className="v4-ask">
+      <div className="v4-ask-main">
+        <span className="fl-kicker">{nextCopy[ask].kicker}</span>
+        <h1>Now, help {first} get to know you</h1>
+        <p className="v4-ask-body">{nextCopy[ask].body}</p>
+        <div className="v4-next-actions"><button className="fl-btn fl-primary v4-cta" onClick={onNext}>{nextCopy[ask].cta} <I n={ask === "voice" ? "phone" : ask === "chat" ? "chat" : "arrow"} s={22} /></button>
+          {fresh && <button className="fl-link" onClick={onLater}>I’ll do it later</button>}</div>
+      </div>
+      <figure className="v4-ask-note">
+        <Avatar c={c} size={96} />
+        <blockquote>“I read every answer before we meet. That way we spend our 30 minutes on your plan, not on the basics.”</blockquote>
+        <figcaption><b>{c.name}</b>{c.title}</figcaption>
+      </figure>
+    </section> : <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />}
   </main>;
 }
 
@@ -187,10 +195,11 @@ function Ready({ onEdit, ask }: { onEdit: () => void; ask: AskMode }) {
   const [video, setVideo] = useState(false);
   if (!upcoming) return null;
   const c = counsellorById(upcoming.slot.counsellor);
-  return <main className="v4-main">
+  return <main className="v4-main v4-step3">
     <div className="v4-ready-head"><span className="fl-kicker">STEP 3 OF 3</span><h1>You’re all set, {account!.name.split(" ")[0]}</h1><p>Now just join your session. Your Career Hub opens after {c.name.split(" ")[0]} marks it complete.</p></div>
-    <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />
     <div className="v4-ready">
+      <SessionCard s={upcoming} email={account!.email} phone={account!.phone} />
+      <div className="v4-ready-side">
         <section className="fl-card">
           <h2>Your checklist</h2>
           <ul className="v4-check">
@@ -205,6 +214,7 @@ function Ready({ onEdit, ask }: { onEdit: () => void; ask: AskMode }) {
           <ul className="v4-after-list">{[["tasks", "A short task list"], ["book", "Courses"], ["briefcase", "Jobs & internships"], ["doc", "CV Studio"], ["globe", "Study Abroad"]].map(([i, l]) => <li key={l}><I n={i} s={20} />{l}<I n="lock" s={16} /></li>)}</ul>
           <button className="fl-link" onClick={() => setVideo(true)}>Watch how it works again</button>
         </section>
+      </div>
     </div>
     {video && <Dialog title="How Career Hub works" wide onClose={() => setVideo(false)}><Explainer /></Dialog>}
   </main>;

@@ -101,25 +101,28 @@ export function Bell({ onGo }: { onGo?: (target: string) => void }) {
 }
 
 /* ---------- Slot picker for one counsellor ---------- */
-export function SlotPicker({ counsellor, value, onChange, compact }: { counsellor: string; value: Slot | null; onChange: (s: Slot) => void; compact?: boolean }) {
+// look="calendar" (v4): days drawn like calendar dates, with one dot per open time.
+export function SlotPicker({ counsellor, value, onChange, compact, look }: { counsellor: string; value: Slot | null; onChange: (s: Slot) => void; compact?: boolean; look?: "calendar" }) {
   const days = upcomingDays(compact ? 6 : 8);
   const firstWithTimes = days.find((d) => openTimes(counsellor, d).length) ?? days[0];
   const [day, setDay] = useState(value && value.counsellor === counsellor ? value.date : firstWithTimes.date);
   const current = days.find((d) => d.date === day) ?? firstWithTimes;
   const times = openTimes(counsellor, current);
   const morning = times.filter((t) => t < "13:00"), afternoon = times.filter((t) => t >= "13:00");
-  return <div className="fl-slots">
+  return <div className={"fl-slots" + (look ? " is-" + look : "")}>
     <div className="fl-days" role="radiogroup" aria-label="Day">
       {days.map((d) => { const n = openTimes(counsellor, d).length; return <button key={d.date} role="radio" aria-checked={d.date === current.date} disabled={!n} className={d.date === current.date ? "is-on" : ""} onClick={() => setDay(d.date)}>
-        <small>{dayLabel(d.date) === "Tomorrow" ? "Tomorrow" : shortWeekday(d.date)}</small><strong>{shortDate(d.date)}</strong><em>{n ? `${n} open` : "Off"}</em>
+        {look ? <><small>{dayLabel(d.date) === "Tomorrow" ? "Tomorrow" : shortWeekday(d.date)}</small><strong>{shortDate(d.date).split(" ")[0]}</strong><small>{shortDate(d.date).split(" ")[1]}</small>
+          <span className="fl-day-dots" aria-label={n ? `${n} times open` : "No times"}>{n ? Array.from({ length: n }, (_, i) => <i key={i} />) : "Off"}</span></>
+        : <><small>{dayLabel(d.date) === "Tomorrow" ? "Tomorrow" : shortWeekday(d.date)}</small><strong>{shortDate(d.date)}</strong><em>{n ? `${n} open` : "Off"}</em></>}
       </button>; })}
     </div>
     {[["Before lunch", morning], ["After lunch", afternoon]].map(([label, list]) => (list as string[]).length > 0 && <div key={label as string} className="fl-times">
       <span>{label as string}</span>
       <div role="radiogroup" aria-label={`${label} times`}>{(list as string[]).map((t) => { const on = value?.counsellor === counsellor && value.date === current.date && value.time === t;
-        return <button key={t} role="radio" aria-checked={on} className={on ? "is-on" : ""} onClick={() => onChange({ counsellor, date: current.date, time: t })}>{time12(t)}</button>; })}</div>
+        return <button key={t} role="radio" aria-checked={on} className={on ? "is-on" : ""} onClick={() => onChange({ counsellor, date: current.date, time: t })}>{look && <span className="fl-time-mark">{on && <I n="check" s={14} />}</span>}{time12(t)}</button>; })}</div>
     </div>)}
-    <p className="fl-fine"><I n="clock" s={15} /> Each session is 30 minutes.</p>
+    {!look && <p className="fl-fine"><I n="clock" s={15} /> Each session is 30 minutes.</p>}
   </div>;
 }
 
@@ -199,7 +202,7 @@ const scenes = [
   { title: "Pick a counsellor", body: "Choose the person who fits you best. Everyone is free for students." },
   { title: "Choose a time", body: "Sessions are 30 minutes. Pick any open time that suits your classes." },
   { title: "Answer 11 quick questions", body: "About 3 minutes. It helps your counsellor get to know you before you meet." },
-  { title: "Get the link by email and SMS", body: "The day before, and again 15 minutes before your session." },
+  { title: "Get your meeting link right away", body: "By SMS and email as soon as you book, with a reminder before the session." },
   { title: "Talk online for 30 minutes", body: "Join from your phone or laptop. The call happens on Google Meet." },
   { title: "Your Career Hub opens", body: "Your counsellor sets your tasks, courses and jobs. They show up here." },
 ];
@@ -255,8 +258,8 @@ function Scene({ n }: { n: number }) {
   if (n === 1) return <div className="sc sc-time"><div className="sc-days">{["Sun", "Mon", "Tue", "Wed", "Thu"].map((d, k) => <span key={d} className={k === 2 ? "is-pick" : ""} style={{ ["--d" as string]: `${k * 0.1}s` }}>{d}<b>{12 + k}</b></span>)}</div>
     <div className="sc-hours">{["10:00 AM", "10:45 AM", "11:30 AM", "2:30 PM", "3:15 PM", "4:00 PM"].map((t, k) => <span key={t} className={k === 4 ? "is-pick" : ""} style={{ ["--d" as string]: `${0.5 + k * 0.08}s` }}>{t}</span>)}</div></div>;
   if (n === 2) return <div className="sc sc-quiz"><div className="sc-sheet">{["Which year are you in?", "What do you enjoy doing?", "What worries you most?", "What do you want after graduation?"].map((q, k) => <div key={q} style={{ ["--d" as string]: `${0.2 + k * 0.6}s` }}><span className="sc-check" />{q}</div>)}</div></div>;
-  if (n === 3) return <div className="sc sc-msg"><div className="sc-phone"><span className="sc-notch" /><div className="sc-sms"><b>BRAC Career Hub</b>Your session with Nusrat starts in 15 min.<u>Tap to join</u></div></div>
-    <div className="sc-mail"><I n="mail" s={26} /><span><b>Your session is tomorrow</b><small>Join link inside</small></span></div></div>;
+  if (n === 3) return <div className="sc sc-msg"><div className="sc-phone"><span className="sc-notch" /><div className="sc-sms"><b>BRAC Career Hub</b>Booked: Sunday 2:30 PM with Nusrat.<u>meet.google.com/kmr-tqz</u></div></div>
+    <div className="sc-mail"><I n="mail" s={26} /><span><b>Your session is booked</b><small>Meeting link inside</small></span></div></div>;
   if (n === 4) return <div className="sc sc-call"><div className="sc-tile"><Avatar c={c[0]} size={84} /><small>Nusrat</small></div><div className="sc-tile is-you"><span className="sc-you">You</span><small>Ayesha</small></div><div className="sc-callbar"><span /><span /><span className="end" /></div><span className="sc-timer">29:41</span></div>;
   return <div className="sc sc-open"><div className="sc-side">{["Home", "My tasks", "Courses", "Jobs", "CV Studio"].map((x, k) => <span key={x} style={{ ["--d" as string]: `${0.2 + k * 0.25}s` }}>{x}</span>)}</div>
     <div className="sc-main"><b>Hi Ayesha 👋</b>{["Start the Excel course", "Make your first CV", "Save two internships"].map((x, k) => <span key={x} style={{ ["--d" as string]: `${1.2 + k * 0.3}s` }}><i />{x}</span>)}</div></div>;
