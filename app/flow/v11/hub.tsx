@@ -51,12 +51,16 @@ export function Hub({ exit }: { exit: () => void }) {
   const side = <>
     <div className="fl-brand is-guided v11-brand"><Image data-guide="plane-dock" src="/careerhub-logo.png" width={96} height={86} alt="BRAC Career Hub" /></div>
     <nav aria-label="Career Hub" data-guide="nav-main" className="v11-nav">
-      {nav.map((n) => <button key={n.id} className={"v11-nav-item" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
-        <AppIcon n={n.icon} s={34} /><span>{sectionName[n.id][lang]}</span>{!!n.count && <em>{num(n.count, lang)}</em>}</button>).flatMap((b, k) => nav[k].id !== "abroad" ? [b] : [b,
-        <div key="abroad-sub" className="v11-subnav" role="group" aria-label={sectionName.abroad[lang]}>
-          {([["catalog", t("সব প্রোগ্রাম", "All programs")], ["programs", t("আমার প্রোগ্রাম", "My programs")], ["documents", t("আমার ডকুমেন্ট", "My documents")]] as const).map(([id, label]) =>
-            <button key={id} className={"v11-subnav-item" + (page === "abroad" && sub === id ? " is-on" : "")} aria-current={page === "abroad" && sub === id ? "page" : undefined} onClick={() => goAbroad(id)}>{label}</button>)}
-        </div>])}
+      {nav.map((n) => n.id === "abroad"
+        // Study Abroad is a group: a plain label, then its three places, each with its own icon.
+        ? <div key="abroad" className="v11-nav-group" role="group" aria-labelledby="v11-abroad-label">
+          <span id="v11-abroad-label" className="v11-nav-label">{sectionName.abroad[lang]}</span>
+          {([["catalog", "abroad", "green", t("সব প্রোগ্রাম", "All programs")], ["programs", "grad", "purple", t("আমার প্রোগ্রাম", "My programs")], ["documents", "note", "amber", t("আমার ডকুমেন্ট", "My documents")]] as const).map(([id, icon, tone, label]) =>
+            <button key={id} className={"v11-nav-item" + (page === "abroad" && sub === id ? " is-on" : "")} aria-current={page === "abroad" && sub === id ? "page" : undefined} onClick={() => goAbroad(id)}>
+              <AppIcon n={icon} tone={tone} s={34} /><span>{label}</span></button>)}
+        </div>
+        : <button key={n.id} className={"v11-nav-item" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
+          <AppIcon n={n.icon} s={34} /><span>{sectionName[n.id][lang]}</span>{!!n.count && <em>{num(n.count, lang)}</em>}</button>)}
     </nav>
     <div className="v11-side-session">
       {upcoming ? <button className="v11-side-next" onClick={() => go("home")}>

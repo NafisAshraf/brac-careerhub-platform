@@ -458,8 +458,6 @@
 .v11-card-foot .v11-select { margin-top: 0; flex: 1 1 200px; }
 .v11-card-toggle { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 8px 12px; border: 0; border-radius: 10px; background: #f3e9f7; color: var(--purple) !important; font-weight: 700; font-size: 14.5px; }
 @media (max-width: 720px) {
-  .v11-detail-card { grid-template-columns: 1fr !important; }
-  .v11-detail-card > img { height: 200px !important; min-height: 0 !important; }
   .v11-card-facts { grid-template-columns: 1fr; }
 }
 
@@ -468,22 +466,22 @@
 .v11-tile.is-locked .v11-locked-p { flex: 1; align-items: center; }
 .v11-tasks-sum > div > b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* A course or job opened on its own */
-.v11-detail { max-width: 1000px; margin-inline: auto; }
-.v11-detail .v4-back { margin: 0 0 12px -12px; }
-.v11-detail-card { display: grid; grid-template-columns: minmax(260px, 40%) 1fr; overflow: hidden; border: 1px solid #e8e1ec; border-radius: 22px; background: #fff; }
-.v11-detail-card > img { width: 100%; height: 100%; min-height: 380px; object-fit: cover; }
-.v11-detail-body { display: flex; flex-direction: column; gap: 8px; padding: 26px 30px 28px; }
-.v11-detail-body > small { color: var(--muted); font-size: 15px; }
-.v11-detail-body h1 { font-size: clamp(24px, 2.4vw, 30px); line-height: 1.25; }
-.v11-detail-meta { font-weight: 650; color: var(--purple) !important; }
-.v11-detail-foot { margin-top: 10px; padding-top: 14px; border-top: 1px solid #efe8f3; }
+/* A course or job opened on its own: picture on top, details below, straight on the page */
+.v11-detail { max-width: 860px; margin-inline: auto; display: flex; flex-direction: column; gap: 8px; }
+.v11-detail .v4-back { align-self: flex-start; margin: 0 0 6px -12px; }
+.v11-detail-img { width: 100%; height: clamp(200px, 30vw, 320px); object-fit: cover; border-radius: 20px; margin-bottom: 10px; }
+.v11-detail-top { color: var(--muted); font-size: 15px; }
+.v11-detail h1 { font-size: clamp(26px, 2.8vw, 34px); line-height: 1.2; }
+.v11-detail-meta { font-weight: 650; color: var(--purple) !important; font-size: 16.5px; }
+.v11-detail .v11-why { align-self: flex-start; font-size: 16px; }
+.v11-detail-more { display: grid; gap: 10px; margin-top: 10px; padding-top: 18px; border-top: 1px solid #e8e1ec; }
+.v11-detail-more > p { color: #3d3346 !important; font-size: 16.5px; }
+.v11-detail-more h4 { margin: 6px 0 0; font-size: 17px; }
+.v11-detail-foot { margin-top: 12px; padding-top: 16px; border-top: 1px solid #e8e1ec; max-width: 420px; }
 
-/* Study Abroad: its three places sit under it in the sidebar */
-.v11-subnav { display: grid; gap: 1px; margin: 0 0 4px 24px; padding-left: 18px; border-left: 2px solid #ece4f1; }
-.v11-subnav-item { padding: 6px 10px; border: 0; border-radius: 10px; background: none; color: #5d5366; font-weight: 600; font-size: 15px; text-align: left; }
-.v11-subnav-item:hover { background: #f6f1f8; }
-.v11-subnav-item.is-on { background: #f3e9f7; color: var(--purple); font-weight: 750; }
+/* Study Abroad in the sidebar: a plain group label, then its three places with icons */
+.v11-nav-group { display: grid; gap: 2px; margin: 8px 0 4px; }
+.v11-nav-label { padding: 2px 10px 4px; color: #8a7f94; font-size: 13.5px; font-weight: 750; letter-spacing: .02em; }
 /* The AI match starts from All programs */
 .v11-match-cta { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; padding: 18px 22px; border-radius: 20px; color: #fff; background: radial-gradient(420px 200px at 100% 0%, #c0187488, transparent 70%), linear-gradient(150deg, #3a1152, #5b1f7c 55%, #8e1a6e); box-shadow: 0 16px 36px #3a115233; }
 .v11-match-cta > div { flex: 1; display: grid; gap: 2px; }
@@ -504,5 +502,4 @@
   .v11-match-cta { flex-wrap: wrap; }
   .v11-match-cta .fl-btn { width: 100%; }
   .v11-abroad-stats { grid-template-columns: 1fr; }
-  .v11-subnav { margin-left: 16px; }
 }

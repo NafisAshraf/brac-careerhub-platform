@@ -100,17 +100,13 @@ function Card({ onOpen, image, top, title, why, meta, children }: { onOpen: () =
 function Detail({ back, onBack, image, top, title, why, meta, children, side }: { back: string; onBack: () => void; image: string; top: string; title: string; why: string; meta: string; children: ReactNode; side?: ReactNode }) {
   return <div className="v11-page v11-detail">
     <button className="fl-btn ghost v4-back" onClick={onBack}><Ico n="back" s={20} w="bold" /> {back}</button>
-    <article className="v11-detail-card">
-      <img src={image} alt="" />
-      <div className="v11-detail-body">
-        <small>{top}</small>
-        <h1>{title}</h1>
-        <p className="v11-detail-meta">{meta}</p>
-        <p className="v11-why">“{why}”</p>
-        <div className="v11-card-more">{children}</div>
-        {side}
-      </div>
-    </article>
+    <img className="v11-detail-img" src={image} alt="" />
+    <small className="v11-detail-top">{top}</small>
+    <h1>{title}</h1>
+    <p className="v11-detail-meta">{meta}</p>
+    <p className="v11-why">“{why}”</p>
+    <div className="v11-detail-more">{children}</div>
+    {side}
   </div>;
 }
 
