@@ -1,7 +1,7 @@
 "use client";
 // Filled, coloured icons (Phosphor "fill" and "duotone"), and app-style icon tiles.
 import {
-  ArrowCounterClockwiseIcon, ArrowLeftIcon, ArrowRightIcon, ArrowsLeftRightIcon, BellIcon, BookOpenTextIcon, BriefcaseIcon, CalendarCheckIcon, CalendarDotsIcon,
+  ArrowCounterClockwiseIcon, ArrowLeftIcon, ArrowRightIcon, ArrowsLeftRightIcon, ArrowUpRightIcon, BellIcon, BookOpenTextIcon, BriefcaseIcon, CalendarCheckIcon, CalendarDotsIcon,
   CalendarPlusIcon, CaretDownIcon, CaretRightIcon, ChatsCircleIcon, CheckCircleIcon, CheckIcon, ClockIcon, CopyIcon, DeviceMobileIcon, EnvelopeSimpleIcon,
   FileTextIcon, GlobeHemisphereWestIcon, GraduationCapIcon, HouseIcon, InfoIcon, LinkSimpleIcon, ListChecksIcon, LockSimpleIcon, MagicWandIcon,
   NotePencilIcon, PauseIcon, PencilSimpleIcon, PlayIcon, PlusIcon, SignOutIcon, SparkleIcon, TrashIcon, UserCircleIcon, UserSwitchIcon, UsersThreeIcon,
@@ -11,7 +11,7 @@ import {
 const map: Record<string, Icon> = {
   home: HouseIcon, tasks: ListChecksIcon, courses: BookOpenTextIcon, jobs: BriefcaseIcon, cv: FileTextIcon, abroad: GlobeHemisphereWestIcon, profile: UserCircleIcon,
   sessions: ChatsCircleIcon, calendar: CalendarDotsIcon, booked: CalendarCheckIcon, book: CalendarPlusIcon, bell: BellIcon, clock: ClockIcon, video: VideoCameraIcon,
-  mail: EnvelopeSimpleIcon, phone: DeviceMobileIcon, link: LinkSimpleIcon, copy: CopyIcon, arrow: ArrowRightIcon, back: ArrowLeftIcon, down: CaretDownIcon,
+  mail: EnvelopeSimpleIcon, phone: DeviceMobileIcon, link: LinkSimpleIcon, copy: CopyIcon, arrow: ArrowRightIcon, open: ArrowUpRightIcon, back: ArrowLeftIcon, down: CaretDownIcon,
   right: CaretRightIcon, check: CheckIcon, done: CheckCircleIcon, x: XIcon, lock: LockSimpleIcon, plus: PlusIcon, trash: TrashIcon, spark: SparkleIcon,
   play: PlayIcon, pause: PauseIcon, replay: ArrowCounterClockwiseIcon, info: InfoIcon, note: NotePencilIcon, edit: PencilSimpleIcon, wand: MagicWandIcon,
   switch: UserSwitchIcon, swap: ArrowsLeftRightIcon, people: UsersThreeIcon, grad: GraduationCapIcon, warn: WarningCircleIcon, out: SignOutIcon,

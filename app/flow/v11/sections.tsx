@@ -1,17 +1,17 @@
 "use client";
 // v11 sections behind the sidebar. Tasks are a plain to-do list (Todoist / Notion style):
 // tick, add, done. No buttons inside tasks, no links out.
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { CVStudio } from "../../career/cv-studio";
 import { StudyAbroadSection, abroadNav, initialSelection, type AbroadPage } from "../../hub-v3/abroad";
 import { assignedCourses, assignedJobs, counsellorById } from "../data";
 import { Avatar } from "../parts";
-import { type Answers, cf, courseText, jobText, questions, type Task } from "./content";
+import { type Answers, cf, courseMore, courseText, jobMore, jobText, questions, type Task } from "./content";
 import { AppIcon, Ico } from "./icons";
 import { num, useL } from "./lang";
 import { AnswerInput } from "./pre";
 import { useHub, type Account } from "./store";
-import { Due, animate } from "./home";
+import { Due, animate, flip } from "./home";
 
 export function PageHead({ icon, title, body, children }: { icon: string; title: string; body?: string; children?: ReactNode }) {
   return <header className="v11-page-head"><AppIcon n={icon} s={48} /><div><h1>{title}</h1>{body && <p>{body}</p>}</div>{children}</header>;
@@ -77,32 +77,61 @@ function TaskRow({ task, by, ticking, landed, onToggle }: { task: Task; by: Retu
   </li>;
 }
 
-/* ---------- Courses ---------- */
+/* ---------- Courses and jobs: cards that open in place to show more ---------- */
+function useOpenCard() {
+  const box = useRef<HTMLDivElement>(null);
+  const [on, setOn] = useState<string | null>(null);
+  const toggle = (id: string) => {
+    if (!box.current) return;
+    flip(box.current, ":scope > [data-card]", "card", () => setOn((o) => (o === id ? null : id)), () =>
+      box.current?.querySelector(`[data-card="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" }));
+  };
+  return { box, on, toggle };
+}
+function Card({ id, open, onToggle, image, top, title, why, meta, children, more }: { id: string; open: boolean; onToggle: () => void; image: string; top: string; title: string; why: string; meta: string; children?: ReactNode; more: ReactNode }) {
+  const { t } = useL();
+  return <article data-card={id} className={"v11-card is-click" + (open ? " is-open" : "")}>
+    {!open && <button className="v11-card-hit" tabIndex={-1} aria-hidden="true" onClick={onToggle} />}
+    <img src={image} alt="" />
+    <div>
+      <small>{top}</small>
+      <h3>{title}</h3>
+      <p className="v11-why">“{why}”</p>
+      <p>{meta}</p>
+      {open && <div className="v11-card-more">{more}</div>}
+      <div className="v11-card-foot">{children}
+        <button className="v11-card-toggle" aria-expanded={open} onClick={onToggle}>{open ? t("কম দেখুন", "Show less") : t("বিস্তারিত দেখুন", "See details")}<Ico n="down" s={14} w="bold" /></button></div>
+    </div>
+  </article>;
+}
+
 export function Courses() {
   const { courses, dispatch } = useHub();
   const { t, lang } = useL();
+  const { box, on, toggle } = useOpenCard();
   return <div className="v11-page">
     <PageHead icon="courses" title={t("আপনার কোর্স", "Your courses")} body={t("কাউন্সেলর আপনার কথা শুনে এগুলো বেছেছেন। প্রথমটা দিয়ে শুরু করুন।", "Your counsellor chose these from what you told them. Start with the first one.")} />
-    <div className="v11-cards">{assignedCourses.map((x) => <article key={x.id} className="v11-card">
-      <img src={x.image} alt="" />
-      <div><small>{x.provider}</small><h3>{x.title}</h3><p className="v11-why">“{courseText[x.id].why[lang]}”</p><p>{courseText[x.id].mode[lang]}</p>
-        <label className="v11-select"><span>{t("অবস্থা", "Status")}</span><select value={courses[x.id] ?? "new"} onChange={(e) => dispatch({ type: "course", id: x.id, status: e.target.value as "new" })}>
-          <option value="new">{t("শুরু হয়নি", "Not started")}</option><option value="started">{t("চলছে", "In progress")}</option><option value="done">{t("শেষ", "Finished")}</option></select></label></div>
-    </article>)}</div>
+    <div className="v11-cards" ref={box}>{assignedCourses.map((x) => { const m = courseMore[x.id]; return <Card key={x.id} id={x.id} open={on === x.id} onToggle={() => toggle(x.id)}
+      image={x.image} top={x.provider} title={x.title} why={courseText[x.id].why[lang]} meta={courseText[x.id].mode[lang]}
+      more={<><p>{m.about[lang]}</p><h4>{t("যা শিখবেন", "What you’ll learn")}</h4>
+        <ul className="v11-agreed">{m.learn.map((l) => <li key={l.en}><Ico n="done" s={18} w="fill" c="#17845f" />{l[lang]}</li>)}</ul>
+        <p className="v11-card-note"><Ico n="grad" s={18} w="duotone" />{m.extra[lang]}</p></>}>
+      <label className="v11-select"><span>{t("অবস্থা", "Status")}</span><select value={courses[x.id] ?? "new"} onChange={(e) => dispatch({ type: "course", id: x.id, status: e.target.value as "new" })}>
+        <option value="new">{t("শুরু হয়নি", "Not started")}</option><option value="started">{t("চলছে", "In progress")}</option><option value="done">{t("শেষ", "Finished")}</option></select></label>
+    </Card>; })}</div>
   </div>;
 }
 
-/* ---------- Jobs ---------- */
 export function Jobs() {
-  const { savedJobs, dispatch } = useHub();
   const { t, lang } = useL();
+  const { box, on, toggle } = useOpenCard();
   return <div className="v11-page">
-    <PageHead icon="jobs" title={t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")} body={t("আপনার কাউন্সেলরের বাছাই করা সুযোগ। পছন্দেরগুলো সেভ করুন, পরের সেশনে কথা হবে।", "Openings your counsellor picked. Save the ones you like and talk them through next session.")} />
-    <div className="v11-cards">{assignedJobs.map((x) => { const saved = savedJobs.includes(x.id); return <article key={x.id} className="v11-card">
-      <img src={x.image} alt="" />
-      <div><small>{x.org}</small><h3>{x.title}</h3><p className="v11-why">“{jobText[x.id].why[lang]}”</p><p>{jobText[x.id].meta[lang]}</p>
-        <button className={"fl-btn" + (saved ? " is-saved" : "")} aria-pressed={saved} onClick={() => dispatch({ type: "job", id: x.id })}><Ico n="done" s={18} w={saved ? "fill" : "regular"} />{saved ? t("সেভ করা হয়েছে", "Saved") : t("সেভ করুন", "Save")}</button></div>
-    </article>; })}</div>
+    <PageHead icon="jobs" title={t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")} body={t("আপনার কাউন্সেলরের বাছাই করা সুযোগ। যেকোনোটিতে চাপ দিয়ে বিস্তারিত দেখুন।", "Openings your counsellor picked. Tap any one to read more.")} />
+    <div className="v11-cards" ref={box}>{assignedJobs.map((x) => { const m = jobMore[x.id]; return <Card key={x.id} id={x.id} open={on === x.id} onToggle={() => toggle(x.id)}
+      image={x.image} top={x.org} title={x.title} why={jobText[x.id].why[lang]} meta={jobText[x.id].meta[lang]}
+      more={<><p>{m.about[lang]}</p><h4>{t("যা করবেন", "What you’ll do")}</h4>
+        <ul className="v11-agreed">{m.does.map((l) => <li key={l.en}><Ico n="done" s={18} w="fill" c="#17845f" />{l[lang]}</li>)}</ul>
+        <dl className="v11-card-facts"><div><dt>{t("যা লাগবে", "Looking for")}</dt><dd>{m.needs[lang]}</dd></div><div><dt>{t("আবেদনের শেষ দিন", "Apply by")}</dt><dd>{m.by[lang]}</dd></div></dl></>} />; })}</div>
   </div>;
 }
 

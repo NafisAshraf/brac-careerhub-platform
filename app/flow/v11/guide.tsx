@@ -10,7 +10,6 @@ type Step = { target: string; title: string; body: string };
 type Pt = { x: number; y: number };
 const TIP = { x: 34.5, y: 2.5 };
 const VB = 36;
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const find = (key: string) => document.querySelector<HTMLElement>(`[data-guide="${key}"]`);
 const visible = (el: HTMLElement | null) => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0; };
 const aim = (r: DOMRect): Pt => ({ x: r.left + Math.min(r.width * 0.28, 46), y: r.bottom - Math.min(r.height * 0.32, 16) });
@@ -55,23 +54,36 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
     if (el === logo) { const k = r.width / 132; return { p: { x: r.left + (15 + TIP.x) * k, y: r.top + (4 + TIP.y) * k }, w: r.width * 36 / 132 }; }
     return { p: { x: r.left + 10 + TIP.x * 24 / VB, y: r.top + (r.height - 21) / 2 + TIP.y * 24 / VB }, w: 24 };
   }, []);
-  const fly = useCallback((to: Pt, toW: number, done: () => void) => {
+  // A smooth S-curve: the plane leaves heading the way its nose points (up and right) and
+  // arrives the same way, so it never snaps round. The end is re-read every frame, so a target
+  // that moves (late scrolling, layout) is still met exactly. The heading eases towards the path.
+  const fly = useCallback((target: () => Pt, toW: number, done: () => void) => {
     cancelAnimationFrame(anim.current);
     const from = { ...pos.current }, fromW = size.current;
-    const dx = to.x - from.x, dy = to.y - from.y, dist = Math.hypot(dx, dy);
-    const lift = Math.min(220, dist * 0.38);
-    const c = { x: (from.x + to.x) / 2 + (dy > 0 ? -lift * 0.25 : 0), y: Math.min(from.y, to.y) - lift };
-    const dur = Math.min(1150, Math.max(620, 480 + dist * 0.55));
+    const to0 = target();
+    const dist = Math.hypot(to0.x - from.x, to0.y - from.y);
+    const nose = { x: Math.cos(NATURAL * Math.PI / 180), y: Math.sin(NATURAL * Math.PI / 180) };
+    const along = dist ? ((to0.x - from.x) * nose.x + (to0.y - from.y) * nose.y) / dist : 1; // 1 = straight ahead, -1 = behind
+    const L = Math.max(50, Math.min(240, dist * (0.3 + 0.12 * along)));
+    const dur = Math.min(1500, Math.max(800, 620 + dist * 0.6));
     const start = performance.now();
     const trail: Pt[] = [];
+    let heading = 0, last = 0;
     setMode("fly");
     const frame = (now: number) => {
-      const k = Math.min(1, (now - start) / dur), e = ease(k), u = 1 - e;
-      const p = { x: u * u * from.x + 2 * u * e * c.x + e * e * to.x, y: u * u * from.y + 2 * u * e * c.y + e * e * to.y };
-      const tan = { x: 2 * u * (c.x - from.x) + 2 * e * (to.x - c.x), y: 2 * u * (c.y - from.y) + 2 * e * (to.y - c.y) };
-      const settle = k > 0.72 ? ease((k - 0.72) / 0.28) : 0;
-      draw(p, (Math.atan2(tan.y, tan.x) * 180 / Math.PI - NATURAL) * (1 - settle), 1 + Math.sin(Math.PI * e) * 0.35, fromW + (toW - fromW) * e);
-      trail.push(p); if (trail.length > 14) trail.shift();
+      const k = Math.min(1, (now - start) / dur);
+      const e = 0.5 - Math.cos(Math.PI * k) / 2; // gentle in and out
+      const to = target();
+      const c1 = { x: from.x + nose.x * L, y: from.y + nose.y * L }, c2 = { x: to.x - nose.x * L, y: to.y - nose.y * L };
+      const u = 1 - e;
+      const p = { x: u * u * u * from.x + 3 * u * u * e * c1.x + 3 * u * e * e * c2.x + e * e * e * to.x, y: u * u * u * from.y + 3 * u * u * e * c1.y + 3 * u * e * e * c2.y + e * e * e * to.y };
+      const tan = { x: 3 * u * u * (c1.x - from.x) + 6 * u * e * (c2.x - c1.x) + 3 * e * e * (to.x - c2.x), y: 3 * u * u * (c1.y - from.y) + 6 * u * e * (c2.y - c1.y) + 3 * e * e * (to.y - c2.y) };
+      const want = Math.atan2(tan.y, tan.x) * 180 / Math.PI - NATURAL;
+      const turn = ((want - heading + 540) % 360) - 180;
+      const dt = last ? Math.min(48, now - last) : 16; last = now;
+      heading += turn * Math.min(1, dt / 90); // turn rate limit: no sharp snaps
+      draw(p, k < 1 ? heading : 0, 1 + Math.sin(Math.PI * e) * 0.22, fromW + (toW - fromW) * e);
+      trail.push(p); if (trail.length > 16) trail.shift();
       trailEl.current?.setAttribute("points", k < 1 ? trail.map((q) => `${q.x},${q.y}`).join(" ") : "");
       if (k < 1) anim.current = requestAnimationFrame(frame); else done();
     };
@@ -87,7 +99,7 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
   }, [mounted, mode, dock, draw]);
 
   const step = steps?.[i];
-  const end = useCallback(() => { setSteps(null); setRect(null); setMenu(false); const d = dock(); setMode("home"); fly(d.p, d.w, () => setMode("dock")); }, [dock, fly]);
+  const end = useCallback(() => { setSteps(null); setRect(null); setMenu(false); setMode("home"); fly(() => dock().p, dock().w, () => setMode("dock")); }, [dock, fly]);
   const advance = () => { if (!steps) return; if (i + 1 >= steps.length) end(); else setI(i + 1); };
 
   useEffect(() => {
@@ -99,8 +111,20 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
       setRect(null);
       const el = find(step.target);
       if (!visible(el)) { if (performance.now() - t0 < 1500) return void setTimeout(seek, 30); advance(); return; }
-      el!.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => { if (cancelled) return; fly(aim(el!.getBoundingClientRect()), 48, () => { if (!cancelled) { setRect(el!.getBoundingClientRect()); setMode("point"); } }); }, 380);
+      // Scroll first (only if needed) and wait until the page has stopped moving, then fly.
+      const r0 = el!.getBoundingClientRect();
+      const inView = r0.top >= 76 && r0.bottom <= window.innerHeight - 200;
+      if (!inView) el!.scrollIntoView({ behavior: "smooth", block: r0.height > window.innerHeight * 0.5 ? "start" : "center" });
+      let prev = NaN, still = 0;
+      const t1 = performance.now();
+      const settle = () => {
+        if (cancelled) return;
+        const y = el!.getBoundingClientRect().top;
+        still = Math.abs(y - prev) < 0.5 ? still + 1 : 0; prev = y;
+        if (still < 4 && performance.now() - t1 < 1600) { requestAnimationFrame(settle); return; }
+        fly(() => aim(el!.getBoundingClientRect()), 48, () => { if (!cancelled) { setRect(el!.getBoundingClientRect()); setMode("point"); } });
+      };
+      requestAnimationFrame(settle);
     };
     const first = setTimeout(seek, 0);
     return () => { cancelled = true; clearTimeout(first); };

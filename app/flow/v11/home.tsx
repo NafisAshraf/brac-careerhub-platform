@@ -1,13 +1,13 @@
 "use client";
 // v11 home. Sessions come first: the next session (or booking one) is the big tile, the last
 // session's notes sit beside it, and the full session history is a table below.
-// Tiles show a short preview. Clicking one expands it where it stands (the others move to
-// make room) and keeps it in view; closing returns it to its place.
+// The notes tile opens where it stands (the others slide to make room). Every other tile
+// grows into its full page: the hub morphs the tile into that section.
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { assignedCourses, assignedJobs, counsellorById, counsellors } from "../data";
 import { Avatar } from "../parts";
-import { answerText, cf, cn, counsellorText, questions, sessionTopics, type Task } from "./content";
+import { cf, cn, counsellorText, sessionTopics, type Task } from "./content";
 import { AppIcon, Ico } from "./icons";
 import { ago, clock, dayMonth, dayWord, inDays, longDay, num, useL } from "./lang";
 import { firstOpen, useHub, type Session } from "./store";
@@ -18,13 +18,44 @@ type Open = { id: string; col: number; row: number; w: number; h: number };
 
 // Rearrange with a View Transition where the browser supports it.
 export function animate(update: () => void, after?: () => void) {
-  const d = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void> } };
+  const d = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void>; ready: Promise<void> } };
   if (d.startViewTransition && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     let done = false;
     const once = () => { if (!done) { done = true; after?.(); } };
-    d.startViewTransition(() => flushSync(update)).finished.then(once, once);
+    const tr = d.startViewTransition(() => flushSync(update));
+    tr.ready.catch(() => {});
+    tr.finished.then(once, once);
     setTimeout(once, 520); // in case the transition is skipped or slow
   } else { update(); if (after) setTimeout(after, 30); }
+}
+
+// FLIP: note where every card is, apply the change, then slide each card from its old place.
+// A card that grew is revealed with a clip; one that shrank scales down while its content fades in.
+// The real elements move (no snapshots), so nothing jumps if the page scrolls or is hovered meanwhile.
+const EASE = "cubic-bezier(.22, .8, .24, 1)";
+export function flip(box: HTMLElement, sel: string, key: string, update: () => void, after?: () => void) {
+  const items = () => Array.from(box.querySelectorAll<HTMLElement>(sel));
+  items().forEach((el) => el.getAnimations().forEach((a) => a.cancel()));
+  const before = new Map(items().map((el) => [el.dataset[key], el.getBoundingClientRect()]));
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const T = reduce ? 0 : 480;
+  box.classList.add("is-flipping");
+  flushSync(update);
+  if (T) for (const el of items()) {
+    const a = before.get(el.dataset[key]), b = el.getBoundingClientRect();
+    if (!a) { el.animate([{ opacity: 0, transform: "scale(.97)" }, { opacity: 1, transform: "none" }], { duration: T, easing: EASE }); continue; }
+    const dx = a.left - b.left, dy = a.top - b.top, dw = b.width - a.width, dh = b.height - a.height;
+    const r = getComputedStyle(el).borderTopLeftRadius;
+    if (Math.abs(dw) < 1 && Math.abs(dh) < 1) {
+      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) el.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: T, easing: EASE });
+    } else if (dw > -1 && dh > -1) {
+      el.animate([{ transform: `translate(${dx}px, ${dy}px)`, clipPath: `inset(0 ${dw}px ${dh}px 0 round ${r})` }, { transform: "none", clipPath: `inset(0 0 0 0 round ${r})` }], { duration: T, easing: EASE });
+    } else {
+      el.animate([{ transformOrigin: "0 0", transform: `translate(${dx}px, ${dy}px) scale(${a.width / b.width}, ${a.height / b.height})` }, { transformOrigin: "0 0", transform: "none" }], { duration: T, easing: EASE });
+      for (const ch of Array.from(el.children)) (ch as HTMLElement).animate([{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1 }], { duration: T });
+    }
+  }
+  setTimeout(() => { box.classList.remove("is-flipping"); after?.(); }, T + 20);
 }
 
 // Where a tile sits in the grid right now (1-based column and row).
@@ -41,12 +72,13 @@ function cellOf(grid: HTMLElement, el: HTMLElement) {
   return { cols, col, row };
 }
 
-export function Home({ go }: { go: Go }) {
+export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
   const { account, last, tasks, unlocked = [], courses, savedJobs, answers, upcoming } = useHub();
   const { t, lang } = useL();
   const [open, setOpen] = useState<Open | null>(null);
   const grid = useRef<HTMLDivElement>(null);
   const has = (id: string) => (unlocked ?? []).includes(id as "courses");
+  const SEL = ":scope > [data-tile]";
 
   const focusTile = (id: string) => {
     const el = grid.current?.querySelector<HTMLElement>(`[data-tile="${id}"]`);
@@ -57,14 +89,13 @@ export function Home({ go }: { go: Go }) {
     el.focus({ preventScroll: true });
   };
   const toggle = (id: string) => {
-    if (open?.id === id) { animate(() => setOpen(null)); return; }
     const g = grid.current, el = g?.querySelector<HTMLElement>(`[data-tile="${id}"]`);
     if (!g || !el) return;
-    // Measure where the tile is in the normal layout, then grow it from there.
-    const at = open ? (flushSync(() => setOpen(null)), cellOf(g, el)) : cellOf(g, el);
-    const w = id === "session" || id === "abroad" ? at.cols : Math.min(2, at.cols);
+    if (open?.id === id) { flip(g, SEL, "tile", () => setOpen(null)); return; }
+    const at = cellOf(g, el);
+    const w = id === "session" ? at.cols : Math.min(2, at.cols);
     const col = Math.max(1, Math.min(at.col, at.cols - w + 1));
-    animate(() => setOpen({ id, col, row: at.row, w, h: 2 }), () => focusTile(id));
+    flip(g, SEL, "tile", () => setOpen({ id, col, row: at.row, w, h: 2 }), () => focusTile(id));
   };
 
   const h = new Date().getHours();
@@ -73,20 +104,21 @@ export function Home({ go }: { go: Go }) {
   const doneCount = tasks.length - openTasks.length;
   const started = Object.values(courses).filter((v) => v === "started").length;
   const c0 = last ? counsellorById(last.slot.counsellor) : null;
+  const name = (id: string) => (zoom === id ? "zoom" : `tile-${id}`);
 
-  // One tile. `head` is always shown, `peek` only when closed, `more` only when open.
-  const tile = (id: string, cls: string, label: ReactNode, peek: ReactNode, more: ReactNode, guide?: string) => {
+  // One tile. With `more` it opens in place; without, it grows into its own page.
+  const tile = (id: string, cls: string, label: ReactNode, peek: ReactNode, more?: ReactNode, guide?: string) => {
     const on = open?.id === id;
-    const style: CSSProperties = { viewTransitionName: `tile-${id}`, ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
-    return <section key={id} data-tile={id} tabIndex={-1} className={`v11-tile ${cls}` + (on ? " is-open" : "")} style={style} data-guide={guide}>
-      {!on && <button className="v11-hit" aria-expanded={false} aria-label={t("আরও দেখুন", "Show more")} onClick={() => toggle(id)} />}
+    const style: CSSProperties = { viewTransitionName: name(id), ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
+    return <section key={id} data-tile={id} tabIndex={-1} className={`v11-tile ${cls}` + (on ? " is-open" : "") + (more ? "" : " is-link")} style={style} data-guide={guide}>
+      {!on && <button className="v11-hit" aria-expanded={more ? false : undefined} aria-label={more ? t("আরও দেখুন", "Show more") : t("খুলুন", "Open")} onClick={() => (more ? toggle(id) : go(id))} />}
       <header className="v11-tile-head">{label}{on ? <button className="v11-close" aria-label={t("ছোট করুন", "Collapse")} onClick={() => toggle(id)}><Ico n="x" s={18} w="bold" /></button>
-        : <span className="v11-more" aria-hidden="true"><Ico n="down" s={16} w="bold" /></span>}</header>
+        : <span className="v11-more" aria-hidden="true"><Ico n={more ? "down" : "open"} s={16} w="bold" /></span>}</header>
       {on ? <div className="v11-tile-more">{more}</div> : peek}
     </section>;
   };
-  const locked = (id: string, cls: string, icon: string, name: string) => <section key={id} className={`v11-tile ${cls} is-locked`} style={{ viewTransitionName: `tile-${id}` }}>
-    <span className="v11-label"><AppIcon n={icon} tone="slate" s={30} />{name}</span>
+  const locked = (id: string, cls: string, icon: string, title: string) => <section key={id} data-tile={id} className={`v11-tile ${cls} is-locked`} style={{ viewTransitionName: `tile-${id}` }}>
+    <span className="v11-label"><AppIcon n={icon} tone="slate" s={30} />{title}</span>
     <p className="v11-locked-p"><Ico n="lock" s={16} w="fill" />{c0 ? t(`${cf(c0, "bn")} প্রয়োজন মনে করলে এটি খুলে দেবেন।`, `${cf(c0, "en")} opens this when it will help you.`) : ""}</p>
   </section>;
 
@@ -95,6 +127,7 @@ export function Home({ go }: { go: Go }) {
       <div><h1>{hello}, {account?.name.split(" ")[0]}</h1><p>{longDay(new Date().toISOString().slice(0, 10), lang)}</p></div>
     </header>
 
+    {/* session session notes notes / session session jobs cv / tasks courses profile cv */}
     <div className="v11-grid" ref={grid}>
       {upcoming ? tile("session", "is-session",
         <><span className="v11-label is-light"><AppIcon n="booked" tone="pink" s={30} />{t("পরের সেশন", "Your next session")}</span><Countdown date={upcoming.slot.date} /></>,
@@ -111,53 +144,39 @@ export function Home({ go }: { go: Go }) {
           <h4>{t("যা ঠিক হলো", "What you agreed")}</h4>
           <ul className="v11-agreed">{last.minutes.agreed.map((x) => <li key={x.en}><Ico n="done" s={18} w="fill" c="#17845f" />{x[lang]}</li>)}</ul>
           <button className="v11-go" onClick={() => document.getElementById("v11-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট", "All session notes")} <Ico n="down" s={16} w="bold" /></button></>)
-        : <section key="notes" className="v11-tile is-notes is-empty-notes"><span className="v11-label"><AppIcon n="note" tone="amber" s={30} />{t("সেশনের নোট", "Session notes")}</span><p className="v11-locked-p">{t("প্রথম সেশনের পর কাউন্সেলরের নোট এখানে আসবে।", "Your counsellor’s notes appear here after a session.")}</p></section>}
+        : <section key="notes" data-tile="notes" className="v11-tile is-notes is-empty-notes"><span className="v11-label"><AppIcon n="note" tone="amber" s={30} />{t("সেশনের নোট", "Session notes")}</span><p className="v11-locked-p">{t("প্রথম সেশনের পর কাউন্সেলরের নোট এখানে আসবে।", "Your counsellor’s notes appear here after a session.")}</p></section>}
+
+      {has("jobs") ? tile("jobs", "is-small",
+        <span className="v11-label"><AppIcon n="jobs" s={30} />{t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")}</span>,
+        <div className="v11-peek"><p className="v11-sum-big">{num(assignedJobs.length, lang)}<small>{t("টি সুযোগ", " openings")}</small></p>
+          <p className="v11-peek-line">{savedJobs.length ? t(`${num(savedJobs.length, "bn")}টি সেভ করা`, `${savedJobs.length} saved`) : t("কাউন্সেলরের বাছাই", "Picked by your counsellor")}</p></div>)
+        : locked("jobs", "is-small", "jobs", t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships"))}
+
+      {has("cv") ? tile("cv", "is-cv",
+        <span className="v11-label"><AppIcon n="cv" s={30} />{t("সিভি স্টুডিও", "CV Studio")}</span>,
+        <div className="v11-peek v11-cv-peek"><CvArt name={account?.name ?? ""} /><p>{t("আপনার তথ্য বসানো আছে। বাকিটা লিখলেই সিভি তৈরি।", "Your details are in. Add the rest and your CV is ready.")}</p></div>)
+        : locked("cv", "is-cv", "cv", t("সিভি স্টুডিও", "CV Studio"))}
 
       {tile("tasks", "is-tasks",
         <span className="v11-label"><AppIcon n="tasks" s={30} />{t("কাজের তালিকা", "Tasks")}</span>,
         <div className="v11-peek">
           <div className="v11-tasks-sum"><Ring done={doneCount} total={tasks.length} /><div><small>{t("এরপর", "Up next")}</small><b>{openTasks[0]?.title[lang] ?? t("সব কাজ শেষ!", "All done!")}</b>{openTasks[0] && <Due task={openTasks[0]} />}</div></div>
           {openTasks.length > 1 && <ul className="v11-peek-list">{openTasks.slice(1, 3).map((x) => <li key={x.id}><span className="v11-dot" />{x.title[lang]}</li>)}</ul>}
-        </div>,
-        <><TaskMini list={openTasks.slice(0, 6)} />
-          <button className="v11-go" onClick={() => go("tasks")}>{t("কাজের তালিকা খুলুন", "Open tasks")} <Ico n="arrow" s={16} w="bold" /></button></>, "tile-tasks")}
-
-      {has("cv") ? tile("cv", "is-cv",
-        <span className="v11-label"><AppIcon n="cv" s={30} />{t("সিভি স্টুডিও", "CV Studio")}</span>,
-        <div className="v11-peek v11-cv-peek"><CvArt name={account?.name ?? ""} /><p>{t("আপনার তথ্য বসানো আছে। বাকিটা লিখলেই সিভি তৈরি।", "Your details are in. Add the rest and your CV is ready.")}</p></div>,
-        <><div className="v11-cv-open"><CvArt name={account?.name ?? ""} /><div>
-          <p className="v11-more-p">{t("নাম, ইমেইল, ফোন, বিশ্ববিদ্যালয় আর বিষয় আগেই বসানো। শিক্ষা, অভিজ্ঞতা আর দক্ষতা যোগ করে এক পাতার সিভি বানান।", "Name, email, phone, university and subject are already in. Add education, experience and skills to make a one-page CV.")}</p>
-          <ul className="v11-agreed"><li><Ico n="done" s={18} w="fill" c="#17845f" />{t("ব্যক্তিগত তথ্য", "Personal details")}</li><li><Ico n="done" s={18} w="fill" c="#17845f" />{t("শিক্ষা", "Education")}</li><li><Ico n="warn" s={18} w="fill" c="#c4610f" />{t("অভিজ্ঞতা ও দক্ষতা বাকি", "Experience and skills to add")}</li></ul>
-          <button className="v11-go" onClick={() => go("cv")}>{t("সিভি স্টুডিও খুলুন", "Open CV Studio")} <Ico n="arrow" s={16} w="bold" /></button></div></div></>)
-        : locked("cv", "is-cv", "cv", t("সিভি স্টুডিও", "CV Studio"))}
+        </div>, undefined, "tile-tasks")}
 
       {has("courses") ? tile("courses", "is-small",
         <span className="v11-label"><AppIcon n="courses" s={30} />{t("কোর্স", "Courses")}</span>,
         <div className="v11-peek"><span className="v11-thumbs">{assignedCourses.map((x) => <img key={x.id} src={x.image} alt="" />)}</span>
-          <p className="v11-peek-line"><b>{t(`${num(assignedCourses.length, "bn")}টি কোর্স`, `${assignedCourses.length} courses`)}</b> · {started ? t(`${num(started, "bn")}টি চলছে`, `${started} in progress`) : t("শুরু হয়নি", "not started")}</p></div>,
-        <><ul className="v11-list">{assignedCourses.map((x) => <li key={x.id}><img src={x.image} alt="" /><span><b>{x.title}</b><small>{x.provider}</small></span><Status v={courses[x.id] ?? "new"} /></li>)}</ul>
-          <button className="v11-go" onClick={() => go("courses")}>{t("কোর্সগুলো খুলুন", "Open courses")} <Ico n="arrow" s={16} w="bold" /></button></>)
+          <p className="v11-peek-line"><b>{t(`${num(assignedCourses.length, "bn")}টি কোর্স`, `${assignedCourses.length} courses`)}</b> · {started ? t(`${num(started, "bn")}টি চলছে`, `${started} in progress`) : t("শুরু হয়নি", "not started")}</p></div>)
         : locked("courses", "is-small", "courses", t("কোর্স", "Courses"))}
 
-      {has("jobs") ? tile("jobs", "is-small",
-        <span className="v11-label"><AppIcon n="jobs" s={30} />{t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")}</span>,
-        <div className="v11-peek"><p className="v11-sum-big">{num(assignedJobs.length, lang)}<small>{t("টি সুযোগ", " openings")}</small></p>
-          <p className="v11-peek-line">{savedJobs.length ? t(`${num(savedJobs.length, "bn")}টি সেভ করা`, `${savedJobs.length} saved`) : t("কাউন্সেলরের বাছাই", "Picked by your counsellor")}</p></div>,
-        <><ul className="v11-list">{assignedJobs.map((x) => <li key={x.id}><img src={x.image} alt="" /><span><b>{x.title}</b><small>{x.org}</small></span>{savedJobs.includes(x.id) && <em className="v11-chip is-saved">{t("সেভ করা", "Saved")}</em>}</li>)}</ul>
-          <button className="v11-go" onClick={() => go("jobs")}>{t("সব সুযোগ দেখুন", "See all openings")} <Ico n="arrow" s={16} w="bold" /></button></>)
-        : locked("jobs", "is-small", "jobs", t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships"))}
-
       {tile("profile", "is-small",
-        <span className="v11-label"><AppIcon n="profile" s={30} />{t("আপনার উত্তর", "Your answers")}</span>,
-        <div className="v11-peek"><p className="v11-sum-big">{num(Object.keys(answers).length, lang)}<small>{t("টি উত্তর", " answers")}</small></p><p className="v11-peek-line">{t("কিছু বদলালে আপডেট করুন", "Update when things change")}</p></div>,
-        <><dl className="v11-answers">{questions.slice(0, 4).map((q) => <div key={q.id}><dt>{q.prompt[lang]}</dt><dd>{answerText(q, answers, lang)}</dd></div>)}</dl>
-          <button className="v11-go" onClick={() => go("profile")}>{t("উত্তর আপডেট করুন", "Update answers")} <Ico n="arrow" s={16} w="bold" /></button></>)}
+        <span className="v11-label"><AppIcon n="profile" s={30} />{t("আমার প্রোফাইল", "My profile")}</span>,
+        <div className="v11-peek"><p className="v11-sum-big">{num(Object.keys(answers).length, lang)}<small>{t("টি উত্তর", " answers")}</small></p><p className="v11-peek-line">{t("কিছু বদলালে আপডেট করুন", "Update when things change")}</p></div>)}
 
       {has("abroad") && tile("abroad", "is-abroad",
         <span className="v11-label is-light"><AppIcon n="abroad" s={30} />{t("বিদেশে পড়াশোনা", "Study Abroad")}</span>,
-        <p className="v11-abroad-line">{t("প্রোগ্রাম খুঁজুন, কাগজপত্র গুছান, আবেদন ট্র্যাক করুন।", "Find programs, get documents ready, track applications.")}</p>,
-        <><p className="v11-abroad-line">{t("All Programs দিয়ে শুরু করুন, অথবা AI ম্যাচ আপনার জন্য প্রোগ্রাম সাজেস্ট করবে।", "Start with All Programs, or let the AI match suggest programs for you.")}</p>
-          <button className="v11-go" onClick={() => go("abroad")}>{t("খুলুন", "Open")} <Ico n="arrow" s={16} w="bold" /></button></>)}
+        <p className="v11-abroad-line">{t("প্রোগ্রাম খুঁজুন, কাগজপত্র গুছান, আবেদন ট্র্যাক করুন।", "Find programs, get documents ready, track applications.")}</p>)}
     </div>
 
     <History />
@@ -200,7 +219,7 @@ function BookTile({ go }: { go: Go }) {
   const c = last ? counsellorById(last.slot.counsellor) : counsellors[0];
   const nextSame = firstOpen(c.id);
   const others = counsellors.filter((x) => x.id !== c.id);
-  return <section className="v11-tile is-session is-book" style={{ viewTransitionName: "tile-session" }} data-tile="session" data-guide="tile-session">
+  return <section className="v11-tile is-session is-book" data-tile="session" data-guide="tile-session">
     <span className="v11-label is-light"><AppIcon n="book" tone="pink" s={30} />{t("পরের সেশন", "Your next session")}</span>
     <h2>{t("আরেকটি সেশন বুক করুন", "Book your next session")}</h2>
     {last && <p className="v11-session-sub">{t(`শেষ সেশন ${ago(last.slot.date, "bn")}, ${cn(c, "bn")}ের সাথে।`, `Last session ${ago(last.slot.date, "en")}, with ${cn(c, "en")}.`)}</p>}
@@ -252,18 +271,6 @@ export function Due({ task }: { task: Task }) {
   const label = d < 0 ? t("সময় পেরিয়ে গেছে", "Overdue") : d === 0 ? t("আজ", "Today") : d === 1 ? t("আগামীকাল", "Tomorrow") : d < 7 ? dayWord(iso, lang) : dayMonth(iso, lang, true);
   return <span className={"v11-due " + cls}><Ico n="calendar" s={14} w="fill" />{label}</span>;
 }
-function TaskMini({ list }: { list: Task[] }) {
-  const { dispatch } = useHub();
-  const { lang } = useL();
-  return <ul className="v11-taskmini">{list.map((x) => <li key={x.id}>
-    <button role="checkbox" aria-checked={!!x.done} aria-label={x.title[lang]} className="v11-check" onClick={() => dispatch({ type: "task", id: x.id })}><Ico n="check" s={12} w="bold" /></button>
-    <span>{x.title[lang]}</span><Due task={x} /></li>)}</ul>;
-}
-function Status({ v }: { v: "new" | "started" | "done" }) {
-  const { t } = useL();
-  return <em className={"v11-chip is-" + v}>{v === "done" ? t("শেষ", "Finished") : v === "started" ? t("চলছে", "In progress") : t("শুরু হয়নি", "Not started")}</em>;
-}
-
 /* ---------- Session history: a table on the home page ---------- */
 function History() {
   const { sessions } = useHub();

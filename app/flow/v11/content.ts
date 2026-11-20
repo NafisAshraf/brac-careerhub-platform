@@ -84,6 +84,26 @@ export const jobText: Record<string, { meta: Txt; why: Txt }> = {
   "j-research": { meta: tx("ঢাকা · পার্ট-টাইম", "Dhaka · Part-time"), why: tx("ক্লাসের পাশাপাশি করা যায়। মাস্টার্স আবেদনে কাজে লাগবে।", "Fits around classes. Strong for a master’s application.") },
   "j-ops": { meta: tx("ঢাকা · হাইব্রিড · ২ মাস", "Dhaka · Hybrid · 2 months"), why: tx("স্টার্টআপের পরিবেশ দেখার সুযোগ।", "Lets you try a startup environment.") },
 };
+// Shown when a course or job card is opened.
+export const courseMore: Record<string, { about: Txt; learn: Txt[]; extra: Txt }> = {
+  "c-excel": { about: tx("স্প্রেডশিটের মূল কাজগুলো: ফর্মুলা, চার্ট আর ডেটা সাজানো। সপ্তাহে ৩-৪ ঘণ্টা লাগবে।", "The core of spreadsheets: formulas, charts and sorting data. About 3–4 hours a week."),
+    learn: [tx("ফর্মুলা ও ফাংশন", "Formulas and functions"), tx("চার্ট বানানো", "Making charts"), tx("PivotTable দিয়ে সারাংশ", "Summaries with PivotTables")], extra: tx("সার্টিফিকেট পেইড অপশনে", "Certificate with the paid option") },
+  "c-sql": { about: tx("ডেটাবেস থেকে নিজে তথ্য বের করা শিখবেন। Excel শেষ হলে শুরু করুন।", "Learn to pull data out of a database yourself. Start once Excel is done."),
+    learn: [tx("SELECT, WHERE আর JOIN", "SELECT, WHERE and JOIN"), tx("ডেটা গ্রুপ ও সাজানো", "Grouping and sorting data"), tx("একটি ছোট প্রজেক্ট", "One small project")], extra: tx("সার্টিফিকেট পেইড অপশনে", "Certificate with the paid option") },
+  "c-writing": { about: tx("ছোট দলে ইমেইল, প্রেজেন্টেশন আর ইন্টারভিউয়ের উত্তর অনুশীলন।", "Practise emails, presentations and interview answers in a small group."),
+    learn: [tx("পেশাদার ইমেইল লেখা", "Writing professional emails"), tx("৫ মিনিটের প্রেজেন্টেশন", "A 5-minute presentation"), tx("মক ইন্টারভিউ", "A mock interview")], extra: tx("BRAC শিক্ষার্থীদের জন্য ফ্রি", "Free for BRAC students") },
+};
+export const jobMore: Record<string, { about: Txt; does: Txt[]; needs: Txt; by: Txt }> = {
+  "j-analyst": { about: tx("bKash-এর বিজনেস টিমের সাথে রিপোর্ট আর ড্যাশবোর্ডে কাজ।", "Work with bKash’s business team on reports and dashboards."),
+    does: [tx("সাপ্তাহিক রিপোর্ট তৈরি", "Build the weekly reports"), tx("Excel-এ ডেটা পরিষ্কার করা", "Clean data in Excel"), tx("টিম মিটিংয়ে ফলাফল দেখানো", "Show findings in team meetings")],
+    needs: tx("Excel জানা থাকলে ভালো · ৩য় বা ৪র্থ বর্ষ", "Excel helps · 3rd or 4th year"), by: tx("১৫ ডিসেম্বর", "15 December") },
+  "j-research": { about: tx("BIGD-এর গবেষণা দলে সার্ভে আর ডেটা নিয়ে কাজ, সপ্তাহে ১৫ ঘণ্টা।", "Join BIGD’s research team on surveys and data, 15 hours a week."),
+    does: [tx("সার্ভের ডেটা এন্ট্রি ও যাচাই", "Enter and check survey data"), tx("আগের গবেষণা পড়া", "Read past studies"), tx("ছোট সারাংশ লেখা", "Write short summaries")],
+    needs: tx("ভালো ইংরেজি লেখা · যেকোনো বিষয়", "Good written English · any subject"), by: tx("১০ ডিসেম্বর", "10 December") },
+  "j-ops": { about: tx("Shikho-র অপারেশনস টিমে প্রতিদিনের কাজ কীভাবে চলে, তা কাছ থেকে দেখা।", "See how daily work runs in Shikho’s operations team."),
+    does: [tx("শিক্ষার্থীদের সাপোর্ট টিকেট দেখা", "Handle student support tickets"), tx("কাজের ধাপ লিখে রাখা", "Write down how things are done"), tx("ছোট উন্নতির প্রস্তাব", "Suggest small fixes")],
+    needs: tx("কথা বলায় আত্মবিশ্বাস · সপ্তাহে ৩ দিন অফিসে", "Confident talking to people · 3 days a week in the office"), by: tx("২০ ডিসেম্বর", "20 December") },
+};
 export const sectionName: Record<string, Txt> = {
   home: tx("হোম", "Home"), tasks: tx("কাজের তালিকা", "Tasks"), courses: tx("কোর্স", "Courses"), jobs: tx("চাকরি ও ইন্টার্নশিপ", "Jobs & internships"),
   cv: tx("সিভি স্টুডিও", "CV Studio"), abroad: tx("বিদেশে পড়াশোনা", "Study Abroad"), profile: tx("প্রোফাইল ও উত্তর", "Profile & answers"),
