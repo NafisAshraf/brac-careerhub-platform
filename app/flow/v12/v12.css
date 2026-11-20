@@ -1,4 +1,5 @@
-/* v12 · v11's home page, toned down. Scoped to .v12-look so v11 is unchanged. */
+/* v12 · v11's home page with the same colours used more sparingly, and tighter corners.
+   Scoped to .v12-look so v11 is unchanged. */
 .v12-look { display: contents; }
 
 /* Corners: 12px tiles instead of 22px, smaller radii inside them */
@@ -6,46 +7,48 @@
 .v12-look .v11-home .v11-history { border-radius: 12px; }
 .v12-look .v11-home .v11-choice { border-radius: 10px; }
 .v12-look .v11-home .v11-more,
-.v12-look .v11-home .v11-close { border-radius: 8px; }
+.v12-look .v11-home .v11-close,
 .v12-look .v11-home .v11-go,
-.v12-look .v11-home .v11-row-btn { border-radius: 8px; }
-.v12-look .v11-home .v11-count,
-.v12-look .v11-home .v11-chip { border-radius: 6px; }
-.v12-look .v11-home .v11-thumbs img { border-radius: 6px; }
+.v12-look .v11-home .v11-row-btn,
 .v12-look .v11-home .v11-session-link { border-radius: 8px; }
-.v12-look .v11-home .v11-cvart-page { border-radius: 4px; }
+.v12-look .v11-home .v11-count,
+.v12-look .v11-home .v11-chip,
+.v12-look .v11-home .v11-thumbs img,
 .v12-look .v11-home .v11-cvart-badge { border-radius: 6px; }
+.v12-look .v11-home .v11-cvart-page { border-radius: 4px; }
 
-/* Calmer surfaces: plain white tiles with a quiet border and shadow, no tinted gradients */
-.v12-look .v11-home .v11-tile { border-color: #e6e2ea; box-shadow: 0 1px 2px #2a0f3d0d; }
-.v12-look .v11-home .v11-tile:not(.is-open):not(.is-locked):hover { border-color: #d6cfdd; box-shadow: 0 6px 18px #2a0f3d12; transform: translateY(-1px); }
-.v12-look .v11-home .v11-tile.is-open { box-shadow: 0 0 0 2px #b9a3c9, 0 12px 30px #2a0f3d1a; }
-.v12-look .v11-home .v11-tile.is-notes,
-.v12-look .v11-home .v11-tile.is-tasks,
-.v12-look .v11-home .v11-tile.is-cv { background: #fff; border-color: #e6e2ea; }
-.v12-look .v11-home .v11-history { border-color: #e6e2ea; box-shadow: 0 1px 2px #2a0f3d0d; }
+/* The session tile keeps the v11 purple-to-pink, but as an accent, not a full fill:
+   a gradient strip along the top, a soft wash of the same colours, dark text. */
+.v12-look .v11-home .v11-tile.is-session { color: var(--ink); border: 1px solid #eadcf0; box-shadow: 0 1px 2px #2a0f3d0d;
+  background: radial-gradient(420px 220px at 100% 0%, #c018741a, transparent 70%), linear-gradient(160deg, #f5ecfa, #fff 58%); }
+.v12-look .v11-home .v11-tile.is-session::before { content: ""; position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(90deg, #3a1152, #5b1f7c 55%, #8e1a6e); }
+.v12-look .v11-home .v11-tile.is-session:not(.is-open):hover { box-shadow: 0 8px 22px #3a11521f; }
+.v12-look .v11-home .v11-tile.is-session.is-open { box-shadow: 0 0 0 2px #e8a5cf, 0 12px 30px #3a115224; }
+.v12-look .v11-home .v11-tile.is-session h2 { color: var(--ink); }
+.v12-look .v11-home .v11-tile.is-session h2 span { color: var(--pink); }
+.v12-look .v11-home .v11-tile.is-session .v11-label.is-light { color: var(--ink); }
+.v12-look .v11-home .v11-session-sub { color: var(--muted) !important; }
+.v12-look .v11-home .v11-count { background: #fbe5f0; color: var(--pink); }
+.v12-look .v11-home .v11-tile.is-session .v11-more { background: #f3eef6; color: #8a7f94; }
+.v12-look .v11-home .v11-session-who small { color: var(--muted); }
+.v12-look .v11-home .v11-session-who .fl-avatar { box-shadow: 0 0 0 3px #fff, 0 0 0 4px #ead9f1; }
+.v12-look .v11-home .v11-session-link { background: #f3e9f7; color: var(--purple) !important; }
+.v12-look .v11-home .v11-tile.is-session .v11-tile-more { border-top-color: #eee7f2; }
+.v12-look .v11-home .v11-prep { background: #faf6fc; }
+.v12-look .v11-home .v11-prep h4 { color: var(--ink); }
+.v12-look .v11-home .v11-prep ul { color: #4f4658; }
+.v12-look .v11-home .v11-session-more .v4-link { border: 1px solid #e3d6ea; }
+.v12-look .v11-home .v11-session-more .fl-btn { background: #fff; border-color: #e3d6ea; color: var(--ink); }
+.v12-look .v11-home .v11-session-more .fl-btn:hover:not(:disabled) { background: #f6f1f8; border-color: #d4c2df; }
+.v12-look .v11-home .v11-session-more .fl-btn.danger { color: #c42a3f; }
+.v12-look .v11-home .v11-choice { border: 1px solid #ece4f1; box-shadow: 0 1px 3px #2a0f3d0f; }
+.v12-look .v11-home .v11-choice:hover { box-shadow: 0 6px 16px #2a0f3d17; transform: translateY(-1px); }
+.v12-look .v11-home .v11-choice.is-same { border-color: transparent; box-shadow: 0 0 0 2px #ff8cc0, 0 1px 3px #2a0f3d0f; }
 
-/* The session tile: a deep, muted plum instead of the bright purple-to-pink */
-.v12-look .v11-home .v11-tile.is-session { background: linear-gradient(160deg, #2f1a3d, #432553 70%, #4e2a58); box-shadow: 0 8px 22px #2f1a3d2e; }
-.v12-look .v11-home .v11-tile.is-session:not(.is-open):hover { box-shadow: 0 12px 28px #2f1a3d38; }
-.v12-look .v11-home .v11-tile.is-session h2 span { color: #dcc9e6; }
-.v12-look .v11-home .v11-session-sub { color: #d9cde2 !important; }
-.v12-look .v11-home .v11-choice { box-shadow: 0 2px 8px #12061a33; }
-.v12-look .v11-home .v11-choice:hover { box-shadow: 0 6px 16px #12061a40; transform: translateY(-1px); }
-.v12-look .v11-home .v11-choice.is-same { box-shadow: 0 0 0 2px #d9a9c4, 0 2px 8px #12061a33; }
-.v12-look .v11-home .v11-choice > svg { color: #8a4f78; }
-
-/* Softer icons, rings and accents */
-.v12-look .v11-home .ai { filter: saturate(.72) brightness(1.02); box-shadow: none; }
-.v12-look .v11-home .v11-ring circle { stroke: #eceaf2; }
-.v12-look .v11-home .v11-ring circle.is-fill { stroke: #5b7fc4; }
-.v12-look .v11-home .v11-cvart-badge { background: #2f7a5c; box-shadow: none; }
-.v12-look .v11-home .v11-cvart-pen { background: #a9467a; box-shadow: none; }
-.v12-look .v11-home .v11-cvart-h { background: #7f5b98; }
-.v12-look .v11-home .v11-cvart-h.is-pink { background: #b56a92; }
-.v12-look .v11-home .v11-cvart-page { box-shadow: 0 8px 18px #2a0f3d14; }
-.v12-look .v11-home .v11-due.is-soon { color: #b0712f; }
-.v12-look .v11-home .v11-due.is-today { color: #2f7a5c; }
-.v12-look .v11-home .v11-more { background: #f4f2f6; color: #8d8696; }
-.v12-look .v11-home .v11-tile:hover .v11-more { background: #ece8f0; color: #5b4a68; }
-.v12-look .v11-home .v11-tile.is-locked { background: #faf9fb; }
+/* Other tiles keep their tints, but they fade to white sooner, with lighter shadows */
+.v12-look .v11-home .v11-tile { box-shadow: 0 1px 2px #2a0f3d0d; }
+.v12-look .v11-home .v11-tile:not(.is-open):not(.is-locked):hover { box-shadow: 0 8px 22px #2a0f3d14; transform: translateY(-1px); }
+.v12-look .v11-home .v11-tile.is-notes { background: linear-gradient(175deg, #fffaf0, #fff 40%); }
+.v12-look .v11-home .v11-tile.is-tasks { background: linear-gradient(175deg, #f1f6ff, #fff 40%); }
+.v12-look .v11-home .v11-tile.is-cv { background: linear-gradient(175deg, #f7f0fb, #fff 40%); }
+.v12-look .v11-home .v11-history { box-shadow: 0 1px 2px #2a0f3d0d; }
