@@ -21,21 +21,23 @@ function V11({ exit }: { exit: () => void }) {
   const flow = useHub();
   const { lang } = useL();
   const [view, setView] = useState<"auto" | "confirmed" | "questions">("auto");
+  const [skipped, setSkipped] = useState(false); // "I'll do it later": go to the last step, the form waits there
   const booked = !!flow.upcoming;
   useEffect(() => { window.scrollTo({ top: 0 }); }, [view, flow.phase, booked]);
   useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   if (flow.phase === "app") return <Hub exit={exit} />;
-  const step = !flow.upcoming ? 1 : !flow.testDone || view === "questions" ? 2 : 3;
-  const screen = flow.phase === "signup" ? "signup" : !flow.upcoming ? "book" : view === "questions" ? "questions" : view === "confirmed" || !flow.testDone ? "confirmed" : "ready";
+  const later = skipped && !flow.testDone;
+  const step = !flow.upcoming ? 1 : view === "questions" || (!flow.testDone && !later) ? 2 : 3;
+  const screen = flow.phase === "signup" ? "signup" : !flow.upcoming ? "book" : view === "questions" ? "questions" : (view === "confirmed" && !later) || (!flow.testDone && !later) ? "confirmed" : "ready";
   return <div className="fl v4 v11">
     <header className="fl-bar">
       <button className="fl-logo" onClick={exit} aria-label="BRAC Career Hub"><Image src="/careerhub-logo.png" width={74} height={51} alt="BRAC Career Hub" /></button>
-      <div className="fl-bar-mid">{flow.phase !== "signup" && <Stepper step={step} />}</div>
+      <div className="fl-bar-mid">{flow.phase !== "signup" && <Stepper step={step} formDue={later && step === 3} />}</div>
       <div className="fl-bar-end"><LangToggle /><Bell onGo={() => setView("auto")} /></div>
     </header>
     {screen === "signup" && <Signup />}
     {screen === "book" && <Book onBooked={() => setView("confirmed")} />}
-    {screen === "confirmed" && <Confirmed fresh={view === "confirmed"} onNext={() => setView("questions")} onLater={() => setView("auto")} />}
+    {screen === "confirmed" && <Confirmed fresh={view === "confirmed"} onNext={() => setView("questions")} onLater={() => { setSkipped(true); setView("auto"); }} />}
     {screen === "questions" && <Questions onDone={() => setView("auto")} />}
     {screen === "ready" && <Ready onEdit={() => setView("questions")} />}
     <DemoPanel />

@@ -11,7 +11,7 @@ import { AppIcon, Ico } from "./icons";
 import { num, useL } from "./lang";
 import { AnswerInput } from "./pre";
 import { useHub, type Account } from "./store";
-import { Due } from "./home";
+import { Due, animate } from "./home";
 
 export function PageHead({ icon, title, body, children }: { icon: string; title: string; body?: string; children?: ReactNode }) {
   return <header className="v11-page-head"><AppIcon n={icon} s={48} /><div><h1>{title}</h1>{body && <p>{body}</p>}</div>{children}</header>;
@@ -22,7 +22,18 @@ export function Tasks() {
   const { tasks, dispatch, sessions } = useHub();
   const { t, lang } = useL();
   const [text, setText] = useState("");
-  const [showDone, setShowDone] = useState(false);
+  const [showDone, setShowDone] = useState(true);
+  // Ticking: the circle fills first, then the task slides to its new group and flashes there.
+  const [ticking, setTicking] = useState<string | null>(null);
+  const [landed, setLanded] = useState<string | null>(null);
+  const toggle = (id: string) => {
+    if (ticking) return;
+    setTicking(id);
+    setTimeout(() => animate(() => { dispatch({ type: "task", id }); setTicking(null); setLanded(id); }, () => {
+      document.querySelector(`[data-task="${id}"]`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      setTimeout(() => setLanded((x) => (x === id ? null : x)), 1600);
+    }), 380);
+  };
   const from = sessions.find((s) => s.status === "completed");
   const c = from ? counsellorById(from.slot.counsellor) : null;
   const open = tasks.filter((x) => !x.done).sort((a, b) => a.due - b.due);
@@ -41,21 +52,21 @@ export function Tasks() {
     </form>
     {groups.map(([label, list]) => list.length > 0 && <section key={label} className="v11-group">
       <h2>{label}<small>{num(list.length, lang)}</small></h2>
-      <ul>{list.map((x) => <TaskRow key={x.id} task={x} by={x.mine ? null : c} />)}</ul>
+      <ul>{list.map((x) => <TaskRow key={x.id} task={x} by={x.mine ? null : c} ticking={ticking === x.id} landed={landed === x.id} onToggle={() => toggle(x.id)} />)}</ul>
     </section>)}
     {open.length === 0 && <p className="v11-empty"><Ico n="done" s={28} w="fill" c="#17845f" />{t("সব কাজ শেষ। দারুণ!", "Everything’s done. Nice work!")}</p>}
     {done.length > 0 && <section className="v11-group is-done">
       <button className="v11-group-toggle" aria-expanded={showDone} onClick={() => setShowDone((v) => !v)}><Ico n={showDone ? "down" : "right"} s={14} w="bold" />{t("সম্পন্ন", "Completed")}<small>{num(done.length, lang)}</small></button>
-      {showDone && <ul>{done.map((x) => <TaskRow key={x.id} task={x} by={x.mine ? null : c} />)}</ul>}
+      {showDone && <ul>{done.map((x) => <TaskRow key={x.id} task={x} by={x.mine ? null : c} ticking={ticking === x.id} landed={landed === x.id} onToggle={() => toggle(x.id)} />)}</ul>}
     </section>}
   </div>;
 }
-function TaskRow({ task, by }: { task: Task; by: ReturnType<typeof counsellorById> | null }) {
+function TaskRow({ task, by, ticking, landed, onToggle }: { task: Task; by: ReturnType<typeof counsellorById> | null; ticking: boolean; landed: boolean; onToggle: () => void }) {
   const { dispatch } = useHub();
   const { t, lang } = useL();
   const tone = task.due < 0 ? "is-late" : task.due === 0 ? "is-today" : task.due <= 2 ? "is-soon" : "";
-  return <li className={"v11-task" + (task.done ? " is-done" : "")}>
-    <button role="checkbox" aria-checked={!!task.done} aria-label={task.title[lang]} className={"v11-check " + tone} onClick={() => dispatch({ type: "task", id: task.id })}><Ico n="check" s={12} w="bold" /></button>
+  return <li data-task={task.id} className={"v11-task" + (task.done ? " is-done" : "") + (ticking ? " is-ticking" : "") + (landed ? " is-landed" : "")} style={{ viewTransitionName: `task-${task.id}` }}>
+    <button role="checkbox" aria-checked={ticking ? !task.done : !!task.done} aria-label={task.title[lang]} className={"v11-check " + tone} onClick={onToggle}><Ico n="check" s={12} w="bold" /></button>
     <div className="v11-task-body">
       <span className="v11-task-title">{task.title[lang]}</span>
       {task.note && !task.done && <span className="v11-task-note">{task.note[lang]}</span>}

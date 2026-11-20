@@ -5,6 +5,7 @@ import { useState } from "react";
 import { universities } from "../../hub/data";
 import { counsellorById, counsellors, type Slot } from "../data";
 import { Avatar } from "../parts";
+import { PlaneSvg } from "../guide";
 import { type Answers, answerText, cf, cn, counsellorText, isAnswered, type Q, questions } from "./content";
 import { Ico } from "./icons";
 import { clock, dayMonth, dayWord, num, useL } from "./lang";
@@ -12,14 +13,14 @@ import { firstOpen, sampleAccount, useHub, type Account } from "./store";
 import { CounsellorCard, Explainer, SessionCard, SlotPicker } from "./ui";
 
 /* ---------- Progress in the top bar ---------- */
-export function Stepper({ step }: { step: number }) {
+export function Stepper({ step, formDue }: { step: number; formDue?: boolean }) {
   const { t } = useL();
   const steps = [t("সেশন বুক", "Book a session"), t("আপনার সম্পর্কে", "About you"), t("কাউন্সেলরের সাথে দেখা", "Meet your counsellor")];
   return <div className="v4-progress">
     <p className="v4-steps-m" aria-hidden="true"><b>{t(`ধাপ ${num(step, "bn")}/৩`, `Step ${step} of 3`)}</b> · {steps[step - 1]}</p>
     <ol className="v4-steps" aria-label={t("আপনার অগ্রগতি", "Your progress")}>
-      {steps.map((s, k) => <li key={k} className={k + 1 < step ? "is-done" : k + 1 === step ? "is-now" : ""} aria-current={k + 1 === step ? "step" : undefined}>
-        <b>{k + 1 < step && <Ico n="check" s={16} w="bold" />}{s}</b></li>)}
+      {steps.map((s, k) => { const due = formDue && k === 1; return <li key={k} className={due ? "is-due" : k + 1 < step ? "is-done" : k + 1 === step ? "is-now" : ""} aria-current={k + 1 === step ? "step" : undefined}>
+        <b>{k + 1 < step && !due && <Ico n="check" s={16} w="bold" />}{s}</b></li>; })}
       <li className="is-lock"><b><Ico n="lock" s={15} w="fill" />{t("ক্যারিয়ার হাব", "Your Career Hub")}</b></li>
     </ol>
   </div>;
@@ -112,7 +113,7 @@ export function Book({ onBooked }: { onBooked: () => void }) {
   </main>;
 }
 
-/* ---------- Step 2 prompt ---------- */
+/* ---------- Step 2: ask for the short form, plainly ---------- */
 export function Confirmed({ onNext, onLater, fresh }: { onNext: () => void; onLater: () => void; fresh: boolean }) {
   const { upcoming } = useHub();
   const { t, lang } = useL();
@@ -120,6 +121,7 @@ export function Confirmed({ onNext, onLater, fresh }: { onNext: () => void; onLa
   const c = counsellorById(upcoming.slot.counsellor);
   const first = cf(c, lang);
   const sl = upcoming.slot;
+  const x = counsellorText[c.id];
   return <main className="v4-main v4-step2">
     <div className={"v4-booked" + (fresh ? " is-fresh" : "")} role="status">
       <span className="v4-booked-tick"><Ico n="check" s={22} w="bold" /></span>
@@ -127,19 +129,31 @@ export function Confirmed({ onNext, onLater, fresh }: { onNext: () => void; onLa
     </div>
     <section className="v4-ask">
       <div className="v4-ask-main">
-        <span className="fl-kicker">{t("ধাপ ২/৩ · ২ মিনিটের মতো", "STEP 2 OF 3 · ABOUT 2 MINUTES")}</span>
-        <h1>{t(`এবার ${first}কে আপনার সম্পর্কে একটু জানান`, `Now, help ${first} get to know you`)}</h1>
-        <p className="v4-ask-body">{t("৫টি ছোট প্রশ্ন: আপনি এখন কোথায় আছেন আর কী চান। দেখা হওয়ার আগে কাউন্সেলর এগুলো পড়ে নেবেন।", "5 short questions about where you are now and what you want next. Your counsellor reads them before you meet.")}</p>
-        <div className="v4-next-actions"><button className="fl-btn fl-primary v4-cta" onClick={onNext}>{t("প্রশ্নগুলো শুরু করুন", "Start the questions")} <Ico n="arrow" s={22} w="bold" /></button>
-          {fresh && <button className="fl-link" onClick={onLater}>{t("পরে করব", "I’ll do it later")}</button>}</div>
+        <span className="fl-kicker">{t("ধাপ ২/৩", "STEP 2 OF 3")}</span>
+        <h1>{t("এবার একটি ছোট ফর্ম পূরণ করুন", "Now, fill in a short form")}</h1>
+        <p className="v4-ask-body">{t(`আপনার সম্পর্কে ৫টি প্রশ্ন। সেশনের আগে ${first} উত্তরগুলো পড়বেন, তাই দেখা হলে সরাসরি আপনার পরিকল্পনা নিয়ে কথা হবে।`, `5 questions about you. ${first} reads your answers before the session, so you can talk about your plan straight away.`)}</p>
+        <ul className="v11-form-facts">
+          <li><Ico n="tasks" s={20} w="duotone" />{t("৫টি প্রশ্ন", "5 questions")}</li>
+          <li><Ico n="clock" s={20} w="duotone" />{t("২ মিনিটের মতো", "About 2 minutes")}</li>
+          <li><Ico n="lock" s={20} w="duotone" />{t(`শুধু ${first} দেখবেন`, `Only ${first} sees it`)}</li>
+        </ul>
+        <div className="v4-next-actions"><button className="fl-btn fl-primary v4-cta" onClick={onNext}>{t("ফর্ম পূরণ করুন", "Fill in the form")} <Ico n="arrow" s={22} w="bold" /></button>
+          <button className="fl-link" onClick={onLater}>{t("পরে করব", "I’ll do it later")}</button></div>
       </div>
-      <figure className="v4-ask-note">
-        <Avatar c={c} size={96} />
-        <blockquote>{t("“দেখা হওয়ার আগে আমি আপনার প্রতিটি উত্তর পড়ি। তাতে ৩০ মিনিট আপনার পরিকল্পনায় খরচ হয়, প্রাথমিক কথায় নয়।”", "“I read every answer before we meet. That way we spend our 30 minutes on your plan, not on the basics.”")}</blockquote>
-        <figcaption><b>{cn(c, lang)}</b>{counsellorText[c.id].title[lang]}</figcaption>
-      </figure>
+      <aside className="v11-ask-who" aria-label={t("আপনার কাউন্সেলর", "Your counsellor")}>
+        <small>{t("আপনার কাউন্সেলর", "Your counsellor")}</small>
+        <Avatar c={c} size={104} />
+        <b>{cn(c, lang)}</b>
+        <span>{x.title[lang]}</span>
+        <ul>{x.focus.map((f) => <li key={f.en}>{f[lang]}</li>)}</ul>
+      </aside>
     </section>
   </main>;
+}
+
+/* The pointing plane (the Career Hub logo's plane), aimed up and right at whatever sits beside it. */
+export function PlanePointer() {
+  return <span className="v11-pointer" aria-hidden="true"><PlaneSvg width={44} id="ptr" /><span className="pg-ring" /></span>;
 }
 
 /* ---------- One answer ---------- */
@@ -192,14 +206,15 @@ export function Questions({ onDone }: { onDone: () => void }) {
 
 /* ---------- Step 3: ready for the session ---------- */
 export function Ready({ onEdit }: { onEdit: () => void }) {
-  const { upcoming, account, answers } = useHub();
+  const { upcoming, account, answers, testDone } = useHub();
   const { t, lang } = useL();
   if (!upcoming) return null;
   const c = counsellorById(upcoming.slot.counsellor);
   const first = cf(c, lang);
   return <main className="v4-main v4-step3">
-    <div className="v4-ready-head"><span className="fl-kicker">{t("ধাপ ৩/৩", "STEP 3 OF 3")}</span><h1>{t(`সব তৈরি, ${account!.name.split(" ")[0]}`, `You’re all set, ${account!.name.split(" ")[0]}`)}</h1>
-      <p>{t(`এখন শুধু সেশনে যোগ দিন। ${first} সেশন শেষ করলে আপনার ক্যারিয়ার হাব খুলে যাবে।`, `Now just join your session. Your Career Hub opens after ${first} marks it complete.`)}</p></div>
+    <div className="v4-ready-head"><span className="fl-kicker">{t("ধাপ ৩/৩", "STEP 3 OF 3")}</span><h1>{testDone ? t(`সব তৈরি, ${account!.name.split(" ")[0]}`, `You’re all set, ${account!.name.split(" ")[0]}`) : t(`প্রায় তৈরি, ${account!.name.split(" ")[0]}`, `Almost set, ${account!.name.split(" ")[0]}`)}</h1>
+      <p>{testDone ? t(`এখন শুধু সেশনে যোগ দিন। ${first} সেশন শেষ করলে আপনার ক্যারিয়ার হাব খুলে যাবে।`, `Now just join your session. Your Career Hub opens after ${first} marks it complete.`)
+        : t("সেশন বুক হয়ে গেছে। সেশনের আগে শুধু ছোট ফর্মটি পূরণ করে নিন।", "Your session is booked. Just fill in the short form before it.")}</p></div>
     <div className="v4-ready">
       <SessionCard s={upcoming} />
       <div className="v4-ready-side">
@@ -207,14 +222,21 @@ export function Ready({ onEdit }: { onEdit: () => void }) {
           <h2>{t("আপনার চেকলিস্ট", "Your checklist")}</h2>
           <ul className="v4-check">
             <li className="is-done"><span><Ico n="check" s={16} w="bold" /></span>{t("সেশন বুক হয়েছে", "Session booked")}</li>
-            <li className="is-done"><span><Ico n="check" s={16} w="bold" /></span>{t(`${first}কে উত্তর পাঠানো হয়েছে`, `Answers sent to ${first}`)} <button className="fl-link" onClick={onEdit}>{t("বদলান", "Edit")}</button></li>
+            {testDone ? <li className="is-done"><span><Ico n="check" s={16} w="bold" /></span>{t(`${first}কে উত্তর পাঠানো হয়েছে`, `Answers sent to ${first}`)} <button className="fl-link" onClick={onEdit}>{t("বদলান", "Edit")}</button></li>
+              : <li className="is-todo"><span /> {t("ছোট ফর্মটি পূরণ করুন", "Fill in the short form")}</li>}
             <li><span /> {t("সময়মতো যোগ দিন, ৩০ মিনিট কথা বলুন", "Join on time and talk for 30 minutes")}</li>
           </ul>
         </section>
-        <section className="fl-card v4-after">
+        {testDone ? <section className="fl-card v4-after">
           <h2>{t("আপনার উত্তর", "Your answers")}</h2>
           <dl className="v11-answers">{questions.slice(0, 4).map((q) => <div key={q.id}><dt>{q.prompt[lang]}</dt><dd>{answerText(q, answers, lang)}</dd></div>)}</dl>
         </section>
+          : <section className="fl-card v11-form-due">
+            <span className="v11-form-due-tag">{t("এখনও বাকি", "Still to do")}</span>
+            <h2>{t("ছোট ফর্মটি পূরণ করুন", "Fill in the short form")}</h2>
+            <p>{t(`৫টি প্রশ্ন, ২ মিনিট। সেশনের আগে করলে ${first} আপনাকে আগে থেকেই বুঝতে পারবেন।`, `5 questions, 2 minutes. Do it before the session so ${first} knows you already.`)}</p>
+            <div className="v11-form-due-go"><PlanePointer /><button className="fl-btn fl-primary big" onClick={onEdit}>{t("ফর্ম পূরণ করুন", "Fill in the form")} <Ico n="arrow" s={20} w="bold" /></button></div>
+          </section>}
       </div>
     </div>
   </main>;
