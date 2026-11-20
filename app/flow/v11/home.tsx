@@ -160,8 +160,7 @@ export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
       {tile("tasks", "is-tasks",
         <span className="v11-label"><AppIcon n="tasks" s={30} />{t("কাজের তালিকা", "Tasks")}</span>,
         <div className="v11-peek">
-          <div className="v11-tasks-sum"><Ring done={doneCount} total={tasks.length} /><div><small>{t("এরপর", "Up next")}</small><b>{openTasks[0]?.title[lang] ?? t("সব কাজ শেষ!", "All done!")}</b>{openTasks[0] && <Due task={openTasks[0]} />}</div></div>
-          {openTasks.length > 1 && <ul className="v11-peek-list">{openTasks.slice(1, 3).map((x) => <li key={x.id}><span className="v11-dot" />{x.title[lang]}</li>)}</ul>}
+          <div className="v11-tasks-sum"><Ring done={doneCount} total={tasks.length} /><div><small>{t("এরপর", "Up next")}</small><b title={openTasks[0]?.title[lang]}>{openTasks[0]?.title[lang] ?? t("সব কাজ শেষ!", "All done!")}</b>{openTasks[0] && <Due task={openTasks[0]} />}</div></div>
         </div>, undefined, "tile-tasks")}
 
       {has("courses") ? tile("courses", "is-small",

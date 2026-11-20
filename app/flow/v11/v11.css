@@ -465,3 +465,8 @@
   .v11-card.is-open img { height: 170px; min-height: 0; }
   .v11-card-facts { grid-template-columns: 1fr; }
 }
+
+/* Previews are short and sit centred in whatever room the tile has */
+.v11-tile:not(.is-session):not(.is-cv):not(.is-abroad) > .v11-peek { flex: 1; align-content: center; }
+.v11-tile.is-locked .v11-locked-p { flex: 1; align-items: center; }
+.v11-tasks-sum b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
