@@ -26,23 +26,39 @@ export function Hub({ exit }: { exit: () => void }) {
   const [menu, setMenu] = useState(false);
   const main = useRef<HTMLElement>(null);
   const has = (id: string) => (unlocked ?? []).includes(id as "cv");
-  // A home tile and its page share one view-transition name ("zoom"), so going to a section
-  // from home grows the tile into the page, and going home shrinks the page back into its tile.
-  const [zoom, setZoom] = useState<string | null>(null);
+  // Opening a section from a home tile: a copy of the tile grows to fill the content area
+  // (its contents fade out first), the page swaps in underneath, then the copy fades away.
+  // Only real elements are animated, no snapshots, so the end is clean.
+  const growing = useRef(false);
+  const grow = (el: HTMLElement, apply: () => void) => {
+    const host = el.closest<HTMLElement>(".v11-app"), area = host?.querySelector<HTMLElement>(".v11-main"), bar = host?.querySelector<HTMLElement>(".v11-top");
+    if (!host || !area || !bar) { apply(); return; }
+    growing.current = true;
+    const r = el.getBoundingClientRect(), a = area.getBoundingClientRect(), top = Math.max(0, bar.getBoundingClientRect().bottom);
+    const card = el.cloneNode(true) as HTMLElement;
+    card.removeAttribute("data-tile"); card.removeAttribute("data-guide"); card.removeAttribute("tabindex");
+    card.setAttribute("aria-hidden", "true");
+    Object.assign(card.style, { position: "fixed", left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, margin: "0", zIndex: "40", pointerEvents: "none", viewTransitionName: "none", transform: "none" });
+    host.appendChild(card);
+    for (const ch of Array.from(card.children)) (ch as HTMLElement).animate([{ opacity: 1 }, { opacity: 0 }], { duration: 150, fill: "forwards" });
+    card.animate([
+      { left: `${r.left}px`, top: `${r.top}px`, width: `${r.width}px`, height: `${r.height}px`, borderRadius: "22px" },
+      { left: `${a.left}px`, top: `${top}px`, width: `${a.width}px`, height: `${window.innerHeight - top}px`, borderRadius: "0px" },
+    ], { duration: 440, easing: "cubic-bezier(.55, 0, .15, 1)", fill: "forwards" }).finished.then(() => {
+      flushSync(apply);
+      main.current?.animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], { duration: 320, easing: "ease-out" });
+      card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "ease-out", fill: "forwards" }).finished.then(() => { card.remove(); growing.current = false; });
+    });
+  };
   const go = (to: string, opts?: { who?: "same" | "other" }) => {
     const p = (to === "sessions" || to === "session" ? "home" : to) as Page;
     if (["courses", "jobs", "cv", "abroad"].includes(p) && !has(p)) return;
+    if (growing.current) return;
     if (opts?.who) setWho(opts.who);
     const apply = () => { setPage(p); setMenu(false); window.scrollTo({ top: 0 }); };
-    const d = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void>; ready: Promise<void> } };
-    const tilePage = (x: string) => TILE_PAGES.includes(x) && !!document.querySelector(`[data-tile="${x}"]:not(.is-locked)`);
-    const from = page === "home" && p !== "home" && tilePage(p) ? p : p === "home" && TILE_PAGES.includes(page) ? page : null;
-    if (!from || !d.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(); return; }
-    flushSync(() => setZoom(from));
-    const tr = d.startViewTransition(() => flushSync(apply));
-    const clear = () => setZoom(null);
-    tr.ready.catch(() => {}); // skipped (e.g. hidden tab): the page still changes
-    tr.finished.then(clear, clear);
+    const el = page === "home" && TILE_PAGES.includes(p) ? document.querySelector<HTMLElement>(`[data-tile="${p}"]:not(.is-locked)`) : null;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(); return; }
+    grow(el, apply);
   };
   useEffect(() => { main.current?.focus({ preventScroll: true }); }, [page]);
   const open = tasks.filter((x) => !x.done).length;
@@ -87,8 +103,8 @@ export function Hub({ exit }: { exit: () => void }) {
         <div className="v11-top-end"><LangToggle /><Bell onGo={go} />
           <span className="v11-me" title={account?.name}>{account?.name.split(" ")[0]}</span></div>
       </header>
-      <main ref={main} tabIndex={-1} className="v11-content" style={{ viewTransitionName: zoom && page !== "home" ? "zoom" : undefined }}>
-        {page === "home" && <Home go={go} zoom={zoom} />}
+      <main ref={main} tabIndex={-1} className="v11-content">
+        {page === "home" && <Home go={go} />}
         {page === "tasks" && <Tasks />}
         {page === "courses" && <Courses />}
         {page === "jobs" && <Jobs />}

@@ -1,6 +1,6 @@
 "use client";
 // The Career Hub plane as a guide (from v8): it lifts out of the logo, flies to a target,
-// spotlights it and explains it. Same plane, motion, colours and styles as v8; a 4-step tour.
+// spotlights it and explains it. Same plane, motion, colours and styles as v8; a 3-step tour of the top of the page.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { PlaneSvg } from "../guide";
@@ -20,8 +20,7 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
   const tourSteps: Step[] = [
     { target: "nav-main", title: t(`হাই ${name}! আমি আপনার গাইড।`, `Hi ${name}! I’m your guide.`), body: t("বাঁ পাশের তালিকা থেকে সব জায়গায় যাবেন। কাউন্সেলর নতুন কিছু খুললে এখানে দেখা যাবে।", "Everything is in this list on the left. Anything your counsellor opens appears here.") },
     { target: "tile-session", title: t("সবচেয়ে গুরুত্বপূর্ণ: আপনার সেশন", "Most important: your sessions"), body: t("পরের সেশন, মিটিং লিংক বা নতুন বুকিং সবসময় এই বড় বক্সে।", "Your next session, its link, or booking a new one is always in this big box.") },
-    { target: "history", title: t("আগের সব সেশন", "All your past sessions"), body: t("যেকোনো সেশনে চাপ দিলে কাউন্সেলরের লেখা নোট দেখবেন।", "Tap any session to read the notes your counsellor wrote.") },
-    { target: "tile-tasks", title: t("কাউন্সেলরের দেওয়া কাজ", "Tasks from your counsellor"), body: t("ছোট ছোট কাজ। শেষ হলে টিক দিন, কাউন্সেলর অগ্রগতি দেখবেন।", "Small to-dos. Tick them when done; your counsellor sees your progress.") },
+    { target: "tile-notes", title: t("কাউন্সেলরের নোট", "Your counsellor’s notes"), body: t("শেষ সেশনে কী ঠিক হলো, এখানে চাপ দিলেই দেখবেন। আগের সব সেশন নিচের তালিকায়।", "Tap here to see what you agreed last session. Every past session is in the table below.") },
   ];
   const [steps, setSteps] = useState<Step[] | null>(null);
   const [i, setI] = useState(0);
@@ -111,20 +110,8 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
       setRect(null);
       const el = find(step.target);
       if (!visible(el)) { if (performance.now() - t0 < 1500) return void setTimeout(seek, 30); advance(); return; }
-      // Scroll first (only if needed) and wait until the page has stopped moving, then fly.
-      const r0 = el!.getBoundingClientRect();
-      const inView = r0.top >= 76 && r0.bottom <= window.innerHeight - 200;
-      if (!inView) el!.scrollIntoView({ behavior: "smooth", block: r0.height > window.innerHeight * 0.5 ? "start" : "center" });
-      let prev = NaN, still = 0;
-      const t1 = performance.now();
-      const settle = () => {
-        if (cancelled) return;
-        const y = el!.getBoundingClientRect().top;
-        still = Math.abs(y - prev) < 0.5 ? still + 1 : 0; prev = y;
-        if (still < 4 && performance.now() - t1 < 1600) { requestAnimationFrame(settle); return; }
-        fly(() => aim(el!.getBoundingClientRect()), 48, () => { if (!cancelled) { setRect(el!.getBoundingClientRect()); setMode("point"); } });
-      };
-      requestAnimationFrame(settle);
+      // All three stops are at the top of the page, so the plane never has to chase a scroll.
+      fly(() => aim(el!.getBoundingClientRect()), 48, () => { if (!cancelled) { setRect(el!.getBoundingClientRect()); setMode("point"); } });
     };
     const first = setTimeout(seek, 0);
     return () => { cancelled = true; clearTimeout(first); };
@@ -139,7 +126,7 @@ export function Guide({ onHome, name }: { onHome: () => void; name: string }) {
     return () => { window.removeEventListener("scroll", follow, true); window.removeEventListener("resize", follow); };
   }, [mode, step, draw]);
 
-  const start = () => { setMenu(false); onHome(); setI(0); setSteps(tourSteps); };
+  const start = () => { setMenu(false); onHome(); window.scrollTo({ top: 0 }); setI(0); setSteps(tourSteps); };
   // First open of the hub: show the student around once.
   useEffect(() => {
     if (!mounted || started.current) return;

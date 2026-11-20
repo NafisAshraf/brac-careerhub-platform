@@ -432,12 +432,6 @@
 .is-flipping > * { transition: none !important; }
 .v11-grid.is-flipping > .v11-tile.v11-tile:hover, .v11-cards.is-flipping > .v11-card.v11-card:hover { transform: none; }
 
-/* Tile → page: the tile grows into the section (same view-transition name on both) */
-::view-transition-group(zoom) { animation-duration: .5s; animation-timing-function: cubic-bezier(.22, .8, .24, 1); border-radius: 22px; overflow: hidden; background: #f7f5f9; box-shadow: 0 24px 60px #2a0f3d33; }
-::view-transition-old(zoom) { animation: v11-zoom-out .22s ease both; }
-::view-transition-new(zoom) { animation: v11-zoom-in .34s .12s ease both; }
-@keyframes v11-zoom-out { to { opacity: 0; } }
-@keyframes v11-zoom-in { from { opacity: 0; } }
 .v11-tile.is-link .v11-more svg { transition: transform .2s; }
 .v11-tile.is-link:hover .v11-more svg { transform: translate(1px, -1px); }
 
@@ -469,4 +463,4 @@
 /* Previews are short and sit centred in whatever room the tile has */
 .v11-tile:not(.is-session):not(.is-cv):not(.is-abroad) > .v11-peek { flex: 1; align-content: center; }
 .v11-tile.is-locked .v11-locked-p { flex: 1; align-items: center; }
-.v11-tasks-sum b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v11-tasks-sum > div > b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

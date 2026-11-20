@@ -2,7 +2,7 @@
 // v11 home. Sessions come first: the next session (or booking one) is the big tile, the last
 // session's notes sit beside it, and the full session history is a table below.
 // The notes tile opens where it stands (the others slide to make room). Every other tile
-// grows into its full page: the hub morphs the tile into that section.
+// grows into its full page (the hub animates the tile out to fill the screen).
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { assignedCourses, assignedJobs, counsellorById, counsellors } from "../data";
@@ -72,7 +72,7 @@ function cellOf(grid: HTMLElement, el: HTMLElement) {
   return { cols, col, row };
 }
 
-export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
+export function Home({ go }: { go: Go }) {
   const { account, last, tasks, unlocked = [], courses, savedJobs, answers, upcoming } = useHub();
   const { t, lang } = useL();
   const [open, setOpen] = useState<Open | null>(null);
@@ -104,12 +104,11 @@ export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
   const doneCount = tasks.length - openTasks.length;
   const started = Object.values(courses).filter((v) => v === "started").length;
   const c0 = last ? counsellorById(last.slot.counsellor) : null;
-  const name = (id: string) => (zoom === id ? "zoom" : `tile-${id}`);
 
   // One tile. With `more` it opens in place; without, it grows into its own page.
   const tile = (id: string, cls: string, label: ReactNode, peek: ReactNode, more?: ReactNode, guide?: string) => {
     const on = open?.id === id;
-    const style: CSSProperties = { viewTransitionName: name(id), ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
+    const style: CSSProperties = { ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
     return <section key={id} data-tile={id} tabIndex={-1} className={`v11-tile ${cls}` + (on ? " is-open" : "") + (more ? "" : " is-link")} style={style} data-guide={guide}>
       {!on && <button className="v11-hit" aria-expanded={more ? false : undefined} aria-label={more ? t("আরও দেখুন", "Show more") : t("খুলুন", "Open")} onClick={() => (more ? toggle(id) : go(id))} />}
       <header className="v11-tile-head">{label}{on ? <button className="v11-close" aria-label={t("ছোট করুন", "Collapse")} onClick={() => toggle(id)}><Ico n="x" s={18} w="bold" /></button>
@@ -117,7 +116,7 @@ export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
       {on ? <div className="v11-tile-more">{more}</div> : peek}
     </section>;
   };
-  const locked = (id: string, cls: string, icon: string, title: string) => <section key={id} data-tile={id} className={`v11-tile ${cls} is-locked`} style={{ viewTransitionName: `tile-${id}` }}>
+  const locked = (id: string, cls: string, icon: string, title: string) => <section key={id} data-tile={id} className={`v11-tile ${cls} is-locked`}>
     <span className="v11-label"><AppIcon n={icon} tone="slate" s={30} />{title}</span>
     <p className="v11-locked-p"><Ico n="lock" s={16} w="fill" />{c0 ? t(`${cf(c0, "bn")} প্রয়োজন মনে করলে এটি খুলে দেবেন।`, `${cf(c0, "en")} opens this when it will help you.`) : ""}</p>
   </section>;
@@ -143,8 +142,8 @@ export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
         <><p className="v11-notes-text">{last.minutes.summary[lang]}</p>
           <h4>{t("যা ঠিক হলো", "What you agreed")}</h4>
           <ul className="v11-agreed">{last.minutes.agreed.map((x) => <li key={x.en}><Ico n="done" s={18} w="fill" c="#17845f" />{x[lang]}</li>)}</ul>
-          <button className="v11-go" onClick={() => document.getElementById("v11-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট", "All session notes")} <Ico n="down" s={16} w="bold" /></button></>)
-        : <section key="notes" data-tile="notes" className="v11-tile is-notes is-empty-notes"><span className="v11-label"><AppIcon n="note" tone="amber" s={30} />{t("সেশনের নোট", "Session notes")}</span><p className="v11-locked-p">{t("প্রথম সেশনের পর কাউন্সেলরের নোট এখানে আসবে।", "Your counsellor’s notes appear here after a session.")}</p></section>}
+          <button className="v11-go" onClick={() => document.getElementById("v11-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট", "All session notes")} <Ico n="down" s={16} w="bold" /></button></>, "tile-notes")
+        : <section key="notes" data-tile="notes" data-guide="tile-notes" className="v11-tile is-notes is-empty-notes"><span className="v11-label"><AppIcon n="note" tone="amber" s={30} />{t("সেশনের নোট", "Session notes")}</span><p className="v11-locked-p">{t("প্রথম সেশনের পর কাউন্সেলরের নোট এখানে আসবে।", "Your counsellor’s notes appear here after a session.")}</p></section>}
 
       {has("jobs") ? tile("jobs", "is-small",
         <span className="v11-label"><AppIcon n="jobs" s={30} />{t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")}</span>,
