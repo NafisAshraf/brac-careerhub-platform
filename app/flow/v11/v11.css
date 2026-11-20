@@ -445,9 +445,6 @@
 /* Course and job cards open in place */
 .v11-card.is-click { position: relative; cursor: pointer; transition: border-color .15s, box-shadow .15s, transform .15s; }
 .v11-card.is-click:not(.is-open):hover { border-color: #d9c6e4; box-shadow: 0 14px 30px #2a0f3d14; transform: translateY(-2px); }
-.v11-card.is-open { grid-column: 1 / -1; grid-template-columns: minmax(240px, 38%) 1fr; grid-template-rows: auto; cursor: default; border-color: #d9c6e4; box-shadow: 0 0 0 3px #e3cdef, 0 18px 40px #2a0f3d1a; }
-.v11-card.is-open img { height: 100%; min-height: 260px; }
-.v11-card.is-open > div { padding: 22px 26px; gap: 8px; }
 .v11-card-more { display: grid; gap: 10px; margin-top: 6px; padding-top: 14px; border-top: 1px solid #efe8f3; animation: fl-up .3s .12s ease both; }
 .v11-card-more > p { color: #3d3346 !important; font-size: 16px; }
 .v11-card-more h4 { margin: 4px 0 0; font-size: 16px; }
@@ -460,10 +457,9 @@
 .v11-card-foot { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: auto; padding-top: 6px; cursor: default; }
 .v11-card-foot .v11-select { margin-top: 0; flex: 1 1 200px; }
 .v11-card-toggle { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; padding: 8px 12px; border: 0; border-radius: 10px; background: #f3e9f7; color: var(--purple) !important; font-weight: 700; font-size: 14.5px; }
-.v11-card-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
 @media (max-width: 720px) {
-  .v11-card.is-open { grid-template-columns: 1fr; }
-  .v11-card.is-open img { height: 170px; min-height: 0; }
+  .v11-detail-card { grid-template-columns: 1fr !important; }
+  .v11-detail-card > img { height: 200px !important; min-height: 0 !important; }
   .v11-card-facts { grid-template-columns: 1fr; }
 }
 
@@ -471,3 +467,42 @@
 .v11-tile:not(.is-session):not(.is-cv):not(.is-abroad) > .v11-peek { flex: 1; align-content: center; }
 .v11-tile.is-locked .v11-locked-p { flex: 1; align-items: center; }
 .v11-tasks-sum > div > b { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* A course or job opened on its own */
+.v11-detail { max-width: 1000px; margin-inline: auto; }
+.v11-detail .v4-back { margin: 0 0 12px -12px; }
+.v11-detail-card { display: grid; grid-template-columns: minmax(260px, 40%) 1fr; overflow: hidden; border: 1px solid #e8e1ec; border-radius: 22px; background: #fff; }
+.v11-detail-card > img { width: 100%; height: 100%; min-height: 380px; object-fit: cover; }
+.v11-detail-body { display: flex; flex-direction: column; gap: 8px; padding: 26px 30px 28px; }
+.v11-detail-body > small { color: var(--muted); font-size: 15px; }
+.v11-detail-body h1 { font-size: clamp(24px, 2.4vw, 30px); line-height: 1.25; }
+.v11-detail-meta { font-weight: 650; color: var(--purple) !important; }
+.v11-detail-foot { margin-top: 10px; padding-top: 14px; border-top: 1px solid #efe8f3; }
+
+/* Study Abroad: its three places sit under it in the sidebar */
+.v11-subnav { display: grid; gap: 1px; margin: 0 0 4px 24px; padding-left: 18px; border-left: 2px solid #ece4f1; }
+.v11-subnav-item { padding: 6px 10px; border: 0; border-radius: 10px; background: none; color: #5d5366; font-weight: 600; font-size: 15px; text-align: left; }
+.v11-subnav-item:hover { background: #f6f1f8; }
+.v11-subnav-item.is-on { background: #f3e9f7; color: var(--purple); font-weight: 750; }
+/* The AI match starts from All programs */
+.v11-match-cta { display: flex; align-items: center; gap: 16px; margin-bottom: 22px; padding: 18px 22px; border-radius: 20px; color: #fff; background: radial-gradient(420px 200px at 100% 0%, #c0187488, transparent 70%), linear-gradient(150deg, #3a1152, #5b1f7c 55%, #8e1a6e); box-shadow: 0 16px 36px #3a115233; }
+.v11-match-cta > div { flex: 1; display: grid; gap: 2px; }
+.v11-match-cta b { font-size: 18px; }
+.v11-match-cta p { color: #ecd8f3 !important; font-size: 15.5px; }
+.v11-match-ico { display: grid; place-items: center; width: 52px; height: 52px; flex: none; border-radius: 16px; background: #ffffff22; color: #ffd36b; }
+.v11-match-cta .fl-btn { flex: none; }
+.v11-abroad-back { margin: 0 0 8px -12px; }
+.v11-abroad-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
+.v11-abroad-stats article { display: grid; gap: 2px; padding: 16px 18px; border: 1px solid #e8e1ec; border-radius: 18px; background: #fff; }
+.v11-abroad-stats b { font-size: 30px; line-height: 1.1; }
+.v11-abroad-stats span { color: var(--muted); font-size: 15px; }
+/* The list pages use the v11 page heading, so the embedded tool's own first heading is hidden */
+.v11-abroad .is-list .hub-main > .hub-heading:first-child, .v11-abroad .is-list .hub-main > * > .hub-heading:first-child { display: none; }
+.v11-abroad .v3-abroad.hub .hub-main { padding: 0; }
+.v11-abroad .sa-portal { min-height: 0; background: transparent; font-family: inherit; }
+@media (max-width: 640px) {
+  .v11-match-cta { flex-wrap: wrap; }
+  .v11-match-cta .fl-btn { width: 100%; }
+  .v11-abroad-stats { grid-template-columns: 1fr; }
+  .v11-subnav { margin-left: 16px; }
+}

@@ -127,7 +127,7 @@ function returning(): State {
       { id: "r2", number: 2, status: "cancelled", slot: { counsellor: "nusrat", date: iso(-24), time: "14:30" } },
       { id: "r3", number: 2, status: "completed", slot: { counsellor: "nusrat", date: iso(-17), time: "15:15" }, minutes: minutesSecond },
     ],
-    unlocked: ["courses", "jobs", "cv"],
+    unlocked: ["courses", "jobs", "cv", "abroad"],
     tasks: [...tasks, { id: "m-own", title: tx("BRAC Career Fair-এ নাম লেখানো", "Register for the BRAC Career Fair"), due: 4, mine: true }],
     courses: { "c-excel": "started", "c-sql": "new", "c-writing": "done" },
     savedJobs: [assignedJobs[0].id],

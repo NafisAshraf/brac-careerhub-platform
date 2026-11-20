@@ -9,8 +9,9 @@ import { cf, cn, counsellorText, sectionName } from "./content";
 import { Home } from "./home";
 import { AppIcon, Ico } from "./icons";
 import { ago, clock, dayMonth, dayWord, num, useL } from "./lang";
-import { Abroad, AnswersForm, CV, Courses, Jobs, Profile, Tasks } from "./sections";
+import { AnswersForm, CV, Courses, Jobs, Profile, Tasks } from "./sections";
 import { useHub } from "./store";
+import { AbroadV11, type AbroadSub } from "./abroad";
 import { Guide } from "./guide";
 import { Bell, CounsellorCard, DemoPanel, LangToggle, SlotPicker } from "./ui";
 
@@ -22,12 +23,17 @@ export function Hub({ exit }: { exit: () => void }) {
   const [page, setPage] = useState<Page>("home");
   const [who, setWho] = useState<"same" | "other">("same");
   const [menu, setMenu] = useState(false);
+  const [sub, setSub] = useState<AbroadSub>("catalog"); // Study Abroad has three places of its own
+  const [navKey, setNavKey] = useState(0);
+  const goAbroad = (s: AbroadSub) => { setSub(s); setNavKey((k) => k + 1); setPage("abroad"); setMenu(false); window.scrollTo({ top: 0 }); };
   const main = useRef<HTMLElement>(null);
   const has = (id: string) => (unlocked ?? []).includes(id as "cv");
   const go = (to: string, opts?: { who?: "same" | "other" }) => {
     const p = (to === "sessions" || to === "session" ? "home" : to) as Page;
     if (["courses", "jobs", "cv", "abroad"].includes(p) && !has(p)) return;
     if (opts?.who) setWho(opts.who);
+    if (p === "abroad") setSub("catalog");
+    setNavKey((k) => k + 1); // a sidebar click always lands on the section's first view
     setPage(p); setMenu(false); window.scrollTo({ top: 0 });
   };
   useEffect(() => { main.current?.focus({ preventScroll: true }); }, [page]);
@@ -46,7 +52,11 @@ export function Hub({ exit }: { exit: () => void }) {
     <div className="fl-brand is-guided v11-brand"><Image data-guide="plane-dock" src="/careerhub-logo.png" width={96} height={86} alt="BRAC Career Hub" /></div>
     <nav aria-label="Career Hub" data-guide="nav-main" className="v11-nav">
       {nav.map((n) => <button key={n.id} className={"v11-nav-item" + (page === n.id ? " is-on" : "")} aria-current={page === n.id ? "page" : undefined} onClick={() => go(n.id)}>
-        <AppIcon n={n.icon} s={34} /><span>{sectionName[n.id][lang]}</span>{!!n.count && <em>{num(n.count, lang)}</em>}</button>)}
+        <AppIcon n={n.icon} s={34} /><span>{sectionName[n.id][lang]}</span>{!!n.count && <em>{num(n.count, lang)}</em>}</button>).flatMap((b, k) => nav[k].id !== "abroad" ? [b] : [b,
+        <div key="abroad-sub" className="v11-subnav" role="group" aria-label={sectionName.abroad[lang]}>
+          {([["catalog", t("সব প্রোগ্রাম", "All programs")], ["programs", t("আমার প্রোগ্রাম", "My programs")], ["documents", t("আমার ডকুমেন্ট", "My documents")]] as const).map(([id, label]) =>
+            <button key={id} className={"v11-subnav-item" + (page === "abroad" && sub === id ? " is-on" : "")} aria-current={page === "abroad" && sub === id ? "page" : undefined} onClick={() => goAbroad(id)}>{label}</button>)}
+        </div>])}
     </nav>
     <div className="v11-side-session">
       {upcoming ? <button className="v11-side-next" onClick={() => go("home")}>
@@ -73,13 +83,13 @@ export function Hub({ exit }: { exit: () => void }) {
         <div className="v11-top-end"><LangToggle /><Bell onGo={go} />
           <span className="v11-me" title={account?.name}>{account?.name.split(" ")[0]}</span></div>
       </header>
-      <main ref={main} tabIndex={-1} className="v11-content"><div className="v11-enter" key={page}>
+      <main ref={main} tabIndex={-1} className="v11-content"><div className="v11-enter" key={page === "abroad" ? page : page + navKey}>
         {page === "home" && <Home go={go} />}
         {page === "tasks" && <Tasks />}
         {page === "courses" && <Courses />}
         {page === "jobs" && <Jobs />}
         {page === "cv" && <CV />}
-        {page === "abroad" && <Abroad onConsult={() => go("book", { who: "other" })} />}
+        {page === "abroad" && <AbroadV11 sub={sub} setSub={setSub} navKey={navKey} onConsult={() => go("book", { who: "other" })} />}
         {page === "profile" && <Profile />}
         {page === "book" && <BookAgain start={who} onDone={() => go("home")} onBack={() => go("home")} />}
       </div></main>
