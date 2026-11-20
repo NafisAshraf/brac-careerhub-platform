@@ -432,17 +432,13 @@
 .is-flipping > * { transition: none !important; }
 .v11-grid.is-flipping > .v11-tile.v11-tile:hover, .v11-cards.is-flipping > .v11-card.v11-card:hover { transform: none; }
 
-/* Tile → page: the card grows from where the tile sits and uncovers the page as it grows.
-   The new view is fully drawn from the first frame (no fade-in) and clipped by the growing card,
-   so the page is revealed outward from the tile. The old tile fades away on top of it.
-   The corners round off to square over the same time, so nothing snaps at the end. */
-::view-transition-group(zoom) { animation-duration: .55s; animation-timing-function: cubic-bezier(.3, .7, .2, 1); }
-::view-transition-image-pair(zoom) { overflow: hidden; animation: v11-zoom-corner .55s cubic-bezier(.3, .7, .2, 1) both; }
-::view-transition-new(zoom) { animation: none; opacity: 1; background: #f7f5f9; }
-::view-transition-old(zoom) { z-index: 1; animation: v11-zoom-fade .28s ease-out both; }
-@keyframes v11-zoom-corner { from { border-radius: 22px; } to { border-radius: 0; } }
-@keyframes v11-zoom-fade { to { opacity: 0; } }
-.v11-top { view-transition-name: v11-top; }
+/* Opening a page: its sections fade up one after another. Simple and quick. */
+.v11-enter > * > * { animation: v11-enter .38s cubic-bezier(.2, .7, .2, 1) backwards; }
+.v11-enter > * > :nth-child(2) { animation-delay: .06s; }
+.v11-enter > * > :nth-child(3) { animation-delay: .12s; }
+.v11-enter > * > :nth-child(n + 4) { animation-delay: .18s; }
+@keyframes v11-enter { from { opacity: 0; transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) { .v11-enter > * > * { animation: none; } }
 .v11-tile.is-link .v11-more svg { transition: transform .2s; }
 .v11-tile.is-link:hover .v11-more svg { transform: translate(1px, -1px); }
 

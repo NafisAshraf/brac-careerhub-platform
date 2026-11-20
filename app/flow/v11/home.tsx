@@ -2,7 +2,7 @@
 // v11 home. Sessions come first: the next session (or booking one) is the big tile, the last
 // session's notes sit beside it, and the full session history is a table below.
 // The notes tile opens where it stands (the others slide to make room). Every other tile
-// grows into its full page (the tile morphs into that section).
+// grows into its full page (it opens that section).
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { assignedCourses, assignedJobs, counsellorById, counsellors } from "../data";
@@ -72,7 +72,7 @@ function cellOf(grid: HTMLElement, el: HTMLElement) {
   return { cols, col, row };
 }
 
-export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
+export function Home({ go }: { go: Go }) {
   const { account, last, tasks, unlocked = [], courses, savedJobs, answers, upcoming } = useHub();
   const { t, lang } = useL();
   const [open, setOpen] = useState<Open | null>(null);
@@ -104,12 +104,11 @@ export function Home({ go, zoom }: { go: Go; zoom?: string | null }) {
   const doneCount = tasks.length - openTasks.length;
   const started = Object.values(courses).filter((v) => v === "started").length;
   const c0 = last ? counsellorById(last.slot.counsellor) : null;
-  const name = (id: string) => (zoom === id ? "zoom" : `tile-${id}`);
 
   // One tile. With `more` it opens in place; without, it grows into its own page.
   const tile = (id: string, cls: string, label: ReactNode, peek: ReactNode, more?: ReactNode, guide?: string) => {
     const on = open?.id === id;
-    const style: CSSProperties = { viewTransitionName: name(id), ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
+    const style: CSSProperties = { viewTransitionName: `tile-${id}`, ...(on && open ? { gridColumn: `${open.col} / span ${open.w}`, gridRow: `${open.row} / span ${open.h}` } : {}) };
     return <section key={id} data-tile={id} tabIndex={-1} className={`v11-tile ${cls}` + (on ? " is-open" : "") + (more ? "" : " is-link")} style={style} data-guide={guide}>
       {!on && <button className="v11-hit" aria-expanded={more ? false : undefined} aria-label={more ? t("আরও দেখুন", "Show more") : t("খুলুন", "Open")} onClick={() => (more ? toggle(id) : go(id))} />}
       <header className="v11-tile-head">{label}{on ? <button className="v11-close" aria-label={t("ছোট করুন", "Collapse")} onClick={() => toggle(id)}><Ico n="x" s={18} w="bold" /></button>

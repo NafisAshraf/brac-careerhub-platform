@@ -2,7 +2,6 @@
 // v11 Career Hub after the first session: a sidebar, a home of expanding tiles built around
 // sessions, and the sections behind the sidebar.
 import { useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import Image from "next/image";
 import { counsellorById, counsellors, type Slot } from "../data";
 import { Avatar, Dialog } from "../parts";
@@ -15,7 +14,6 @@ import { useHub } from "./store";
 import { Guide } from "./guide";
 import { Bell, CounsellorCard, DemoPanel, LangToggle, SlotPicker } from "./ui";
 
-const TILE_PAGES = ["tasks", "courses", "jobs", "cv", "abroad", "profile"];
 type Page = "home" | "tasks" | "courses" | "jobs" | "cv" | "abroad" | "profile" | "book";
 
 export function Hub({ exit }: { exit: () => void }) {
@@ -26,23 +24,11 @@ export function Hub({ exit }: { exit: () => void }) {
   const [menu, setMenu] = useState(false);
   const main = useRef<HTMLElement>(null);
   const has = (id: string) => (unlocked ?? []).includes(id as "cv");
-  // A home tile and its page share one view-transition name ("zoom"): opening a section grows
-  // the tile into the page, and going home shrinks the page back into its tile.
-  const [zoom, setZoom] = useState<string | null>(null);
   const go = (to: string, opts?: { who?: "same" | "other" }) => {
     const p = (to === "sessions" || to === "session" ? "home" : to) as Page;
     if (["courses", "jobs", "cv", "abroad"].includes(p) && !has(p)) return;
     if (opts?.who) setWho(opts.who);
-    const apply = () => { setPage(p); setMenu(false); window.scrollTo({ top: 0 }); };
-    const d = document as Document & { startViewTransition?: (cb: () => void) => { finished: Promise<void>; ready: Promise<void> } };
-    const tilePage = (x: string) => TILE_PAGES.includes(x) && !!document.querySelector(`[data-tile="${x}"]:not(.is-locked)`);
-    const from = page === "home" && tilePage(p) ? p : p === "home" && TILE_PAGES.includes(page) ? page : null;
-    if (!from || !d.startViewTransition || window.matchMedia("(prefers-reduced-motion: reduce)").matches) { apply(); return; }
-    flushSync(() => setZoom(from));
-    const tr = d.startViewTransition(() => flushSync(apply));
-    const clear = () => setZoom(null);
-    tr.ready.catch(() => {}); // skipped (e.g. hidden tab): the page still changes
-    tr.finished.then(clear, clear);
+    setPage(p); setMenu(false); window.scrollTo({ top: 0 });
   };
   useEffect(() => { main.current?.focus({ preventScroll: true }); }, [page]);
   const open = tasks.filter((x) => !x.done).length;
@@ -87,8 +73,8 @@ export function Hub({ exit }: { exit: () => void }) {
         <div className="v11-top-end"><LangToggle /><Bell onGo={go} />
           <span className="v11-me" title={account?.name}>{account?.name.split(" ")[0]}</span></div>
       </header>
-      <main ref={main} tabIndex={-1} className="v11-content" style={{ viewTransitionName: zoom && page !== "home" ? "zoom" : undefined }}>
-        {page === "home" && <Home go={go} zoom={zoom} />}
+      <main ref={main} tabIndex={-1} className="v11-content"><div className="v11-enter" key={page}>
+        {page === "home" && <Home go={go} />}
         {page === "tasks" && <Tasks />}
         {page === "courses" && <Courses />}
         {page === "jobs" && <Jobs />}
@@ -96,7 +82,7 @@ export function Hub({ exit }: { exit: () => void }) {
         {page === "abroad" && <Abroad onConsult={() => go("book", { who: "other" })} />}
         {page === "profile" && <Profile />}
         {page === "book" && <BookAgain start={who} onDone={() => go("home")} onBack={() => go("home")} />}
-      </main>
+      </div></main>
     </div>
     {askUpdate && page === "home" && <UpdatePrompt />}
     <DemoPanel />
