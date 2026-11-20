@@ -18,10 +18,9 @@
 .v12-look .v11-home .v11-cvart-page { border-radius: 4px; }
 
 /* The session tile keeps the v11 purple-to-pink, but as an accent, not a full fill:
-   a gradient strip along the top, a soft wash of the same colours, dark text. */
+   a soft wash of the same colours and dark text. */
 .v12-look .v11-home .v11-tile.is-session { color: var(--ink); border: 1px solid #eadcf0; box-shadow: 0 1px 2px #2a0f3d0d;
-  background: radial-gradient(420px 220px at 100% 0%, #c018741a, transparent 70%), linear-gradient(160deg, #f5ecfa, #fff 58%); }
-.v12-look .v11-home .v11-tile.is-session::before { content: ""; position: absolute; inset: 0 0 auto; height: 5px; background: linear-gradient(90deg, #3a1152, #5b1f7c 55%, #8e1a6e); }
+  background: radial-gradient(420px 220px at 100% 0%, #c0187410, transparent 70%), linear-gradient(170deg, #f8f2fb, #fff 50%); }
 .v12-look .v11-home .v11-tile.is-session:not(.is-open):hover { box-shadow: 0 8px 22px #3a11521f; }
 .v12-look .v11-home .v11-tile.is-session.is-open { box-shadow: 0 0 0 2px #e8a5cf, 0 12px 30px #3a115224; }
 .v12-look .v11-home .v11-tile.is-session h2 { color: var(--ink); }
@@ -48,7 +47,11 @@
 /* Other tiles keep their tints, but they fade to white sooner, with lighter shadows */
 .v12-look .v11-home .v11-tile { box-shadow: 0 1px 2px #2a0f3d0d; }
 .v12-look .v11-home .v11-tile:not(.is-open):not(.is-locked):hover { box-shadow: 0 8px 22px #2a0f3d14; transform: translateY(-1px); }
-.v12-look .v11-home .v11-tile.is-notes { background: linear-gradient(175deg, #fffaf0, #fff 40%); }
-.v12-look .v11-home .v11-tile.is-tasks { background: linear-gradient(175deg, #f1f6ff, #fff 40%); }
-.v12-look .v11-home .v11-tile.is-cv { background: linear-gradient(175deg, #f7f0fb, #fff 40%); }
+/* Every tile gets a light wash in its own icon's colour, fading to white */
+.v12-look .v11-home .v11-tile.is-notes { background: linear-gradient(175deg, #fffbf3, #fff 45%); }
+.v12-look .v11-home .v11-tile.is-tasks { background: linear-gradient(175deg, #f4f8ff, #fff 45%); }
+.v12-look .v11-home .v11-tile.is-cv { background: linear-gradient(175deg, #f9f4fc, #fff 45%); }
+.v12-look .v11-home .v11-tile[data-tile="jobs"]:not(.is-locked) { background: linear-gradient(175deg, #f1fafa, #fff 45%); border-color: #dcefef; }
+.v12-look .v11-home .v11-tile[data-tile="courses"]:not(.is-locked) { background: linear-gradient(175deg, #fff7ef, #fff 45%); border-color: #f5e6d6; }
+.v12-look .v11-home .v11-tile[data-tile="profile"] { background: linear-gradient(175deg, #f6f5f8, #fff 45%); border-color: #e7e4ec; }
 .v12-look .v11-home .v11-history { box-shadow: 0 1px 2px #2a0f3d0d; }
