@@ -2,7 +2,7 @@
 // v11 Study Abroad. Three places in the sidebar: All programs, My programs, My documents.
 // The AI match is not a separate tab: it is a short flow started from All programs, and it
 // returns there. Built on the shared Study Abroad pieces (the earlier versions keep their own copy).
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   programs, initialProfile, initialDocuments, profileFilters, updateFiltersFromProfile, emptyFilters, addProgram, programProgress,
   type Profile, type DocumentRecord, type ToolType,
@@ -24,7 +24,7 @@ export type AbroadSub = "catalog" | "programs" | "documents";
 type View = AbroadSub | "match" | "tool" | "review";
 const initialSelection = ["glasgow-analytics", "adelaide-data", "ottawa-digital"];
 
-export function AbroadV11({ sub, setSub, navKey, onConsult }: { sub: AbroadSub; setSub: (s: AbroadSub) => void; navKey: number; onConsult: () => void }) {
+export function AbroadV11({ sub, setSub, navKey, onConsult, renderHead }: { sub: AbroadSub; setSub: (s: AbroadSub) => void; navKey: number; onConsult: () => void; renderHead?: (title: string, body: string) => ReactNode }) {
   const { account } = useHub();
   const { t, lang } = useL();
   const [view, setView] = useState<View>(sub);
@@ -67,7 +67,7 @@ export function AbroadV11({ sub, setSub, navKey, onConsult }: { sub: AbroadSub; 
   } as const;
 
   return <div className="v11-page v11-abroad">
-    {listView && <PageHead icon="abroad" title={head[view as AbroadSub].title} body={head[view as AbroadSub].body} />}
+    {listView && (renderHead ? renderHead(head[view as AbroadSub].title, head[view as AbroadSub].body) : <PageHead icon="abroad" title={head[view as AbroadSub].title} body={head[view as AbroadSub].body} />)}
 
     {view === "catalog" && !program && <section className="v11-match-cta">
       <span className="v11-match-ico"><Ico n="spark" s={26} w="fill" /></span>

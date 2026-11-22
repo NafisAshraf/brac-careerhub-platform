@@ -4,9 +4,9 @@
 import { useState, type ReactNode } from "react";
 import { assignedCourses, assignedJobs } from "../data";
 import { courseMore, courseText, jobMore, jobText, tx, type Txt } from "../v11/content";
-import { Ico } from "../v11/icons";
+import { I } from "../parts";
 import { useL } from "../v11/lang";
-import { PageHead } from "../v11/sections";
+import { Head } from "./head";
 import { useHub } from "../v11/store";
 
 type Link = { label: Txt; href: string };
@@ -59,26 +59,26 @@ function Card({ onOpen, image, top, title, why, meta, extra, children }: { onOpe
       <p>{meta}</p>
       {extra}
       <div className="v11-card-foot">{children}
-        <button className="v11-card-toggle" onClick={onOpen}>{t("বিস্তারিত দেখুন", "See details")}<Ico n="arrow" s={14} w="bold" /></button></div>
+        <button className="v11-card-toggle" onClick={onOpen}>{t("বিস্তারিত দেখুন", "See details")}<I n="arrow" s={15} /></button></div>
     </div>
   </article>;
 }
 function Detail({ back, onBack, image, top, title, why, meta, info, children, side }: { back: string; onBack: () => void; image: string; top: string; title: string; why: string; meta: string; info: (typeof courseFacts)[string]; children: ReactNode; side?: ReactNode }) {
   const { t, lang } = useL();
   return <div className="v11-page v11-detail">
-    <button className="fl-btn ghost v4-back" onClick={onBack}><Ico n="back" s={20} w="bold" /> {back}</button>
+    <button className="fl-btn ghost v4-back" onClick={onBack}><I n="back" s={18} /> {back}</button>
     <img className="v11-detail-img" src={image} alt="" />
     <small className="v11-detail-top">{top}</small>
     <h1>{title}</h1>
     <p className="v11-detail-meta">{meta}</p>
     <p className="v11-why">“{why}”</p>
-    <div className="v14-links">{info.links.map((l, k) => <a key={l.href} className={"fl-btn" + (k === 0 ? " fl-primary" : "")} href={l.href} target="_blank" rel="noreferrer">{l.label[lang]} <Ico n="open" s={16} w="bold" /></a>)}</div>
+    <div className="v14-links">{info.links.map((l, k) => <a key={l.href} className={"fl-btn" + (k === 0 ? " fl-primary" : "")} href={l.href} target="_blank" rel="noreferrer">{l.label[lang]} <I n="external" s={15} /></a>)}</div>
     <dl className="v14-facts">{info.facts.map(([k, v]) => <div key={k.en}><dt>{k[lang]}</dt><dd>{v[lang]}</dd></div>)}</dl>
     <div className="v11-detail-more">
       {children}
       <h4>{t("কীভাবে শুরু করবেন", "How to get started")}</h4>
       <ol className="v14-steps">{info.steps.map((x) => <li key={x.en}>{x[lang]}</li>)}</ol>
-      <p className="v14-link-note"><Ico n="link" s={16} w="duotone" /> {info.links.map((l) => host(l.href)).join(" · ")}</p>
+      <p className="v14-link-note"><I n="external" s={15} /> {info.links.map((l) => host(l.href)).join(" · ")}</p>
     </div>
     {side}
   </div>;
@@ -97,14 +97,14 @@ export function Courses() {
     return <Detail back={t("সব কোর্স", "All courses")} onBack={() => open(null)} image={cur.image} top={cur.provider} title={cur.title} why={courseText[cur.id].why[lang]} meta={courseText[cur.id].mode[lang]} info={courseFacts[cur.id]}
       side={<div className="v11-detail-foot">{status(cur.id)}</div>}>
       <p>{m.about[lang]}</p><h4>{t("যা শিখবেন", "What you’ll learn")}</h4>
-      <ul className="v11-agreed">{m.learn.map((l) => <li key={l.en}><Ico n="done" s={18} w="fill" c="#17845f" />{l[lang]}</li>)}</ul>
-      <p className="v11-card-note"><Ico n="grad" s={18} w="duotone" />{m.extra[lang]}</p>
+      <ul className="v11-agreed v14-agreed">{m.learn.map((l) => <li key={l.en}><I n="check" s={15} />{l[lang]}</li>)}</ul>
+      <p className="v11-card-note"><I n="info" s={16} />{m.extra[lang]}</p>
     </Detail>;
   }
   return <div className="v11-page">
-    <PageHead icon="courses" title={t("আপনার কোর্স", "Your courses")} body={t("কাউন্সেলর আপনার কথা শুনে এগুলো বেছেছেন। প্রথমটা দিয়ে শুরু করুন।", "Your counsellor chose these from what you told them. Start with the first one.")} />
+    <Head kicker={t("কোর্স", "COURSES")} title={t("আপনার কোর্স", "Your courses")} body={t("কাউন্সেলর আপনার কথা শুনে এগুলো বেছেছেন। প্রথমটা দিয়ে শুরু করুন।", "Your counsellor chose these from what you told them. Start with the first one.")} />
     <div className="v11-cards">{assignedCourses.map((x) => <Card key={x.id} onOpen={() => open(x.id)} image={x.image} top={x.provider} title={x.title} why={courseText[x.id].why[lang]} meta={courseText[x.id].mode[lang]}
-      extra={<p className="v14-card-fact"><Ico n="clock" s={15} w="duotone" /> {courseFacts[x.id].facts[1][1][lang]} · {courseFacts[x.id].facts[3][1][lang]}</p>}>{status(x.id)}</Card>)}</div>
+      extra={<p className="v14-card-fact"><I n="clock" s={15} /> {courseFacts[x.id].facts[1][1][lang]} · {courseFacts[x.id].facts[3][1][lang]}</p>}>{status(x.id)}</Card>)}</div>
   </div>;
 }
 
@@ -117,13 +117,13 @@ export function Jobs() {
     const m = jobMore[cur.id];
     return <Detail back={t("সব সুযোগ", "All openings")} onBack={() => open(null)} image={cur.image} top={cur.org} title={cur.title} why={jobText[cur.id].why[lang]} meta={jobText[cur.id].meta[lang]} info={jobFacts[cur.id]}>
       <p>{m.about[lang]}</p><h4>{t("যা করবেন", "What you’ll do")}</h4>
-      <ul className="v11-agreed">{m.does.map((l) => <li key={l.en}><Ico n="done" s={18} w="fill" c="#17845f" />{l[lang]}</li>)}</ul>
-      <p className="v11-card-note"><Ico n="info" s={18} w="duotone" />{m.needs[lang]}</p>
+      <ul className="v11-agreed v14-agreed">{m.does.map((l) => <li key={l.en}><I n="check" s={15} />{l[lang]}</li>)}</ul>
+      <p className="v11-card-note"><I n="info" s={16} />{m.needs[lang]}</p>
     </Detail>;
   }
   return <div className="v11-page">
-    <PageHead icon="jobs" title={t("চাকরি ও ইন্টার্নশিপ", "Jobs & internships")} body={t("আপনার কাউন্সেলরের বাছাই করা সুযোগ। যেকোনোটিতে চাপ দিয়ে বিস্তারিত দেখুন।", "Openings your counsellor picked. Tap any one to read more.")} />
+    <Head kicker={t("চাকরি ও ইন্টার্নশিপ", "JOBS & INTERNSHIPS")} title={t("আপনার জন্য বাছাই করা সুযোগ", "Openings picked for you")} body={t("আপনার কাউন্সেলরের বাছাই করা সুযোগ। যেকোনোটিতে চাপ দিয়ে বিস্তারিত দেখুন।", "Openings your counsellor picked. Tap any one to read more.")} />
     <div className="v11-cards">{assignedJobs.map((x) => <Card key={x.id} onOpen={() => open(x.id)} image={x.image} top={x.org} title={x.title} why={jobText[x.id].why[lang]} meta={jobText[x.id].meta[lang]}
-      extra={<p className="v14-card-fact"><Ico n="calendar" s={15} w="duotone" /> {t("শেষ দিন:", "Apply by")} {jobFacts[x.id].facts[3][1][lang]} · {jobFacts[x.id].facts[0][1][lang]}</p>} />)}</div>
+      extra={<p className="v14-card-fact"><I n="calendar" s={15} /> {t("শেষ দিন:", "Apply by")} {jobFacts[x.id].facts[3][1][lang]} · {jobFacts[x.id].facts[0][1][lang]}</p>} />)}</div>
   </div>;
 }

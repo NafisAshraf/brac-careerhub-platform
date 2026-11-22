@@ -145,3 +145,19 @@
 .v14-steps { margin: 0; padding-left: 22px; display: grid; gap: 4px; color: var(--ink); }
 .v14-link-note { display: flex; align-items: center; gap: 8px; color: var(--muted) !important; font-size: 14px; }
 .v14-card-fact { display: flex; align-items: center; gap: 6px; color: var(--purple) !important; font-weight: 600; font-size: 14px !important; }
+
+/* Notes card, v14 look: plain card, same height as the session card, text clamped to fit */
+.v14-home { align-items: stretch; }
+.v14 .v14-notes { display: flex; flex-direction: column; gap: 10px; background: #fff; border-color: var(--line); }
+.v14 .v14-notes:not(.is-open):hover { border-color: #e3bcd3; box-shadow: 0 8px 20px #2a0f3d12; }
+.v14-notes .fl-who { margin: 0; }
+.v14-notes-body { flex: 1 1 0; min-height: 0; contain: size; overflow: hidden; }
+.v14-notes-body p { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; color: var(--ink); line-height: 1.65; }
+.v14-notes-body b { color: var(--purple); }
+.v14-notes-more-link { display: inline-flex; align-items: center; gap: 6px; color: var(--pink); font-weight: 700; font-size: 14.5px; }
+.v14 .v14-agreed svg, .v14 .v11-agreed svg { color: var(--green); }
+
+/* Study Abroad in v14: the AI match banner as a light v14 card */
+.v14 .v11-match-cta { color: var(--ink); background: linear-gradient(160deg, #fff 55%, #fff4f9); border: 1px solid #f0cfe0; border-radius: var(--r); box-shadow: none; }
+.v14 .v11-match-cta p { color: var(--muted) !important; }
+.v14 .v11-match-ico { background: #fceaf2; color: var(--pink); border-radius: 12px; }

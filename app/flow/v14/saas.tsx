@@ -2,7 +2,7 @@
 // v14 SaaS platform: v4's sidebar, top bar, page heads and cards, in Bangla first.
 // Home holds only three things: the session card, the last session's notes, and the session
 // history table. Sessions have no page of their own any more; everything about them is on home.
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CVStudio } from "../../career/cv-studio";
 import { counsellorById, counsellors, type Slot } from "../data";
@@ -16,6 +16,7 @@ import { Guide } from "../v11/guide";
 import { firstOpen, useHub, type Account, type Session } from "../v11/store";
 import { Bell, ChangeSession, CounsellorCard, DemoPanel, LangToggle, LinkBox, SlotPicker, sessionRange } from "../v11/ui";
 import { Courses, Jobs } from "./catalog";
+import { Head } from "./head";
 
 type Page = "home" | "tasks" | "courses" | "jobs" | "cv" | "abroad" | "profile";
 
@@ -89,7 +90,7 @@ export function Saas({ exit }: { exit: () => void }) {
           {page === "jobs" && <Jobs />}
           {page === "cv" && <div className="career-app fl-embed" lang="en"><Head kicker={t("সিভি স্টুডিও", "CV STUDIO")} title={t("আপনার সিভি বানান", "Build your CV")} body={t("আপনার তথ্য বসানো আছে। যা খুশি বদলান, তারপর এক পাতার খসড়া বানান।", "Your details are filled in. Edit anything, then generate a one-page draft.")} />
             <CVStudio language="en" profile={{ name: account!.name, email: account!.email, institution: account!.university, subject: account!.subject, qualification: "bachelor", situation: "student" }} seeded={false} onDraft={() => {}} /></div>}
-          {page === "abroad" && <AbroadV11 sub={sub} setSub={setSub} navKey={visit} onConsult={() => go("home")} />}
+          {page === "abroad" && <AbroadV11 sub={sub} setSub={setSub} navKey={visit} onConsult={() => go("home")} renderHead={(title, body) => <Head kicker={t("বিদেশে পড়াশোনা", "STUDY ABROAD")} title={title} body={body} />} />}
           {page === "profile" && <ProfilePage />}
         </div>
       </main>
@@ -100,9 +101,6 @@ export function Saas({ exit }: { exit: () => void }) {
   </div>;
 }
 
-function Head({ kicker, title, body, children }: { kicker: string; title: string; body?: string; children?: ReactNode }) {
-  return <header className="fl-head"><div><span className="fl-kicker">{kicker}</span><h1>{title}</h1>{body && <p>{body}</p>}</div>{children}</header>;
-}
 
 /* ---------- Home: the session, the last notes, the history ---------- */
 function Home() {
@@ -179,24 +177,39 @@ function BookDialog({ onClose, preset }: { onClose: () => void; preset?: string 
   </Dialog>;
 }
 
-// The last session's notes (as in v12): a short preview that opens in place to the full notes.
+// The last session's notes: the same height as the session card beside it, filled with as much
+// of the notes as fits and ending in "…". Clicking opens the card to show everything.
 function NotesCard({ s }: { s: Session }) {
   const { t, lang } = useL();
   const [open, setOpen] = useState(false);
+  const [lines, setLines] = useState(4);
+  const body = useRef<HTMLDivElement>(null);
   const c = counsellorById(s.slot.counsellor);
   const m = s.minutes!;
+  useLayoutEffect(() => {
+    const el = body.current;
+    if (!el || open) return;
+    const fit = () => { const lh = parseFloat(getComputedStyle(el).lineHeight) || 26; setLines(Math.max(1, Math.floor(el.clientHeight / lh))); };
+    fit();
+    const ro = new ResizeObserver(fit); ro.observe(el);
+    return () => ro.disconnect();
+  }, [open]);
   return <section className={"fl-card v14-notes" + (open ? " is-open" : "")} data-guide="tile-notes">
-    {!open && <button className="v14-hit" aria-expanded={false} aria-label={t("নোট দেখুন", "Show the notes")} onClick={() => setOpen(true)} />}
+    {!open && <button className="v14-hit" aria-expanded={false} aria-label={t("সম্পূর্ণ নোট দেখুন", "Show the full notes")} onClick={() => setOpen(true)} />}
     <div className="v14-notes-head"><span className="fl-kicker">{t("শেষ সেশনের নোট", "LAST SESSION’S NOTES")}</span>
-      <button className="fl-icon-btn v14-caret-btn" aria-expanded={open} aria-label={open ? t("ছোট করুন", "Collapse") : t("নোট দেখুন", "Show the notes")} onClick={() => setOpen((o) => !o)}><I n={open ? "x" : "arrow"} s={16} /></button></div>
+      {open && <button className="fl-icon-btn v14-caret-btn" aria-label={t("ছোট করুন", "Collapse")} onClick={() => setOpen(false)}><I n="x" s={16} /></button>}</div>
     <div className="fl-who"><Avatar c={c} size={40} /><div><strong>{cn(c, lang)}</strong><small>{dayMonth(s.slot.date, lang)}</small></div></div>
-    {!open ? <p className="fl-muted">{t(`${num(m.agreed.length, "bn")}টি বিষয়ে সিদ্ধান্ত হয়েছে`, `${m.agreed.length} things agreed`)}</p>
-      : <div className="v14-notes-more">
-        <p>{m.summary[lang]}</p>
-        <h3>{t("যা ঠিক হলো", "What you agreed")}</h3>
-        <ul className="v14-agreed">{m.agreed.map((x) => <li key={x.en}><I n="check" s={14} />{x[lang]}</li>)}</ul>
-        <button className="fl-link" onClick={() => document.getElementById("v14-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট ↓", "All session notes ↓")}</button>
-      </div>}
+    {!open ? <>
+      <div className="v14-notes-body" ref={body}>
+        <p style={{ WebkitLineClamp: lines }}>{m.summary[lang]} <b>{t("যা ঠিক হলো:", "Agreed:")}</b> {m.agreed.map((x) => x[lang]).join("; ")}।</p>
+      </div>
+      <span className="v14-notes-more-link">{t("সম্পূর্ণ নোট দেখুন", "Read the full notes")} <I n="arrow" s={15} /></span>
+    </> : <div className="v14-notes-more">
+      <p>{m.summary[lang]}</p>
+      <h3>{t("যা ঠিক হলো", "What you agreed")}</h3>
+      <ul className="v14-agreed">{m.agreed.map((x) => <li key={x.en}><I n="check" s={14} />{x[lang]}</li>)}</ul>
+      <button className="fl-link" onClick={() => document.getElementById("v14-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট ↓", "All session notes ↓")}</button>
+    </div>}
   </section>;
 }
 
