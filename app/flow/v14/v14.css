@@ -81,8 +81,6 @@
 .v14-add .fl-btn { min-height: 42px; }
 .v14-toast { position: fixed; left: 50%; bottom: 24px; z-index: 60; display: flex; align-items: center; gap: 16px; padding: 12px 14px 12px 20px; border-radius: 12px; background: var(--ink); color: #fff; box-shadow: 0 16px 36px #1d0a2a40; transform: translateX(calc(-50% + 130px)); animation: fl-up .25s ease; }
 .v14-toast button { border: 0; background: none; color: #ffb3d6; font-weight: 750; }
-.v14 .fl-tasks li.is-moved { animation: v14-moved 1.4s ease; }
-@keyframes v14-moved { 0% { transform: translateY(-8px); opacity: .4; box-shadow: 0 0 0 3px #b9e2cd; } 25% { transform: none; opacity: 1; } 100% { box-shadow: 0 0 0 3px transparent; } }
 .v14 .fl-kicker { font-size: 13px; }
 
 @media (max-width: 900px) {
@@ -98,3 +96,52 @@
   .v14-history td:nth-child(5) { grid-column: 2; grid-row: 2; }
   .v14-progress { grid-template-columns: 1fr; }
 }
+
+/* Home, v12 behaviour in v14's cards: the booking card offers both choices directly */
+.v14-choices { display: grid; gap: 10px; margin-top: 8px; }
+.v14-choice { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-align: left; color: var(--ink); transition: border-color .15s, box-shadow .15s, transform .15s; }
+.v14-choice:hover { border-color: #e3bcd3; box-shadow: 0 8px 20px #2a0f3d12; transform: translateY(-1px); }
+.v14-choice.is-same { border-color: #f0b6d1; box-shadow: 0 0 0 1px #f0b6d1; }
+.v14-choice > span:not(.v14-stack) { flex: 1; min-width: 0; display: grid; line-height: 1.35; }
+.v14-choice b { font-size: 16.5px; }
+.v14-choice small { color: var(--muted); font-size: 14px; }
+.v14-choice > svg { flex: none; color: var(--pink); }
+.v14-stack { display: flex; flex: none; }
+.v14-stack .fl-avatar + .fl-avatar { margin-left: -10px; }
+.v14-stack .fl-avatar { box-shadow: 0 0 0 2px #fff; }
+
+/* Notes card: a short preview that opens in place */
+.v14-notes { position: relative; border-color: #f1e3c4; background: linear-gradient(170deg, #fffaf0, #fff 55%); transition: box-shadow .2s, border-color .2s; }
+.v14-notes:not(.is-open):hover { border-color: #e7cf9c; box-shadow: 0 8px 20px #2a0f3d12; }
+.v14-hit { position: absolute; inset: 0; z-index: 1; border: 0; border-radius: inherit; background: transparent; cursor: pointer; }
+.v14-notes-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.v14-notes-head .fl-kicker { margin: 0; }
+.v14-caret-btn { position: relative; z-index: 2; width: 34px; height: 34px; }
+.v14-notes:not(.is-open) .v14-caret-btn svg { transform: rotate(90deg); }
+.v14-notes-more { display: grid; gap: 8px; animation: v14-in .3s ease both; }
+.v14-notes-more > p { color: var(--ink); }
+.v14-notes-more .fl-link { justify-self: start; font-weight: 650; }
+
+/* Tasks: round tick boxes, no numbers; the ticked row fills, then slides to Completed and flashes */
+.v14 .fl-check.v14-check { width: 28px; height: 28px; color: transparent; transition: background .15s, border-color .15s, color .15s; }
+.v14 .fl-check.v14-check:hover { color: #b9adc4; }
+.v14 .fl-tasks li.is-ticking .v14-check, .v14 .fl-check.v14-check[aria-checked=true] { background: var(--green); border-color: var(--green); color: #fff; }
+.v14 .fl-tasks li.is-ticking .v14-check { animation: v14-pop .35s ease; }
+.v14 .fl-tasks li.is-ticking h3 { color: #9a92a1; text-decoration: line-through; transition: color .2s; }
+@keyframes v14-pop { 40% { transform: scale(1.25); } }
+.v14 .fl-tasks li.is-landed { animation: v14-landed 1.6s ease both; }
+@keyframes v14-landed { 0%, 40% { background: #e3f5ec; border-color: #9fd9bd; } 100% { background: #fff; } }
+.v14 .fl-tasks li.is-done.is-landed { animation-name: v14-landed-done; }
+@keyframes v14-landed-done { 0%, 40% { background: #e3f5ec; border-color: #9fd9bd; } 100% { background: #f8fcfa; } }
+.v14-add { margin: 18px 0 4px; }
+
+/* Course and job details: links, key facts, steps */
+.v14-links { display: flex; flex-wrap: wrap; gap: 10px; margin: 8px 0 4px; }
+.v14-links .fl-btn { min-height: 44px; font-size: 15.5px; }
+.v14-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; margin: 10px 0 0; }
+.v14-facts div { padding: 10px 14px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.v14-facts dt { color: var(--muted); font-size: 13px; }
+.v14-facts dd { margin: 2px 0 0; color: var(--ink); font-weight: 650; }
+.v14-steps { margin: 0; padding-left: 22px; display: grid; gap: 4px; color: var(--ink); }
+.v14-link-note { display: flex; align-items: center; gap: 8px; color: var(--muted) !important; font-size: 14px; }
+.v14-card-fact { display: flex; align-items: center; gap: 6px; color: var(--purple) !important; font-weight: 600; font-size: 14px !important; }
