@@ -4,8 +4,8 @@ import { sampleAnswers, type Answers, type Unlockable } from "../../flow/data";
 
 export type Item = { id: string; kind: "course" | "job"; title: string; org: string; meta: string; about: string; tags: string[]; image: string; link: string };
 export type Pick = { id: string; note?: string; by: string; ai?: boolean };
-export type Task = { id: string; title: string; due: number; by: string; done?: boolean };
-export type Meeting = { id: string; date: string; time: string; counsellor: string; mode: "online" | "in person"; status: "upcoming" | "done" | "cancelled"; notes?: string };
+export type Task = { id: string; title: string; due: number; by: string; done?: boolean; ai?: boolean };
+export type Meeting = { id: string; date: string; time: string; counsellor: string; mode: "online" | "in person"; status: "upcoming" | "done" | "missed" | "cancelled"; notes?: string; aiNotes?: boolean };
 export type Student = {
   id: string; name: string; initials: string; tone: string; subject: string; year: string; email: string; phone: string;
   answers?: Answers; meetings: Meeting[]; unlock: Unlockable[]; tasks: Task[]; courses: Pick[]; jobs: Pick[];
@@ -81,4 +81,13 @@ const raw: Student[] = [
 // The AI's picks start out selected for anyone not set up yet; the counsellor removes or adds.
 export const students: Student[] = raw.map((s) => (s.courses.length || s.jobs.length ? s : {
   ...s, courses: s.ai.courses.map((x) => ({ id: x.id, by: "ai", ai: true })), jobs: s.ai.jobs.map((x) => ({ id: x.id, by: "ai", ai: true })),
+  tasks: s.ai.tasks.map((title, i) => ({ id: `${s.id}-ai${i}`, title, due: [3, 7, 14][i] ?? 14, by: "ai", ai: true })),
 }));
+
+// What the AI writes as a meeting summary once a session is marked done (a draft to edit).
+export const aiSummary = (s: Student) => {
+  const a = s.answers ?? {};
+  const list = (v: unknown) => (Array.isArray(v) ? v.join(" and ").toLowerCase() : String(v ?? "").toLowerCase());
+  return `We talked about what ${s.name.split(" ")[0]} enjoys (${list(a.enjoy)}) and the plan after university (${list(a.after)}). Main worry: ${list(a.worry)}. `
+    + `Agreed next steps: ${s.tasks.slice(0, 2).map((t) => t.title.toLowerCase()).join("; ") || "pick a first task"}. We’ll check progress at the next session.`;
+};
