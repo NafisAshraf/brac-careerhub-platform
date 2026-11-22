@@ -161,3 +161,9 @@
 .v14 .v11-match-cta { color: var(--ink); background: linear-gradient(160deg, #fff 55%, #fff4f9); border: 1px solid #f0cfe0; border-radius: var(--r); box-shadow: none; }
 .v14 .v11-match-cta p { color: var(--muted) !important; }
 .v14 .v11-match-ico { background: #fceaf2; color: var(--pink); border-radius: 12px; }
+
+/* Home: both booking choices on one row; the session card takes more width, the notes card less */
+.v14-home { grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr); }
+.v14-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.v14-choice { padding: 12px 14px; gap: 12px; }
+@media (max-width: 1200px) { .v14-choices { grid-template-columns: minmax(0, 1fr); } }
