@@ -178,7 +178,8 @@ function BookDialog({ onClose, preset }: { onClose: () => void; preset?: string 
 }
 
 // The last session's notes: the same height as the session card beside it, filled with as much
-// of the notes as fits and ending in "…". Clicking opens the card to show everything.
+// of the notes as fits and ending in "…". Clicking opens the full notes in a pop-up; the card
+// and the page layout stay exactly as they are.
 function NotesCard({ s }: { s: Session }) {
   const { t, lang } = useL();
   const [open, setOpen] = useState(false);
@@ -188,28 +189,32 @@ function NotesCard({ s }: { s: Session }) {
   const m = s.minutes!;
   useLayoutEffect(() => {
     const el = body.current;
-    if (!el || open) return;
+    if (!el) return;
     const fit = () => { const lh = parseFloat(getComputedStyle(el).lineHeight) || 26; setLines(Math.max(1, Math.floor(el.clientHeight / lh))); };
     fit();
     const ro = new ResizeObserver(fit); ro.observe(el);
     return () => ro.disconnect();
-  }, [open]);
-  return <section className={"fl-card v14-notes" + (open ? " is-open" : "")} data-guide="tile-notes">
-    {!open && <button className="v14-hit" aria-expanded={false} aria-label={t("সম্পূর্ণ নোট দেখুন", "Show the full notes")} onClick={() => setOpen(true)} />}
-    <div className="v14-notes-head"><span className="fl-kicker">{t("শেষ সেশনের নোট", "LAST SESSION’S NOTES")}</span>
-      {open && <button className="fl-icon-btn v14-caret-btn" aria-label={t("ছোট করুন", "Collapse")} onClick={() => setOpen(false)}><I n="x" s={16} /></button>}</div>
+  }, []);
+  return <section className="fl-card v14-notes" data-guide="tile-notes">
+    <button className="v14-hit" aria-haspopup="dialog" aria-label={t("সম্পূর্ণ নোট দেখুন", "Show the full notes")} onClick={() => setOpen(true)} />
+    <div className="v14-notes-head"><span className="fl-kicker">{t("শেষ সেশনের নোট", "LAST SESSION’S NOTES")}</span></div>
     <div className="fl-who"><Avatar c={c} size={40} /><div><strong>{cn(c, lang)}</strong><small>{dayMonth(s.slot.date, lang)}</small></div></div>
-    {!open ? <>
-      <div className="v14-notes-body" ref={body}>
-        <p style={{ WebkitLineClamp: lines }}>{m.summary[lang]} <b>{t("যা ঠিক হলো:", "Agreed:")}</b> {m.agreed.map((x) => x[lang]).join("; ")}।</p>
+    <div className="v14-notes-body" ref={body}>
+      <p style={{ WebkitLineClamp: lines }}>{m.summary[lang]} <b>{t("যা ঠিক হলো:", "Agreed:")}</b> {m.agreed.map((x) => x[lang]).join("; ")}।</p>
+    </div>
+    <span className="v14-notes-more-link">{t("সম্পূর্ণ নোট দেখুন", "Read the full notes")} <I n="arrow" s={15} /></span>
+    {open && <Dialog title={t("শেষ সেশনের নোট", "Last session’s notes")} onClose={() => setOpen(false)}>
+      <div className="v14-notes-pop">
+        <div className="fl-who"><Avatar c={c} size={44} /><div><strong>{cn(c, lang)}</strong><small>{counsellorText[c.id].title[lang]} · {dayMonth(s.slot.date, lang)}</small></div></div>
+        <p>{m.summary[lang]}</p>
+        <h3>{t("যা ঠিক হলো", "What you agreed")}</h3>
+        <ul className="v14-agreed">{m.agreed.map((x) => <li key={x.en}><I n="check" s={14} />{x[lang]}</li>)}</ul>
+        <div className="fl-dialog-actions">
+          <button className="fl-btn ghost" onClick={() => { setOpen(false); setTimeout(() => document.getElementById("v14-history")?.scrollIntoView({ behavior: "smooth" }), 50); }}>{t("সব সেশনের নোট", "All session notes")}</button>
+          <button className="fl-btn fl-primary" onClick={() => setOpen(false)}>{t("বন্ধ করুন", "Close")}</button>
+        </div>
       </div>
-      <span className="v14-notes-more-link">{t("সম্পূর্ণ নোট দেখুন", "Read the full notes")} <I n="arrow" s={15} /></span>
-    </> : <div className="v14-notes-more">
-      <p>{m.summary[lang]}</p>
-      <h3>{t("যা ঠিক হলো", "What you agreed")}</h3>
-      <ul className="v14-agreed">{m.agreed.map((x) => <li key={x.en}><I n="check" s={14} />{x[lang]}</li>)}</ul>
-      <button className="fl-link" onClick={() => document.getElementById("v14-history")?.scrollIntoView({ behavior: "smooth" })}>{t("সব সেশনের নোট ↓", "All session notes ↓")}</button>
-    </div>}
+    </Dialog>}
   </section>;
 }
 

@@ -167,3 +167,9 @@
 .v14-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .v14-choice { padding: 12px 14px; gap: 12px; }
 @media (max-width: 1200px) { .v14-choices { grid-template-columns: minmax(0, 1fr); } }
+
+/* Notes pop-up */
+.v14-notes-pop { display: grid; gap: 10px; }
+.v14-notes-pop > p { color: var(--ink); font-size: 16px; line-height: 1.7; }
+.v14-notes-pop h3 { margin-top: 4px; font-size: 15px; }
+.v14-notes-pop .fl-who { margin: 0 0 4px; }
