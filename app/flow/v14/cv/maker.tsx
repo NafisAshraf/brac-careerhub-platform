@@ -28,21 +28,18 @@ export function CvMaker() {
   const set = <K extends keyof CV>(k: K, v: CV[K]) => setCv((x) => ({ ...x, [k]: v }));
 
   return <div className="cvm">
-    <header className="fl-head cvm-head">
-      <div><span className="fl-kicker">{t("সিভি স্টুডিও", "CV STUDIO")}</span><h1>{t("আপনার সিভি বানান", "Build your CV")}</h1>
-        <p>{t("বাঁ পাশে তথ্য লিখুন, ডান পাশে সিভি তৈরি হতে দেখুন। আপনার নাম আর যোগাযোগের তথ্য আগেই বসানো আছে।", "Fill in your details on the left and watch the CV build on the right. Your name and contact details are already in.")}</p></div>
-    </header>
-    <div className="cvm-switch" role="tablist">
-      <button role="tab" aria-selected={view === "edit"} onClick={() => setView("edit")}><I n="edit" s={16} /> {t("লিখুন", "Edit")}</button>
-      <button role="tab" aria-selected={view === "preview"} onClick={() => setView("preview")}><I n="doc" s={16} /> {t("দেখুন", "Preview")}</button>
+    <div className="cvm-top">
+      <div className="cvm-title"><span className="fl-kicker">{t("সিভি স্টুডিও", "CV STUDIO")}</span><small>{t("বাঁ পাশে লিখুন, ডান পাশে সিভি দেখুন", "Write on the left, see your CV on the right")}</small></div>
+      <div className="cvm-switch" role="tablist">
+        <button role="tab" aria-selected={view === "edit"} onClick={() => setView("edit")}><I n="edit" s={16} /> {t("লিখুন", "Edit")}</button>
+        <button role="tab" aria-selected={view === "preview"} onClick={() => setView("preview")}><I n="doc" s={16} /> {t("দেখুন", "Preview")}</button>
+      </div>
+      <div className="cvm-tpls" role="radiogroup" aria-label={t("টেমপ্লেট", "Template")}>{templates.map((x) => <button key={x.id} role="radio" aria-checked={tpl === x.id} title={x.about} onClick={() => setTpl(x.id)}>{x.name}</button>)}</div>
+      <button className="fl-btn fl-primary cvm-dl" onClick={() => window.print()}><I n="doc" s={16} /> {t("PDF ডাউনলোড", "Download PDF")}</button>
     </div>
     <div className={"cvm-split is-" + view}>
       <div className="cvm-form" lang="en"><Form cv={cv} set={set} reset={() => setCv(startingCv(account!))} /></div>
       <div className="cvm-preview">
-        <div className="cvm-bar">
-          <div className="cvm-tpls" role="radiogroup" aria-label={t("টেমপ্লেট", "Template")}>{templates.map((x) => <button key={x.id} role="radio" aria-checked={tpl === x.id} title={x.about} onClick={() => setTpl(x.id)}>{x.name}</button>)}</div>
-          <button className="fl-btn fl-primary cvm-dl" onClick={() => window.print()}><I n="doc" s={16} /> {t("PDF ডাউনলোড", "Download PDF")}</button>
-        </div>
         <Scaled><CvPage d={cv} template={tpl} /></Scaled>
       </div>
     </div>

@@ -114,3 +114,18 @@
   html, body { background: #fff !important; }
 }
 .cvm-form textarea { font-weight: 400; }
+
+/* Compact: one slim toolbar, no big heading, little space above */
+.fl-page:has(.cvm) { padding-top: 14px; }
+.cvm-top { position: sticky; top: 68px; z-index: 12; display: flex; align-items: center; gap: 12px; margin: 0 0 12px; padding: 8px 0; background: #fbf9fc; }
+.cvm-title { display: grid; margin-right: auto; line-height: 1.2; }
+.cvm-title .fl-kicker { margin: 0; }
+.cvm-title small { color: var(--muted); font-size: 13px; }
+.cvm-top .cvm-switch { margin: 0; }
+.cvm-preview { top: 136px; }
+.cvm-dl { min-height: 40px; padding: 8px 16px; }
+@media (max-width: 1000px) {
+  .cvm-top { flex-wrap: wrap; }
+  .cvm-title { flex-basis: 100%; }
+  .cvm-top .cvm-switch { flex: 1 1 100%; order: 3; }
+}
