@@ -173,3 +173,6 @@
 .v14-notes-pop > p { color: var(--ink); font-size: 16px; line-height: 1.7; }
 .v14-notes-pop h3 { margin-top: 4px; font-size: 15px; }
 .v14-notes-pop .fl-who { margin: 0 0 4px; }
+
+/* Phones: the session chip in the top bar would squash, the home card already has it */
+@media (max-width: 640px) { .v14 .fl-top-session { display: none; } }

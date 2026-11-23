@@ -44,6 +44,7 @@ export type Action =
   | { type: "job"; id: string }
   | { type: "account"; account: Account }
   | { type: "dismissUpdate" }
+  | { type: "unlock"; id: Unlockable }
   | { type: "returning" }
   | { type: "reset" };
 
@@ -108,6 +109,8 @@ function reduce(s: State, a: Action): State {
       return { ...s, account: a.account };
     case "dismissUpdate":
       return { ...s, askUpdate: false };
+    case "unlock":
+      return { ...s, unlocked: [...new Set([...(s.unlocked ?? []), a.id])], notes: [note({ kind: "unlock", title: tx("নতুন বিভাগ খুলেছে: বিদেশে পড়াশোনা", "New section open: Study Abroad"), go: "abroad" }), ...s.notes] };
     case "returning":
       return returning();
     case "reset":

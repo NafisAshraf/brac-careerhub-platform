@@ -10,7 +10,8 @@ import Image from "next/image";
 import { LangProvider, useL } from "../v11/lang";
 import { Store, useHub } from "../v11/store";
 import { Book, Confirmed, Questions, Ready, Signup, Stepper } from "../v11/pre";
-import { Bell, DemoPanel, LangToggle } from "../v11/ui";
+import { Bell, LangToggle } from "../v11/ui";
+import { DemoPanel } from "./demo";
 import { Saas } from "./saas";
 import "../flow.css";
 import "../v4.css";
@@ -40,7 +41,7 @@ function V14({ exit }: { exit: () => void }) {
       <div className="fl-bar-mid">{flow.phase !== "signup" && <Stepper step={step} formDue={later && step === 3} />}</div>
       <div className="fl-bar-end"><LangToggle /><Bell onGo={() => setView("auto")} /></div>
     </header>
-    {screen === "signup" && <Signup />}
+    {screen === "signup" && <Signup prefill />}
     {screen === "book" && <Book onBooked={() => setView("confirmed")} />}
     {screen === "confirmed" && <Confirmed fresh={view === "confirmed"} onNext={() => setView("questions")} onLater={() => { setSkipped(true); setView("auto"); }} />}
     {screen === "questions" && <Questions onDone={() => setView("auto")} />}

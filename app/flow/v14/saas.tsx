@@ -4,7 +4,6 @@
 // history table. Sessions have no page of their own any more; everything about them is on home.
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { CVStudio } from "../../career/cv-studio";
 import { counsellorById, counsellors, type Slot } from "../data";
 import { Avatar, Dialog, I } from "../parts";
 import { cf, cn, counsellorText, sessionTopics, type Task } from "../v11/content";
@@ -14,7 +13,9 @@ import { animate } from "../v11/home";
 import { AbroadV11, type AbroadSub } from "../v11/abroad";
 import { Guide } from "../v11/guide";
 import { firstOpen, useHub, type Account, type Session } from "../v11/store";
-import { Bell, ChangeSession, CounsellorCard, DemoPanel, LangToggle, LinkBox, SlotPicker, sessionRange } from "../v11/ui";
+import { Bell, ChangeSession, CounsellorCard, LangToggle, LinkBox, SlotPicker, sessionRange } from "../v11/ui";
+import { DemoPanel } from "./demo";
+import { CvMaker } from "./cv/maker";
 import { Courses, Jobs } from "./catalog";
 import { Head } from "./head";
 
@@ -88,8 +89,7 @@ export function Saas({ exit }: { exit: () => void }) {
           {page === "tasks" && <Tasks go={go} />}
           {page === "courses" && <Courses />}
           {page === "jobs" && <Jobs />}
-          {page === "cv" && <div className="career-app fl-embed" lang="en"><Head kicker={t("সিভি স্টুডিও", "CV STUDIO")} title={t("আপনার সিভি বানান", "Build your CV")} body={t("আপনার তথ্য বসানো আছে। যা খুশি বদলান, তারপর এক পাতার খসড়া বানান।", "Your details are filled in. Edit anything, then generate a one-page draft.")} />
-            <CVStudio language="en" profile={{ name: account!.name, email: account!.email, institution: account!.university, subject: account!.subject, qualification: "bachelor", situation: "student" }} seeded={false} onDraft={() => {}} /></div>}
+          {page === "cv" && <CvMaker />}
           {page === "abroad" && <AbroadV11 sub={sub} setSub={setSub} navKey={visit} onConsult={() => go("home")} renderHead={(title, body) => <Head kicker={t("বিদেশে পড়াশোনা", "STUDY ABROAD")} title={title} body={body} />} />}
           {page === "profile" && <ProfilePage />}
         </div>

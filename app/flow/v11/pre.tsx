@@ -27,10 +27,10 @@ export function Stepper({ step, formDue }: { step: number; formDue?: boolean }) 
 }
 
 /* ---------- Sign up ---------- */
-export function Signup() {
+export function Signup({ prefill }: { prefill?: boolean } = {}) {
   const { dispatch } = useHub();
   const { t } = useL();
-  const [a, setA] = useState<Account>({ name: "", email: "", phone: "", university: "", subject: "" });
+  const [a, setA] = useState<Account>(prefill ? sampleAccount : { name: "", email: "", phone: "", university: "", subject: "" });
   const set = (k: keyof Account) => (e: { target: { value: string } }) => setA({ ...a, [k]: e.target.value });
   return <div className="fl-signup">
     <div className="fl-signup-intro"><span className="fl-kicker">BRAC CAREER HUB</span><h1>{t("ক্যারিয়ার বেছে নিতে সাহায্য নিন, একজন সত্যিকারের মানুষের কাছ থেকে।", "Get help choosing your career, from a real person.")}</h1>
