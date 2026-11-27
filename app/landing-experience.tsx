@@ -16,17 +16,14 @@ import HubV12 from "./flow/v12";
 import HubV14 from "./flow/v14";
 import { HeroVariation, type HeroVariant } from "./hero-variations";
 
+// The student journey as it works today: a free session with a counsellor first, then the hub.
 const steps = [
-  ["প্রোফাইল ও বুকিং", "ক্যারিয়ার লক্ষ্য দিন এবং কাউন্সেলিং কল বুক করুন"],
-  ["১:১ কাউন্সেলিং", "আকাঙ্ক্ষা বুঝে কাউন্সেলর মূল্যায়ন নির্ধারণ করবেন"],
-  ["দক্ষতা মূল্যায়ন", "আগ্রহ, দক্ষতা ও চাকরি-প্রস্তুতি যাচাই"],
-  ["ক্যারিয়ার প্রস্তুতি রিপোর্ট", "শক্তি, ঘাটতি ও উন্নতির অগ্রাধিকার"],
-  ["সম্ভাব্য চাকরির ভূমিকা", "মূল্যায়ন অনুযায়ী উপযুক্ত ভূমিকার সুপারিশ"],
-  ["ব্যক্তিগত উন্নয়ন পরিকল্পনা", "কোর্স, কাজ ও অগ্রগতি ট্র্যাকিং"],
-  ["CV ও মক সাক্ষাৎকার", "ভূমিকাভিত্তিক আবেদন প্রস্তুতি"],
-  ["যাচাইকৃত রেফারেল", "প্রাসঙ্গিক সুযোগের সঙ্গে সংযোগ"],
-  ["প্লেসমেন্ট ট্র্যাকিং", "আবেদন, সাক্ষাৎকার, অফার ও যোগদান"],
-  ["৩ ও ৬ মাসের ফলো-আপ", "ক্যারিয়ার হাবের ফোন ও পরবর্তী সহায়তা"],
+  ["অ্যাকাউন্ট খুলুন", "নাম, ইমেইল আর ফোন নম্বর দিয়ে, এক মিনিটে"],
+  ["ফ্রি সেশন বুক করুন", "পছন্দের কাউন্সেলর আর সুবিধামতো সময় বেছে নিন"],
+  ["৫টি ছোট প্রশ্নের উত্তর দিন", "সেশনের আগে কাউন্সেলর আপনার কথা পড়ে নেবেন"],
+  ["কাউন্সেলরের সাথে কথা বলুন", "Google Meet-এ ৩০ মিনিট, শিক্ষার্থীদের জন্য ফ্রি"],
+  ["আপনার ক্যারিয়ার হাব খুলে যায়", "কাজের তালিকা, কোর্স, চাকরি ও সিভি স্টুডিও"],
+  ["দরকার হলে আবার বুক করুন", "একই কাউন্সেলর বা অন্য কারও সাথে, যেকোনো সময়"],
 ];
 const exams = [
   ["BCS প্রস্তুতি", "প্রিলিমিনারি · লিখিত · ভাইভা", "বিসিএস", "BCS"],
@@ -90,16 +87,14 @@ function Home({
         <header className="nav wrap homeNav">
           <Mark />
           <nav>
-            <a href="#about">About</a>
-            <button onClick={() => start(0)}>Career &amp; Jobs</button>
-            <button onClick={startStudy}>Study Abroad</button>
-            <button onClick={() => start(1)}>Counselling</button>
-            <button onClick={() => start(6)}>CV Tools</button>
-            <a href="#services">Personal Development</a>
+            <a href="#journey">কীভাবে কাজ করে</a>
+            <a href="#services">যা পাবেন</a>
+            <a href="#explore">বিদেশে পড়াশোনা</a>
+            <button onClick={() => start(1)}>কাউন্সেলিং বুক করুন</button>
           </nav>
           <div className="navActions">
-            <button className="primary small" onClick={startStudy}>
-              Log In
+            <button className="primary small" onClick={() => start(0)}>
+              লগ ইন
             </button>
           </div>
         </header>
@@ -154,54 +149,54 @@ function Home({
       <section className="proof">
         <div className="wrap">
           <div>
-            <b>ব্যক্তিগত AI মূল্যায়ন</b>
-            <span>আপনার আগ্রহ, দক্ষতা ও প্রস্তুতি জানুন</span>
+            <b>ফ্রি কাউন্সেলিং সেশন</b>
+            <span>একজন অভিজ্ঞ কাউন্সেলরের সাথে ৩০ মিনিট</span>
           </div>
           <div>
-            <b>ব্যক্তিগত কাউন্সেলিং</b>
-            <span>বিশেষজ্ঞের সঙ্গে নিজের পথ ঠিক করুন</span>
+            <b>আপনার জন্য সাজানো পরিকল্পনা</b>
+            <span>কাজ, কোর্স আর চাকরি-ইন্টার্নশিপ</span>
           </div>
           <div>
-            <b>AI ক্যারিয়ার টুল</b>
-            <span>সিভি, সাক্ষাৎকার ও ক্যারিয়ার প্রস্তুতি</span>
+            <b>সিভি স্টুডিও</b>
+            <span>তথ্য আগেই বসানো, এক পাতার সিভি</span>
           </div>
           <div>
-            <b>যাচাইকৃত সুযোগ</b>
-            <span>চাকরি, ইন্টার্নশিপ ও শিক্ষানবিশি</span>
+            <b>বাংলা ও ইংরেজি</b>
+            <span>যে ভাষায় সহজ, সেভাবেই ব্যবহার করুন</span>
           </div>
         </div>
       </section>
       <section className="section wrap" id="services">
         <Header
-          kicker="HOW WE SUPPORT YOU"
+          kicker="যা পাবেন"
           title={
             <>
-              Personal career support
+              একজন কাউন্সেলর,
               <br />
-              <em>for you.</em>
+              <em>আপনার নিজের পরিকল্পনা।</em>
             </>
           }
-          copy="AI-powered insights and experienced counsellors work together to help you make the right career decisions with confidence."
+          copy="কাউন্সেলর আপনার কথা শোনেন, আর AI তাঁকে আপনার জন্য মানানসই কোর্স, চাকরি ও কাজ খুঁজে দিতে সাহায্য করে। শেষ সিদ্ধান্ত সবসময় কাউন্সেলরের।"
         />
         <div className="services">
           {[
             [
               "০১",
               "◎",
-              "কাউন্সেলর-নির্দেশিত মূল্যায়ন",
-              "প্রোফাইল তৈরির পর কাউন্সেলর আপনার লক্ষ্য শুনে উপযুক্ত আগ্রহ, দক্ষতা ও চাকরি-প্রস্তুতি মূল্যায়ন নির্ধারণ করবেন।",
+              "ফ্রি কাউন্সেলিং সেশন",
+              "পছন্দের কাউন্সেলর আর সময় বেছে নিন। Google Meet-এ ৩০ মিনিট কথা বলুন। সেশনের আগে ৫টি প্রশ্নের উত্তর দিলে কাউন্সেলর আপনাকে আগেই বুঝবেন।",
             ],
             [
               "০২",
               "◇",
-              "ব্যক্তিগত উন্নয়ন পরিকল্পনা",
-              "রিপোর্ট, সম্ভাব্য চাকরির ভূমিকা ও কাউন্সেলরের পরামর্শ অনুযায়ী কোর্স, কাজ ও মাইলস্টোন সম্পন্ন করুন।",
+              "আপনার ক্যারিয়ার হাব",
+              "সেশনের পর কাউন্সেলর আপনার জন্য কাজের তালিকা, কোর্স আর চাকরি-ইন্টার্নশিপ সাজিয়ে হাব খুলে দেন। অগ্রগতি নিজেই ট্র্যাক করুন, দরকারে আবার সেশন নিন।",
             ],
             [
               "০৩",
               "✦",
-              "সিভি ও ক্যারিয়ারের AI টুল",
-              "ভূমিকাভিত্তিক সিভি তৈরি, মক সাক্ষাৎকার অনুশীলন এবং আবেদন উন্নত করতে স্মার্ট টুল ব্যবহার করুন।",
+              "সিভি স্টুডিও",
+              "আপনার নাম আর যোগাযোগের তথ্য আগেই বসানো। দুটি টেমপ্লেটের একটি বেছে নিন, লিখতে লিখতে সিভি দেখুন, তারপর PDF নিন।",
             ],
           ].map((s, i) => (
             <article className={i === 1 ? "featured" : ""} key={s[0]}>
@@ -218,25 +213,24 @@ function Home({
       </section>
       <section className="section wrap journey" id="journey">
         <div className="journeyIntro">
-          <span className="kicker">YOUR CAREER JOURNEY</span>
+          <span className="kicker">কীভাবে কাজ করে</span>
           <h2>
-            Ten counselor-guided
+            ছয়টি সহজ ধাপে
             <br />
-            <em>meaningful steps.</em>
+            <em>আপনার ক্যারিয়ার পরিকল্পনা।</em>
           </h2>
           <p>
-            Start with counselling and assessment, understand your readiness and
-            suitable job roles, then follow a personalized development,
-            application and follow-up journey—all tracked in one place.
+            একজন কাউন্সেলরের সাথে ফ্রি সেশন দিয়ে শুরু। তারপর আপনার জন্য সাজানো
+            কাজ, কোর্স আর চাকরি, আর নিজের অগ্রগতি দেখা—সব এক জায়গায়।
           </p>
           <button className="primary" onClick={() => start(0)}>
-            Start my journey →
+            আমার যাত্রা শুরু করুন →
           </button>
         </div>
         <div className="timeline">
           {steps.map((s, i) => (
             <button key={s[0]} onClick={() => start(i)}>
-              <i>{String(i + 1).padStart(2, "0")}</i>
+              <i>{String(i + 1).padStart(2, "0").replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[+d])}</i>
               <span>
                 <b>{s[0]}</b>
                 <small>{s[1]}</small>
@@ -250,32 +244,24 @@ function Home({
         <div className="wrap">
           <Header
             light
-            kicker="AI-POWERED STUDY ABROAD NAVIGATOR"
+            kicker="বিদেশে পড়াশোনা"
             title={
               <>
-                আপনার প্রোফাইল থেকে
+                প্রোগ্রাম খোঁজা থেকে
                 <br />
-                <em>সঠিক বিশ্ববিদ্যালয়ের শর্টলিস্ট।</em>
+                <em>কাগজপত্র গোছানো পর্যন্ত।</em>
               </>
             }
-            copy="শিক্ষাগত ফল, বিষয়, বাজেট, দেশ ও ইনটেক জানান। AI সম্ভাব্য বিশ্ববিদ্যালয় সাজাবে, আর Career Hub কাউন্সেলর তথ্য যাচাই ও পরবর্তী পদক্ষেপ নির্ধারণে সহায়তা করবেন।"
+            copy="বিদেশে পড়ার পরিকল্পনা থাকলে কাউন্সেলর আপনার হাবে এই অংশটি খুলে দেন। প্রোগ্রাম খুঁজুন, AI ম্যাচ দেখুন, পছন্দেরগুলো রাখুন আর কাগজপত্র তৈরি করুন।"
           />
           <div className="studySteps">
             {[
-              ["01", "প্রোফাইল ও পছন্দ", "ফলাফল, বিষয়, দেশ, বাজেট ও ইনটেক"],
-              [
-                "02",
-                "AI বিশ্ববিদ্যালয় ম্যাচিং",
-                "Ambitious, Target ও Safer বিকল্প",
-              ],
-              ["03", "তুলনা ও শর্টলিস্ট", "খরচ, স্কলারশিপ, যোগ্যতা ও ডেডলাইন"],
-              [
-                "04",
-                "ডকুমেন্ট স্টুডিও",
-                "SOP, Academic CV, LOR brief ও essays",
-              ],
-              ["05", "কাউন্সেলর রিভিউ", "তথ্য যাচাই ও আবেদন পরিকল্পনা"],
-              ["06", "আবেদন ট্র্যাকিং", "আবেদন, অফার, ভিসা ও ফলো-আপ"],
+              ["০১", "কাউন্সেলর খুলে দেন", "সেশনে বিদেশে পড়ার কথা হলে এই অংশ আপনার হাবে খুলে যায়"],
+              ["০২", "সব প্রোগ্রাম", "দেশ, বিষয় আর খরচ দিয়ে ছেঁকে নিন"],
+              ["০৩", "AI ম্যাচ", "কয়েকটি প্রশ্নের উত্তরে আপনার জন্য মানানসই প্রোগ্রাম"],
+              ["০৪", "আমার প্রোগ্রাম", "পছন্দেরগুলো এক জায়গায়, কাগজপত্রের তালিকাসহ"],
+              ["০৫", "আমার ডকুমেন্ট", "SOP, সিভি আর রেফারেন্স লেটার লিখুন ও রিভিউ করান"],
+              ["০৬", "কাউন্সেলরের পরামর্শ", "যেকোনো সময় সেশন বুক করে প্রশ্ন করুন"],
             ].map((s) => (
               <article key={s[0]}>
                 <i>{s[0]}</i>
@@ -285,11 +271,11 @@ function Home({
             ))}
           </div>
           <button className="all" onClick={startStudy}>
-            আমার বিশ্ববিদ্যালয় ম্যাচ দেখুন →
+            শুরু করুন →
           </button>
         </div>
       </section>
-      <Pricing startStudy={startStudy} />
+      {SHOW_PRICING && <Pricing startStudy={startStudy} />}
       <section className="cta" id="opportunities">
         <div className="wrap">
           <div>
@@ -300,42 +286,44 @@ function Home({
               প্রয়োজন শুধু <em>প্রথম পদক্ষেপ।</em>
             </h2>
           </div>
-          <button onClick={() => start(0)}>যাত্রা শুরু করুন →</button>
+          <button onClick={() => start(1)}>ফ্রি সেশন বুক করুন →</button>
         </div>
       </section>
-      <footer>
-        <div className="wrap footer">
-          <Mark />
-          <p>
-            দক্ষতা। দিকনির্দেশনা। সুযোগ।
-            <br />
-            সবকিছু এক জায়গায়।
-          </p>
-          <div>
-            <b>অন্বেষণ</b>
-            <a href="#explore">ক্যারিয়ার</a>
-            <a href="#services">প্রশিক্ষণ</a>
-            <a href="#opportunities">চাকরি ও ইভেন্ট</a>
+      <footer className="lp-footer">
+        <div className="wrap lp-footer-grid">
+          <div className="lp-footer-brand">
+            <span className="lp-footer-logo"><img src="/careerhub-logo.png" alt="BRAC Career Hub" /></span>
+            <p>দক্ষতা। দিকনির্দেশনা। সুযোগ।<br />সবকিছু এক জায়গায়।</p>
           </div>
           <div>
-            <b>সহায়তা</b>
+            <b>প্ল্যাটফর্ম</b>
             <a href="#journey">কীভাবে কাজ করে</a>
-            <button onClick={() => start(1)}>কাউন্সেলিং বুক করুন</button>
-            <a href="#">কেন্দ্র খুঁজুন</a>
+            <a href="#services">যা পাবেন</a>
+            <a href="#explore">বিদেশে পড়াশোনা</a>
+          </div>
+          <div>
+            <b>শুরু করুন</b>
+            <button onClick={() => start(1)}>ফ্রি সেশন বুক করুন</button>
+            <button onClick={() => start(0)}>লগ ইন</button>
           </div>
           <div>
             <b>যোগাযোগ</b>
-            <a href="https://careerhub.brac.net/">বর্তমান ক্যারিয়ার হাব</a>
-            <a href="https://www.facebook.com/careerhub.brac">ফেসবুক</a>
+            <a href="https://careerhub.brac.net/" target="_blank" rel="noreferrer">careerhub.brac.net</a>
+            <a href="https://www.facebook.com/careerhub.brac" target="_blank" rel="noreferrer">ফেসবুক</a>
+            <span>BRAC Centre, 75 Mohakhali, Dhaka 1212</span>
           </div>
         </div>
-        <div className="wrap copyright">
-          © BRAC Career Hub <span>প্ল্যাটফর্ম পুনর্নকশার ধারণা</span>
+        <div className="wrap lp-footer-bottom">
+          <span>© ২০২৬ BRAC Career Hub</span>
+          <span>BRAC-এর একটি উদ্যোগ</span>
         </div>
       </footer>
     </main>
   );
 }
+
+// The subscription section is hidden for now; flip this to bring it back.
+const SHOW_PRICING = false;
 
 function Pricing({ startStudy }: { startStudy: () => void }) {
   const [annual, setAnnual] = useState(false);

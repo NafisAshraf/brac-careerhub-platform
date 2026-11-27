@@ -169,7 +169,7 @@ function BookDialog({ onClose, preset }: { onClose: () => void; preset?: string 
   return <Dialog title={who ? t(`${cn(counsellorById(who), lang)}ের সাথে বুক করুন`, `Book with ${cn(counsellorById(who), lang)}`) : t("কার সাথে কথা বলবেন?", "Who would you like to talk to?")} wide onClose={onClose}>
     {!who ? <>
       <p className="fl-muted v14-reassure">{t("যার সাথেই বুক করুন, তিনি আপনার উত্তর আর আগের সেশনের নোট দেখতে পাবেন।", "Whoever you book, they’ll see your answers and past session notes.")}</p>
-      <div className="fl-counsellors v14-counsellors">{others.map((c) => <CounsellorCard key={c.id} c={c} onSelect={() => setWho(c.id)} />)}</div>
+      <div className="v4"><div className="fl-counsellors v14-counsellors">{others.map((c) => <CounsellorCard key={c.id} c={c} onSelect={() => setWho(c.id)} />)}</div></div>
     </> : <><div className="v4"><SlotPicker counsellor={who} value={slot} onChange={setSlot} /></div>
       <div className="fl-dialog-actions">{!preset && <button className="fl-btn ghost" onClick={() => { setWho(""); setSlot(null); }}><I n="back" s={16} /> {t("অন্য কাউন্সেলর", "Other counsellors")}</button>}
         <button className="fl-btn fl-primary" disabled={!slot} onClick={() => { dispatch({ type: "book", slot: slot! }); dispatch({ type: "dismissUpdate" }); onClose(); }}>

@@ -176,3 +176,9 @@
 
 /* Phones: the session chip in the top bar would squash, the home card already has it */
 @media (max-width: 640px) { .v14 .fl-top-session { display: none; } }
+
+/* Booking pop-up: the counsellor cards use the same layout as the first booking (photo on top,
+   text below, full-width choose button), three across */
+.v4 .fl-counsellors.v14-counsellors { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.v14-counsellors .fl-counsellor { height: 100%; }
+@media (max-width: 760px) { .v4 .fl-counsellors.v14-counsellors { grid-template-columns: minmax(0, 1fr); } }

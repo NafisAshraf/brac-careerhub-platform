@@ -8,12 +8,12 @@ import { byId, db, type Pick, type Student } from "./db";
 import { cname, type Edit } from "./student";
 import { first, me } from "./desk";
 
-export function Picker({ s, edit, kind }: { s: Student; edit: Edit; kind: "course" | "job" }) {
+export function Picker({ s, edit, kind }: { s: Student; edit: Edit; kind: "course" }) {
   const [q, setQ] = useState("");
   const [tag, setTag] = useState("All");
   const [open, setOpen] = useState<string | null>(null);
   const [moved, setMoved] = useState<string | null>(null);
-  const key = kind === "course" ? "courses" : "jobs";
+  const key = "courses" as const;
   const picks: Pick[] = s[key];
   const why = (id: string) => s.ai[key].find((x) => x.id === id)?.why;
   const all = db.filter((x) => x.kind === kind);

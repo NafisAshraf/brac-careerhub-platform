@@ -181,3 +181,20 @@
 .c3-panel-empty { padding: 24px 16px; }
 .c3-panel .c3-details { padding: 0 16px 14px 80px; border-top: 0; }
 .c3-ai-tag + .c3-ai-tag { margin-left: 4px; }
+
+/* Jobs: an AI-written list the counsellor edits */
+.c3-joblist { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; }
+.c3-joblist > li { border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.c3-joblist > li.is-open { border-color: #d9c2e6; background: #fdfbfe; }
+.c3-job-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; }
+.c3-job-ico { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(150deg, #2fbfc4, #0f8790); color: #fff; }
+.c3-job-main { flex: 1; min-width: 0; display: grid; gap: 1px; line-height: 1.3; }
+.c3-job-main b { font-size: 15px; }
+.c3-job-main small { color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c3-job-main .c3-ai-tag { justify-self: start; margin-top: 3px; }
+.c3-job-edit { display: grid; gap: 10px; padding: 4px 14px 14px 62px; }
+.c3-job-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 12px; }
+.c3-addjob { margin-top: 12px; }
+.c3-idea-text { flex: 1; display: grid !important; margin: 0 !important; color: var(--ink) !important; font-size: 14px !important; font-weight: 400 !important; line-height: 1.3; text-align: left; }
+.c3-idea-text small { color: var(--muted); font-size: 12.5px; }
+@media (max-width: 700px) { .c3-job-grid { grid-template-columns: minmax(0, 1fr); } .c3-job-edit { padding-left: 14px; } }

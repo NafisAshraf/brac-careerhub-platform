@@ -167,3 +167,23 @@ body{background:#fffaf7}.nav{background:#fffdfb}.mark{width:154px;min-width:154p
   .proof span{font-size:14px}
   .studySteps article{min-height:0}
 }
+
+/* Landing footer: styled on its own class so it works wherever the page is mounted */
+.lp-footer { background: #17131a; color: #fff; padding: 64px 0 24px; }
+.lp-footer-grid { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 40px; }
+.lp-footer-brand { display: grid; gap: 18px; align-content: start; }
+.lp-footer-logo { display: inline-flex; width: max-content; padding: 10px 14px; border-radius: 12px; background: #fff; }
+.lp-footer-logo img { display: block; width: 104px; height: auto; }
+.lp-footer-brand p { margin: 0; color: #c8bfcb; font: 18px/1.6 Georgia, "Hind Siliguri", serif; }
+.lp-footer-grid > div:not(.lp-footer-brand) { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; font-size: 15px; }
+.lp-footer-grid b { margin-bottom: 4px; color: #ef86b6; font-size: 14px; letter-spacing: .04em; }
+.lp-footer-grid a, .lp-footer-grid button { padding: 0; border: 0; background: none; color: #e9e3ec; font: inherit; text-align: left; cursor: pointer; }
+.lp-footer-grid a:hover, .lp-footer-grid button:hover { color: #fff; text-decoration: underline; }
+.lp-footer-grid span { color: #a79eab; font-size: 14px; line-height: 1.5; }
+.lp-footer-bottom { display: flex; justify-content: space-between; gap: 16px; margin-top: 48px; padding-top: 20px; border-top: 1px solid #342c38; color: #8f8593; font-size: 13px; }
+@media (max-width: 760px) {
+  .lp-footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+  .lp-footer-brand { grid-column: 1 / -1; }
+  .lp-footer-bottom { flex-direction: column; gap: 6px; }
+}
+@media (min-width: 681px) { .services { grid-template-columns: repeat(3, 1fr); } }

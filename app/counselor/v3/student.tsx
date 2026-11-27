@@ -8,6 +8,7 @@ import { Avatar, Dialog, I } from "../../flow/parts";
 import { useDesk } from "./store";
 import { aiSummary, today, type Meeting, type Student } from "./db";
 import { Picker } from "./picker";
+import { Jobs } from "./jobs";
 import { Av, Mode, first, me, statusLabel, statusTone, when, type Go } from "./desk";
 
 export type Section = "profile" | "sessions" | "courses" | "jobs" | "tasks" | "summary" | "access";
@@ -75,7 +76,7 @@ export function StudentPage({ id, start, go }: { id: string; start: Section; go:
       {sec === "profile" && <Profile s={s} />}
       {sec === "sessions" && <Sessions s={s} setStatus={setStatus} />}
       {sec === "courses" && <Picker s={s} edit={edit} kind="course" />}
-      {sec === "jobs" && <Picker s={s} edit={edit} kind="job" />}
+      {sec === "jobs" && <Jobs s={s} edit={edit} />}
       {sec === "tasks" && <Tasks s={s} edit={edit} />}
       {sec === "summary" && <Summary s={s} edit={edit} m={current} />}
       {sec === "access" && <Access s={s} edit={edit} />}
@@ -197,7 +198,7 @@ function Summary({ s, edit, m }: { s: Student; edit: Edit; m?: Meeting }) {
 function Access({ s, edit }: { s: Student; edit: Edit }) {
   const cards: { id: Unlockable; title: string; body: string; icon: string; count?: string }[] = [
     { id: "courses", title: "Courses", body: "The courses you picked, with your notes.", icon: "book", count: s.courses.length ? `${s.courses.length} course${s.courses.length > 1 ? "s" : ""} added` : undefined },
-    { id: "jobs", title: "Jobs & internships", body: "The openings you picked, with how to apply.", icon: "briefcase", count: s.jobs.length ? `${s.jobs.length} job${s.jobs.length > 1 ? "s" : ""} added` : undefined },
+    { id: "jobs", title: "Jobs & internships", body: "The openings you and the AI chose, with how to apply.", icon: "briefcase", count: s.jobs.length ? `${s.jobs.length} job${s.jobs.length > 1 ? "s" : ""} added` : undefined },
     { id: "abroad", title: "Study Abroad", body: "Programs, documents and the AI program match.", icon: "globe" },
   ];
   return <>

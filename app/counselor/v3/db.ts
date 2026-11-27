@@ -1,16 +1,19 @@
-// Demo data for counsellor portal v3. In production the courses and jobs come from the Career
-// Hub database, and the AI picks the relevant ones for each student from their answers.
+// Demo data for counsellor portal v3. Courses come from the Career Hub database and the AI picks
+// the relevant ones. Jobs are not from a database: the AI writes them for each student from their
+// answers (like tasks), and the counsellor edits, removes or adds their own.
 import { sampleAnswers, type Answers, type Unlockable } from "../../flow/data";
 
 export type Item = { id: string; kind: "course" | "job"; title: string; org: string; meta: string; about: string; tags: string[]; image: string; link: string };
 export type Pick = { id: string; note?: string; by: string; ai?: boolean };
+export type Job = { id: string; title: string; org: string; details: string; link: string; why?: string; note?: string; by: string; ai?: boolean };
 export type Task = { id: string; title: string; due: number; by: string; done?: boolean; ai?: boolean };
 export type Meeting = { id: string; date: string; time: string; counsellor: string; mode: "online" | "in person"; status: "upcoming" | "done" | "missed" | "cancelled"; notes?: string; aiNotes?: boolean };
 export type Student = {
   id: string; name: string; initials: string; tone: string; subject: string; year: string; email: string; phone: string;
-  answers?: Answers; meetings: Meeting[]; unlock: Unlockable[]; tasks: Task[]; courses: Pick[]; jobs: Pick[];
-  ai: { courses: { id: string; why: string }[]; jobs: { id: string; why: string }[]; tasks: string[] };
+  answers?: Answers; meetings: Meeting[]; unlock: Unlockable[]; tasks: Task[]; courses: Pick[]; jobs: Job[];
+  ai: { courses: { id: string; why: string }[]; jobs: Job[]; tasks: string[] };
 };
+type RawStudent = Omit<Student, "jobs" | "ai"> & { jobs: Pick[]; ai: { courses: { id: string; why: string }[]; jobs: { id: string; why: string }[]; tasks: string[] } };
 
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export const day = (offset: number) => { const d = new Date(); d.setDate(d.getDate() + offset); return iso(d); };
@@ -29,6 +32,11 @@ export const db: Item[] = [
   C("c-ielts", "IELTS Preparation (weekend)", "British Council · Dhaka", "In person · 8 weekends", "Targeted practice for a 6.5+ band.", ["Study abroad", "In person"], "course-writing", "https://www.britishcouncil.org.bd/exam/ielts"),
   C("c-python", "Python for Everybody", "University of Michigan · Coursera", "Online · 8 weeks · Free to audit", "Programming from scratch, slowly and clearly.", ["Tech", "Beginner"], "course-sql", "https://www.coursera.org/specializations/python"),
   C("c-bcs", "BCS Preliminary Prep (weekend)", "BRAC Career Hub · Mohakhali", "In person · 10 Saturdays", "General knowledge, maths and English for the BCS preliminary.", ["Government", "In person"], "course-writing", "https://careerhub.brac.net/bcs"),
+];
+export const byId = (id: string) => db.find((x) => x.id === id)!;
+
+// What the AI would write for these students (demo text standing in for a live AI search).
+const jobIdeas: Item[] = [
   J("j-analyst", "Business Analyst Intern", "bKash", "Gulshan · 3 months · Tk 15,000/month", "Reports and dashboards with the business team.", ["Data", "Business", "Paid"], "job-analyst", "https://www.bdjobs.com/jobs/bkash-analyst-intern"),
   J("j-data", "Junior Data Associate (part-time)", "Shohoz", "Hybrid · 15 hrs/week", "Cleaning and reporting ride data.", ["Data", "Part-time"], "job-data", "https://www.linkedin.com/jobs/shohoz-data"),
   J("j-research", "Research Assistant (part-time)", "BIGD, BRAC University", "Mohakhali · 15 hrs/week", "Surveys and data for development research.", ["Research", "Part-time"], "job-research", "https://bigd.bracu.ac.bd/careers"),
@@ -38,9 +46,13 @@ export const db: Item[] = [
   J("j-ngo", "Programme Volunteer", "BRAC", "Dhaka and districts · Flexible", "Field support on education programmes.", ["Development", "Volunteer"], "job-research", "https://www.brac.net/volunteer"),
   J("j-dev", "Junior Web Developer Intern", "Pathao", "Remote · 3 months · Paid", "Front-end work on internal tools.", ["Tech", "Remote"], "job-data", "https://pathao.com/careers"),
 ];
-export const byId = (id: string) => db.find((x) => x.id === id)!;
+let jobSeq = 0;
+const toJob = (p: { id: string; by: string; note?: string; ai?: boolean; why?: string }): Job => {
+  const j = jobIdeas.find((x) => x.id === p.id)!;
+  return { id: `job${++jobSeq}`, title: j.title, org: j.org, details: j.meta, link: j.link, why: p.why, note: p.note, by: p.by, ai: p.ai };
+};
 
-const raw: Student[] = [
+const raw: RawStudent[] = [
   { id: "ayesha", name: "Ayesha Rahman", initials: "AR", tone: "#b5477f", subject: "Computer Science and Engineering", year: "2nd year", email: "ayesha.rahman@g.bracu.ac.bd", phone: "01712-345678",
     answers: { ...sampleAnswers, note: "My parents want me to do an MBA, but I like data. Can we talk about scholarships?" },
     meetings: [{ id: "a1", date: today, time: "10:45", counsellor: "nusrat", mode: "online", status: "upcoming" }],
@@ -79,10 +91,14 @@ const raw: Student[] = [
 ];
 
 // The AI's picks start out selected for anyone not set up yet; the counsellor removes or adds.
-export const students: Student[] = raw.map((s) => (s.courses.length || s.jobs.length ? s : {
-  ...s, courses: s.ai.courses.map((x) => ({ id: x.id, by: "ai", ai: true })), jobs: s.ai.jobs.map((x) => ({ id: x.id, by: "ai", ai: true })),
-  tasks: s.ai.tasks.map((title, i) => ({ id: `${s.id}-ai${i}`, title, due: [3, 7, 14][i] ?? 14, by: "ai", ai: true })),
-}));
+export const students: Student[] = raw.map((r) => {
+  const aiJobs = r.ai.jobs.map((x) => toJob({ ...x, by: "ai", ai: true }));
+  const s: Student = { ...r, jobs: r.jobs.map((p) => toJob({ ...p, why: r.ai.jobs.find((x) => x.id === p.id)?.why })), ai: { ...r.ai, jobs: aiJobs } };
+  return r.courses.length || r.jobs.length ? s : {
+    ...s, courses: r.ai.courses.map((x) => ({ id: x.id, by: "ai", ai: true })), jobs: aiJobs.map((j) => ({ ...j })),
+    tasks: r.ai.tasks.map((title, i) => ({ id: `${r.id}-ai${i}`, title, due: [3, 7, 14][i] ?? 14, by: "ai", ai: true })),
+  };
+});
 
 // What the AI writes as a meeting summary once a session is marked done (a draft to edit).
 export const aiSummary = (s: Student) => {
